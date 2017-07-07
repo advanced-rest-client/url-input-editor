@@ -1,0 +1,306 @@
+<!--
+@license
+Copyright 2017 The Advanced REST client authors <arc@mulesoft.com>
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="url-detailed-editor.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-input/paper-input-container.html">
+<link rel="import" href="../paper-input/paper-input-error.html">
+<link rel="import" href="../iron-input/iron-input.html">
+<link rel="import" href="../paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../paper-menu/paper-menu.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../arc-icons/arc-icons.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
+<script src="url-parser.js"></script>
+
+<!--
+`<url-input-editor>` An element that is responsible for displaying and
+manipulating the reuqest URL.
+
+By default the `url-input-editor` element renders single line input with option
+to switch to detailed view. Detailed view is a form for various URL parts.
+
+
+### Example
+```
+<url-input-editor url="{{requestURL}}" on-send="_sendAction"></url-input-editor>
+```
+
+### Styling
+`<url-input-editor>` provides the following custom properties and mixins for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--url-input-editor` | Mixin applied to the element | `{}`
+
+@group UI Elements
+@element url-input-editor
+@demo demo/index.html
+-->
+<dom-module id="url-input-editor">
+  <template>
+    <style>
+    :host {
+      @apply(--layout-vertical);
+      position: relative;
+    }
+
+    .content {
+      @apply(--layout-horizontal);
+      /*@apply(--layout-center);*/
+    }
+
+    .main-input,
+    .editor {
+      @apply(--layout-flex);
+    }
+
+    .toggle {
+      transition: transform 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
+      transform: rotateZ(0deg);
+    }
+
+    .toggle.opened {
+      transform: rotateZ(90deg);
+    }
+
+    paper-autocomplete {
+      bottom: 0;
+    }
+
+    paper-icon-button {
+      margin-top: 20px;
+    }
+
+    paper-menu-button {
+      margin-top: 0px;
+      padding-top: 0px;
+    }
+    </style>
+    <div class="content">
+      <paper-icon-button class$="toggle [[_computeToogleClass(detailsOpended)]]" icon="arc:keyboard-arrow-right" on-tap="toggle"></paper-icon-button>
+
+      <div class="editor">
+        <paper-input label="Request URL" value="{{url}}" class="main-input" required auto-validate error-message="An URL is required." hidden="[[detailsOpended]]"></paper-input>
+        <iron-collapse opened="[[detailsOpended]]">
+          <url-detailed-editor value="{{url}}" attr-for-opened="opened" opened$="[[detailsOpended]]"></url-detailed-editor>
+        </iron-collapse>
+      </div>
+
+      <paper-menu-button horizontal-align="right">
+        <paper-icon-button icon="arc:more-vert" class="dropdown-trigger"></paper-icon-button>
+        <paper-menu class="dropdown-content" id="urlContextMenu" on-iron-select="_contextMenuAction">
+          <paper-item data-action="encParamsAction">Encode URL</paper-item>
+          <paper-item data-action="decParamsAction">Decode URL</paper-item>
+        </paper-menu>
+      </paper-menu-button>
+    </div>
+
+  </template>
+  <script>
+  Polymer({
+    is: 'url-input-editor',
+    properties: {
+      detailsOpended: Boolean
+    },
+
+    /**
+     * Toggle detailed view.
+     */
+    toggle: function() {
+      if (this.detailsOpended === undefined) {
+        this.detailsOpended = false;
+      }
+      this.detailsOpended = !this.detailsOpended;
+    },
+
+    _computeToogleClass: function(detailsOpended) {
+      return detailsOpended ? 'opened' : '';
+    },
+
+    /**
+     * Handler for click action of any of context menu items.
+     */
+    _contextMenuAction: function(e) {
+      var action = e.target.selectedItem.dataset.action;
+      this.$$('paper-menu').selected = -1;
+      if (!action) {
+        return;
+      }
+      var gaLabel = '';
+      switch (action) {
+        case 'encParamsAction':
+          this.encodeParameters();
+          gaLabel = 'Encode parameters';
+          break;
+        case 'decParamsAction':
+          this.decodeParameters();
+          gaLabel = 'Decode parameters';
+          break;
+        default:
+          console.warn('Unknown action: %s', action);
+          gaLabel = 'Unknown action';
+      }
+
+      if (gaLabel) {
+        this.fire('send-analytics', {
+          type: 'event',
+          category: 'Request view',
+          action: 'URL widget context menu action',
+          label: gaLabel
+        });
+      }
+    },
+
+    /**
+     * HTTP encode query parameters
+     */
+    encodeParameters: function() {
+      this._decodeEncode('encode');
+    },
+
+    /**
+     * HTTP decode query parameters
+     */
+    decodeParameters: function() {
+      this._decodeEncode('decode');
+    },
+
+    /**
+     * HTTP encode or decode query parameters depending on [type].
+     */
+    _decodeEncode: function(type) {
+      var url = this.url;
+      if (!url) {
+        return;
+      }
+      if (url.indexOf('http') !== 0) {
+        url = 'http://' + url;
+      }
+      var parser = new UrlParser(url);
+      if (type === 'decode') {
+        this._decode(parser);
+      } else {
+        this._encode(parser);
+      }
+    },
+
+    _decode: function(parser) {
+      var decoded = parser.searchParams.map(function(item) {
+        var _key = this.decodeQueryString(item[0]);
+        var _value = this.decodeQueryString(item[1]);
+        return [_key, _value];
+      }, this);
+      parser.searchParams = decoded;
+      var path = parser.path;
+      if (path) {
+        parser.path = path.split('/')
+        .map(function(item) {
+          return this.decodeQueryString(item);
+        }, this)
+        .join('/');
+      }
+      this.set('url', parser.value);
+    },
+
+    _encode: function(parser) {
+      var encoded = parser.searchParams.map(function(item) {
+        var _key = this.encodeQueryString(item[0]);
+        var _value = this.encodeQueryString(item[1]);
+        return [_key, _value];
+      }, this);
+      parser.searchParams = encoded;
+      var path = parser.path;
+      if (path) {
+        parser.path = '/' + path.split('/')
+        .map(function(item) {
+          if (!item) {
+            return;
+          }
+          return this.encodeQueryString(item);
+        }, this)
+        .filter(function(item) {
+          return !!item;
+        })
+        .join('/');
+      }
+      this.set('url', parser.value);
+    },
+
+    /**
+     * Returns a string where all characters that are not valid for a URL
+     * component have been escaped. The escaping of a character is done by
+     * converting it into its UTF-8 encoding and then encoding each of the
+     * resulting bytes as a %xx hexadecimal escape sequence.
+     * <p>
+     * Note: this method will convert any the space character into its escape
+     * short form, '+' rather than %20. It should therefore only be used for
+     * query-string parts.
+     *
+     * <p>
+     * The following character sets are <em>not</em> escaped by this method:
+     * <ul>
+     * <li>ASCII digits or letters</li>
+     * <li>ASCII punctuation characters:
+     *
+     * <pre>- _ . ! ~ * ' ( )</pre>
+     * </li>
+     * </ul>
+     * </p>
+     *
+     * <p>
+     * Notice that this method <em>does</em> encode the URL component delimiter
+     * characters:<blockquote>
+     *
+     * <pre>
+     * ; / ? : &amp; = + $ , #
+     * </pre>
+     *
+     * </blockquote>
+     * </p>
+     *
+     * @param {String} str A string containing invalid URL characters
+     * @return {String} a string with all invalid URL characters escaped
+     */
+    encodeQueryString: function(str) {
+      if (!str) {
+        return str;
+      }
+      var regexp = /%20/g;
+      return encodeURIComponent(str).replace(regexp, '+');
+    },
+    /**
+     * Returns a string where all URL component escape sequences have been
+     * converted back to their original character representations.
+     *
+     * Note: this method will convert the space character escape short form, '+',
+     * into a space. It should therefore only be used for query-string parts.
+     *
+     * @param {String} str string containing encoded URL component sequences
+     * @return {String} string with no encoded URL component encoded sequences
+     */
+    decodeQueryString: function(str) {
+      if (!str) {
+        return str;
+      }
+      var regexp = /\+/g;
+      return decodeURIComponent(str.replace(regexp, '%20'));
+    }
+  });
+  </script>
+</dom-module>

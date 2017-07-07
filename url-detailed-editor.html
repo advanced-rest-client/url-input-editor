@@ -1,0 +1,279 @@
+<!--
+@license
+Copyright 2017 The Advanced REST client authors <arc@mulesoft.com>
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-input/paper-input-container.html">
+<link rel="import" href="../paper-input/paper-input-error.html">
+<link rel="import" href="../iron-form/iron-form.html">
+<link rel="import" href="../paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../paper-menu/paper-menu.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../arc-icons/arc-icons.html">
+<link rel="import" href="url-editor-behavior.html">
+<link rel="import" href="url-parser.html">
+<!--
+`<url-detailed-editor>` Presents a form element that contains a list of URL
+parameters.
+
+The element can be validated as a regular form element.
+
+### Example
+```
+<url-detailed-editor url="{{url}}" invalid="{{invalid}}"></url-detailed-editor>
+```
+
+### Styling
+`<url-input-editor>` provides the following custom properties and mixins for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--url-input-editor` | Mixin applied to the element | `{}`
+
+@group UI Elements
+@element url-input-editor
+@demo demo/index.html
+-->
+<dom-module id="url-detailed-editor">
+  <template>
+    <style>
+    :host {
+      display: block;
+    }
+
+    .host-input {
+      @apply(--layout-flex);
+    }
+
+    .path-input {
+      @apply(--layout-flex);
+    }
+
+    .anchor-input {
+      @apply(--layout-flex);
+    }
+
+    .form-row {
+      @apply(--layout-horizontal);
+      @apply(--layout-flex);
+    }
+
+    .param-name {
+      margin-right: 12px;
+    }
+
+    .param-value {
+      @apply(--layout-flex);
+    }
+
+    .params-list {
+      margin: 12px 0;
+    }
+
+    .query-title {
+      @apply(--paper-font-caption);
+      color: #737373;
+    }
+    </style>
+    <form is="iron-form" id="form">
+      <paper-input label="Host" value="{{model.host}}" class="host-input" required auto-validate error-message="Valid host is required. You can use variables here."></paper-input>
+      <paper-input label="Path" value="{{model.path}}" class="path-input" auto-validate pattern="\S*" error-message="You may want to encode this value before sending it to the server"></paper-input>
+
+      <div class="params-list">
+        <label class="query-title">Query parameters</label>
+
+        <template is="dom-repeat" id="paramsList" items="{{model.search}}" on-dom-change="_onParamsRender">
+          <div class="form-row">
+            <paper-input no-label-float inline value="{{item.name}}" class="param-name" placeholder="Param name"></paper-input>
+            <paper-input no-label-float inline auto-validate value="{{item.value}}" class="param-value" placeholder="Param value" pattern="\S*" error-message="You may want to encode this value before sending it to the server"></paper-input>
+            <paper-icon-button icon="arc:close" title="Remove parameter" on-tap="_removeSearchParam"></paper-icon-button>
+          </div>
+        </template>
+
+        <paper-button raised on-tap="addSearchParam">Add</paper-button>
+      </div>
+      <paper-input label="Hash" value="{{model.anchor}}" class="anchor-input"></paper-input>
+    </form>
+  </template>
+  <script>
+  Polymer({
+    is: 'url-detailed-editor',
+
+    behaviors: [ArcBehaviors.UrlEditorBehavior],
+
+    properties: {
+      model: Object
+    },
+
+    observers: [
+      '_valueCHnaged(value, _isOpened)',
+      '_modelChanged(model.*)'
+    ],
+
+    ready: function() {
+      if (!this.model) {
+        this._computeModel('https://');
+      }
+    },
+
+    // Creates a model when value change from the outside of the element.
+    _valueCHnaged: function(value, _isOpened) {
+      if (!_isOpened || this.__internalValueChange) {
+        return;
+      }
+      this._computeModel(value);
+    },
+    /**
+     * Computes model for the view from a URL value.
+     */
+    _computeModel: function(value) {
+      if (!value) {
+        return this.set('model', {});
+      }
+      this.__modelComputation = true;
+      this.set('model', {});
+      var parser = new UrlParser(value);
+      var protocol = parser.protocol;
+      var host = parser.host;
+      if (!protocol && host && host[0] !== '$') {
+        protocol = 'https:';
+      }
+      if (host) {
+        if (protocol) {
+          host = protocol + '//' + host;
+        }
+      } else {
+        if (protocol) {
+          host = protocol + '//';
+        }
+      }
+      this.set('model.host', host || '');
+      this.set('model.path', parser.path || '');
+      this.set('model.anchor', parser.anchor || '');
+      var params = parser.searchParams.map(function(item) {
+        return {
+          name: item[0],
+          value: item[1]
+        };
+      });
+      this.set('model.search', params);
+      this.__parser = parser;
+      this.__modelComputation = false;
+    },
+
+    _modelChanged: function(record) {
+      if (this.__modelComputation) {
+        return;
+      }
+      if (record.path === 'model') {
+        return;
+      }
+      var path = record.path.split('.');
+      if (!this.__parser) {
+        this.__parser = new UrlParser('');
+      }
+      if (path[2] === 'length') {
+        return;
+      }
+      switch (path[1]) {
+        case 'host':
+          this._updateParserHost(record.value);
+        break;
+        case 'path':
+          this.__parser.path = record.value;
+        break;
+        case 'search':
+          if (!path[2]) {
+            return;
+          }
+          this._updateParserSearch(record.base.search);
+        break;
+        case 'anchor':
+          this.__parser.anchor = record.value;
+        break;
+        default: return;
+      }
+      if (path[2] === 'splices' && path[1] !== 'search') {
+        return;
+      }
+      this.__internalValueChange = true;
+      this.set('value', this.__parser.value);
+      this.__internalValueChange = false;
+    },
+
+    _updateParserHost: function(value) {
+      var index = value.indexOf('://');
+      if (index === -1) {
+        this.__parser.protocol = undefined;
+        this.__parser.host = value;
+      } else {
+        this.__parser.protocol = value.substr(0, index + 1);
+        this.__parser.host = value.substr(index + 3);
+      }
+    },
+
+    _updateParserSearch: function(search) {
+      this.__parser.searchParams = search.map(function(item) {
+        return [item.name, item.value];
+      });
+    },
+
+    /** Called when URL params form has been renederd. */
+    _onParamsRender: function() {
+      if (!this.root) {
+        return;
+      }
+      var row = Polymer.dom(this.root).querySelectorAll('.params-list > .form-row');
+      if (!row || !row.length) {
+        return;
+      }
+      row = row.pop();
+      try {
+        row.children[0].focus();
+      } catch (e) {
+
+      }
+    },
+    /**
+     * Adds a new Query Parameter to the list.
+     */
+    addSearchParam: function() {
+      var obj = {
+        name: '',
+        value: ''
+      };
+      if (!this.model) {
+        this.set('model', {});
+      }
+      if (this.model.search) {
+        this.push('model.search', obj);
+      } else {
+        this.set('model.search', [obj]);
+      }
+    },
+
+    _removeSearchParam: function(e) {
+      var index = e.model.get('index');
+      this.splice('model.search', index, 1);
+    },
+
+    _getValidity: function() {
+      return this.$.form.validate();
+    }
+  });
+  </script>
+</dom-module>
