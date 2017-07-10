@@ -95,7 +95,7 @@ the License.
     __attrForOpenedChanged: function(attrForOpened) {
       if (!attrForOpened && !this._isOpened) {
         this.set('_isOpened', true);
-      } else if (attrForOpened && this._isOpened) {
+      } else if (attrForOpened) {
         this.__updateOpenedState(attrForOpened);
       }
     },

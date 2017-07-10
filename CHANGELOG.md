@@ -1,0 +1,28 @@
+<a name="0.1.1"></a>
+## 0.1.1 (2017-07-10)
+
+
+### Docs
+
+* Updated documentation for the element. ([a754138c6fe5fe33dd290dc756bba44f89da894c](https://github.com/advanced-rest-client/url-input-editor/commit/a754138c6fe5fe33dd290dc756bba44f89da894c))
+
+### Fix
+
+* Fixed a behavior when the detailed editor overrided a value before the value was set on the element. ([54e63d780bf5f14a65558ff08125577d738e678b](https://github.com/advanced-rest-client/url-input-editor/commit/54e63d780bf5f14a65558ff08125577d738e678b))
+* Fixed issues happening in shadow DOM. ([2cdd741efbd079bf04ad47c6f742203e49249998](https://github.com/advanced-rest-client/url-input-editor/commit/2cdd741efbd079bf04ad47c6f742203e49249998))
+
+### New
+
+* Added `send-request` event to the URL editor. ([440a5fb195b2925a77b2a7f78a11919633737e00](https://github.com/advanced-rest-client/url-input-editor/commit/440a5fb195b2925a77b2a7f78a11919633737e00))
+
+### Update
+
+* Added Sauce Labs configuration to  Travis configuration ([d383b24e4d471e3c04dc5ce047c909ed4bc6c18a](https://github.com/advanced-rest-client/url-input-editor/commit/d383b24e4d471e3c04dc5ce047c909ed4bc6c18a))
+* Created tests and updated parser to pass the tests. ([501d5129a9ecca50723013e9f48b740afe50ece0](https://github.com/advanced-rest-client/url-input-editor/commit/501d5129a9ecca50723013e9f48b740afe50ece0))
+* Finished element as a stable pre-release version. ([e2ab68ff43059dcae74b59c52dea74e84613b499](https://github.com/advanced-rest-client/url-input-editor/commit/e2ab68ff43059dcae74b59c52dea74e84613b499))
+* Forcing the element to set `_isOpened` property. ([f7dc0317197bae8adc46a732aa9a7667bb0da970](https://github.com/advanced-rest-client/url-input-editor/commit/f7dc0317197bae8adc46a732aa9a7667bb0da970))
+* Updated open / close animation ([8380567b8c62ac1be3796bfb0645f083b018e840](https://github.com/advanced-rest-client/url-input-editor/commit/8380567b8c62ac1be3796bfb0645f083b018e840))
+* Updated test configuration file. ([1f82d1072245ce4a7e718dbc2defc4795ee1d09c](https://github.com/advanced-rest-client/url-input-editor/commit/1f82d1072245ce4a7e718dbc2defc4795ee1d09c))
+
+
+

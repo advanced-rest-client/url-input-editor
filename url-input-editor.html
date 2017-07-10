@@ -26,19 +26,29 @@ the License.
 <link rel="import" href="../paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../iron-collapse/iron-collapse.html">
+<link rel="import" href="../iron-form-element-behavior/iron-form-element-behavior.html">
+<link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
 <script src="url-parser.js"></script>
 
 <!--
-`<url-input-editor>` An element that is responsible for displaying and
-manipulating the reuqest URL.
+# url-input-editor element
 
-By default the `url-input-editor` element renders single line input with option
-to switch to detailed view. Detailed view is a form for various URL parts.
+An editor of the request URL.
+
+The editor renders a simple editor view with a input fiedl. The input in this
+view is supported by the `paper-autocomplete` element that queries history saver
+for URL history data (`url-history-query` custom event).
+
+
+By setting `detailsOpened` property to `true` (the user can do this in the UI)
+it will render detailed editor. The editor allows to edit host, path, query
+parameetrs and hash separatelly.
 
 
 ### Example
-```
-<url-input-editor url="{{requestURL}}" on-send="_sendAction"></url-input-editor>
+
+```html
+<url-input-editor url="{{requestURL}}" on-send-request="_sendAction" on-url-value-changed="_handleNewUrl"></url-input-editor>
 ```
 
 ### Styling
@@ -47,6 +57,8 @@ to switch to detailed view. Detailed view is a form for various URL parts.
 Custom property | Description | Default
 ----------------|-------------|----------
 `--url-input-editor` | Mixin applied to the element | `{}`
+
+Use paper elements mixin to style this element.
 
 @group UI Elements
 @element url-input-editor
@@ -58,11 +70,11 @@ Custom property | Description | Default
     :host {
       @apply(--layout-vertical);
       position: relative;
+      @apply(--url-input-editor);
     }
 
     .content {
       @apply(--layout-horizontal);
-      /*@apply(--layout-center);*/
     }
 
     .main-input,
@@ -91,14 +103,19 @@ Custom property | Description | Default
       margin-top: 0px;
       padding-top: 0px;
     }
+
+    iron-collapse:not(.iron-collapse-closed) {
+      min-height: 54px;
+    }
     </style>
     <div class="content">
-      <paper-icon-button class$="toggle [[_computeToogleClass(detailsOpended)]]" icon="arc:keyboard-arrow-right" on-tap="toggle"></paper-icon-button>
+      <paper-icon-button class$="toggle [[_computeToogleClass(detailsOpened)]]" icon="arc:keyboard-arrow-right" on-tap="toggle"></paper-icon-button>
 
       <div class="editor">
-        <paper-input label="Request URL" value="{{url}}" class="main-input" required auto-validate error-message="An URL is required." hidden="[[detailsOpended]]"></paper-input>
-        <iron-collapse opened="[[detailsOpended]]">
-          <url-detailed-editor value="{{url}}" attr-for-opened="opened" opened$="[[detailsOpended]]"></url-detailed-editor>
+        <paper-input label="Request URL" value="{{value}}" class="main-input" required auto-validate error-message="An URL is required." hidden="[[detailsOpened]]" on-blur="_ensureUrlHasProtocol"></paper-input>
+        <paper-autocomplete loader open-on-focus target="[[_autocompleteTarget]]" on-query="_autocompleteQuery" opened="{{suggesionsOpened}}"></paper-autocomplete>
+        <iron-collapse opened="[[detailsOpened]]">
+          <url-detailed-editor value="{{value}}" attr-for-opened="opened" opened$="[[detailsOpened]]"></url-detailed-editor>
         </iron-collapse>
       </div>
 
@@ -115,22 +132,121 @@ Custom property | Description | Default
   <script>
   Polymer({
     is: 'url-input-editor',
+
+    behaviors: [
+      Polymer.IronValidatableBehavior,
+      Polymer.IronFormElementBehavior
+    ],
+
+    /**
+     * Fired when the URL value change.
+     * Note that this event is fired before validation occur and therefore
+     * the URL may be invalid.
+     *
+     * @event url-value-changed
+     * @param {String} value The URL.
+     */
+    /**
+     * Fired when the user use the "entrer" key in any of the fields.
+     *
+     * @event send-request
+     */
+    /**
+     * Fired when autocomplete element request data.
+     * This event is to be handled by `url-history-saver` element but it can be
+     * handled by any element that intercepts this event.
+     *
+     * @event url-history-query
+     * @param {String} q A query filter.
+     */
     properties: {
-      detailsOpended: Boolean
+      // Current URL value.
+      value: {
+        type: String,
+        notify: true,
+        observer: '_onValueChanged'
+      },
+      /**
+       * True if detailed editor is opened.
+       */
+      detailsOpened: Boolean,
+      /**
+       * Default protocol for the URL if it's missing.
+       */
+      defaultProtocol: {
+        type: String,
+        value: 'https'
+      },
+      /**
+       * Input target for the `paper-autocomplete` element.
+       */
+      _autocompleteTarget: {
+        type: HTMLElement,
+        value: function() {
+          return this.$$('.main-input');
+        }
+      },
+      // True when a suggestion box for the URL is opened.
+      suggesionsOpened: {
+        type: Boolean,
+        notify: true
+      }
+    },
+
+    observers: ['_detailsOpenedChanged(detailsOpened)'],
+
+    listeners: {
+      'keydown': '_keyDownHandler'
+    },
+
+    ready: function() {
+      this._ready = true;
+    },
+
+    attached: function() {
+      this.listen(window, 'url-value-changed', '_extValueChangedHandler');
+    },
+    detached: function() {
+      this.unlisten(window, 'url-value-changed', '_extValueChangedHandler');
+    },
+    /**
+     * A handler that is called on input
+     */
+    _onValueChanged: function() {
+      if (!this._ready || this._preventValueChangeEvent) {
+        return;
+      }
+      this.fire('url-value-changed', {
+        value: this.value
+      });
+    },
+
+    /**
+     * A handler for the `url-value-changed` event.
+     * If this element is not the source of the event then it will update the `value` property.
+     * It's to be used besides the Polymer's data binding system.
+     */
+    _extValueChangedHandler: function(e) {
+      if (e.target === this) {
+        return;
+      }
+      this._preventValueChangeEvent = true;
+      this.set('value', e.detail.value);
+      this._preventValueChangeEvent = false;
     },
 
     /**
      * Toggle detailed view.
      */
     toggle: function() {
-      if (this.detailsOpended === undefined) {
-        this.detailsOpended = false;
+      if (this.detailsOpened === undefined) {
+        this.detailsOpened = false;
       }
-      this.detailsOpended = !this.detailsOpended;
+      this.detailsOpened = !this.detailsOpened;
     },
 
-    _computeToogleClass: function(detailsOpended) {
-      return detailsOpended ? 'opened' : '';
+    _computeToogleClass: function(detailsOpened) {
+      return detailsOpened ? 'opened' : '';
     },
 
     /**
@@ -185,12 +301,9 @@ Custom property | Description | Default
      * HTTP encode or decode query parameters depending on [type].
      */
     _decodeEncode: function(type) {
-      var url = this.url;
+      var url = this.value;
       if (!url) {
         return;
-      }
-      if (url.indexOf('http') !== 0) {
-        url = 'http://' + url;
       }
       var parser = new UrlParser(url);
       if (type === 'decode') {
@@ -215,7 +328,7 @@ Custom property | Description | Default
         }, this)
         .join('/');
       }
-      this.set('url', parser.value);
+      this.set('value', parser.value);
     },
 
     _encode: function(parser) {
@@ -239,9 +352,78 @@ Custom property | Description | Default
         })
         .join('/');
       }
-      this.set('url', parser.value);
+      this.set('value', parser.value);
     },
 
+    _detailsOpenedChanged: function(detailsOpened) {
+      if (detailsOpened) {
+        return;
+      }
+      this._ensureUrlHasProtocol();
+    },
+
+    _autocompleteQuery: function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var autocomplete = e.target;
+
+      if (!e.detail.value) {
+        autocomplete.source = [];
+        return;
+      }
+      var event = this.fire('url-history-query', {
+        q: e.detail.value
+      }, {
+        cancelable: true
+      });
+      if (event.defaultPrevented && !event.detail.error) {
+        event.detail.result.then(function(result) {
+          result = result.map(function(item) {
+            return item.url;
+          });
+          autocomplete.source = result;
+        });
+      } else {
+        autocomplete.source = [];
+      }
+    },
+    /**
+     * Ensures that the URL has a protocol.
+     * The detault protocol is defined in `defaultProtocol` property.
+     * The protocol is inserted into the URL value only if the value is not a
+     * path and it's not a variable.
+     *
+     * @return {undefined} It updates the `url` property.
+     */
+    _ensureUrlHasProtocol: function() {
+      var url = this.value;
+      if (url.indexOf('http') !== 0) {
+        if (url[0] !== '/' && url[0] !== '$' && url[0] !== '{') {
+          url = this.defaultProtocol + '://' + url;
+          this.set('value', url);
+        }
+      }
+    },
+    _keyDownHandler: function(e) {
+      e = Polymer.dom(e);
+      if (e.rootTarget.nodeName !== 'INPUT') {
+        return;
+      }
+      if (e.event.keyCode !== 13) {
+        return;
+      }
+      this._onEnter();
+    },
+    /**
+     * A handler called when the user press "enter" in any of the form fields.
+     * This will send a `send` event.
+     */
+    _onEnter: function() {
+      if (this.suggesionsOpened) {
+        return;
+      }
+      this.fire('send-request');
+    },
     /**
      * Returns a string where all characters that are not valid for a URL
      * component have been escaped. The escaping of a character is done by
