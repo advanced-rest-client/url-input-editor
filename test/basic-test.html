@@ -17,8 +17,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="../../web-component-tester/browser.js"></script>
     <script src="../../iron-test-helpers/test-helpers.js"></script>
     <script src="../../iron-test-helpers/mock-interactions.js"></script>
-
-    <!-- Step 1: import the element to test -->
     <link rel="import" href="../url-input-editor.html">
   </head>
   <body>
@@ -30,14 +28,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </test-fixture>
 
     <script>
-    /* global suite, test, fixture, assert */
+    /* global assert, fixture, TestHelpers */
     suite('basic', function() {
       var element;
       setup(function() {
         element = fixture('basic');
       });
-      test('`url-input-editor` should be initialized', function() {
-        assert.equal(element.isAttached, true, 'element.isAttached equals true');
+
+      test('Should update details', function() {
+        var url = 'https://sub.domain.com/path/to/resource?param=value&other=value';
+        element.value = url;
+        element.detailsOpened = true;
+        TestHelpers.forceXIfStamp(element);
+
+        var details = Polymer.dom(element.root).querySelector('url-detailed-editor');
+        details.setAttribute('opened', true);
+        TestHelpers.forceXIfStamp(details);
+        var model = details.model;
+        console.log(model);
+        assert.equal(model.host, 'https://sub.domain.com',
+          'Host value is parsed');
+        assert.equal(model.path, '/path/to/resource', 'Path value is parsed');
+        assert.typeOf(model.search, 'array', 'search is an array');
+        var searchCompare = [{
+          name: 'param',
+          value: 'value'
+        },
+        {
+          name: 'other',
+          value: 'value'
+        }];
+        assert.deepEqual(model.search, searchCompare, 'search is parser');
+      });
+
+      test('Should encode URL', function() {
+        var url = 'http://192.168.2.252/service/board/1/edit?description=We\'ll keep your precious' +
+          ' pup fed, watered, walked and socialized during their stay.';
+        var comp = 'http://192.168.2.252/service/board/1/edit?description=We\'ll+keep+your+' +
+          'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
+        element.value = url;
+        element.encodeParameters();
+        assert.equal(element.value, comp);
+      });
+
+      test('Should decode URL', function() {
+        var comp = 'http://192.168.2.252/service/board/1/edit?description=We\'ll keep your precious' +
+          ' pup fed, watered, walked and socialized during their stay.';
+        var url = 'http://192.168.2.252/service/board/1/edit?description=We%27ll+keep+your+' +
+          'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
+        element.value = url;
+        element.decodeParameters();
+        assert.equal(element.value, comp);
       });
     });
     </script>
