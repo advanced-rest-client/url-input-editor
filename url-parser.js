@@ -71,6 +71,9 @@
     }
     var lastIsSlash = value[value.length - 1] === '/';
     var parts = value.split('/');
+    parts = parts.filter(function(part) {
+      return !!part;
+    });
     parts.shift();
     var path = '/' + parts.join('/');
     if (lastIsSlash && parts.length > 1) {
@@ -150,8 +153,15 @@
       return;
     }
     context.search = value.map(function(item) {
+      if (!item[0] && !item[1]) {
+        return;
+      }
       return item[0] + '=' + item[1];
-    }).join(options.queryDelimiter);
+    })
+    .filter(function(item) {
+      return !!item;
+    })
+    .join(options.queryDelimiter);
   }
 
   function parse(context, value) {
@@ -177,11 +187,12 @@
     var result = '';
     if (this.protocol) {
       result += this.protocol;
+      result += '//';
     }
     if (this.host) {
-      if (this.protocol && this.host[0] !== '$') {
-        result += '//';
-      }
+      // if (this.protocol && this.host[0] !== '$') {
+      //   result += '//';
+      // }
       result += this.host;
     }
     if (this.path) {

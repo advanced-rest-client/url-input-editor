@@ -90,17 +90,17 @@ Custom property | Description | Default
     }
     </style>
     <form is="iron-form" id="form">
-      <paper-input label="Host" value="{{model.host}}" class="host-input" required auto-validate error-message="Valid host is required. You can use variables here."></paper-input>
-      <paper-input label="Path" value="{{model.path}}" class="path-input" auto-validate pattern="\S*" error-message="You may want to encode this value before sending it to the server"></paper-input>
+      <paper-input id="host" label="Host" value="{{model.host}}" class="host-input" required auto-validate error-message="Valid host is required. You can use variables here." on-keydown="_hostKeyDown" on-paste="_hostPaste" ></paper-input>
+      <paper-input id="path" label="Path" value="{{model.path}}" class="path-input" auto-validate pattern="\S*" error-message="You may want to encode this value before sending it to the server"></paper-input>
 
       <div class="params-list">
         <label class="query-title">Query parameters</label>
 
         <template is="dom-repeat" id="paramsList" items="{{model.search}}" on-dom-change="_onParamsRender">
           <div class="form-row">
-            <paper-input no-label-float inline value="{{item.name}}" class="param-name" placeholder="Param name"></paper-input>
+            <paper-input no-label-float inline auto-validate value="{{item.name}}" class="param-name" placeholder="Param name" pattern="\S*" error-message="You may want to encode this value before sending it to the server"></paper-input>
             <paper-input no-label-float inline auto-validate value="{{item.value}}" class="param-value" placeholder="Param value" pattern="\S*" error-message="You may want to encode this value before sending it to the server"></paper-input>
-            <paper-icon-button icon="arc:close" title="Remove parameter" on-tap="_removeSearchParam"></paper-icon-button>
+            <paper-icon-button icon="arc:close" title="Remove parameter" on-tap="_removeSearchParam" on-focus="_valueFieldLeft"></paper-icon-button>
           </div>
         </template>
 
@@ -116,11 +116,19 @@ Custom property | Description | Default
     behaviors: [ArcBehaviors.UrlEditorBehavior],
 
     properties: {
-      model: Object
+      model: Object,
+      // Reference to the Host input field.
+      hostField: {
+        type: Object,
+        value: function() {
+          return this.$.host;
+        }
+      }
     },
 
     observers: [
-      '_valueCHnaged(value, _isOpened)',
+      '_isOpenedChanged(_isOpened)',
+      '_valueChanged(value, _isOpened)',
       '_modelChanged(model.*)'
     ],
 
@@ -131,11 +139,12 @@ Custom property | Description | Default
     },
 
     // Creates a model when value change from the outside of the element.
-    _valueCHnaged: function(value, _isOpened) {
+    _valueChanged: function(value, _isOpened) {
       if (!_isOpened || this.__internalValueChange) {
         return;
       }
       this._computeModel(value);
+      this._ensureEmptyRow();
     },
     /**
      * Computes model for the view from a URL value.
@@ -149,9 +158,6 @@ Custom property | Description | Default
       var parser = new UrlParser(value);
       var protocol = parser.protocol;
       var host = parser.host;
-      if (!protocol && host && host[0] !== '$') {
-        protocol = 'https:';
-      }
       if (host) {
         if (protocol) {
           host = protocol + '//' + host;
@@ -237,6 +243,11 @@ Custom property | Description | Default
       if (!this.root) {
         return;
       }
+      if (this.__initializetinOpened) {
+        this.__initializetinOpened = false;
+        this.$.host.focus();
+        return;
+      }
       var row = Polymer.dom(this.root).querySelectorAll('.params-list > .form-row');
       if (!row || !row.length) {
         return;
@@ -273,6 +284,66 @@ Custom property | Description | Default
 
     _getValidity: function() {
       return this.$.form.validate();
+    },
+
+    _isOpenedChanged: function(isOpened) {
+      if (isOpened) {
+        this.__initializetinOpened = true;
+        this._ensureEmptyRow();
+      }
+    },
+
+    _ensureEmptyRow: function() {
+      var model = this.model;
+      if (!model || !model.search || !model.search.length) {
+        this.addSearchParam();
+      }
+    },
+
+    _valueFieldLeft: function(e) {
+      var index = e.model.get('index');
+      if (this.model.search.length - 1 !== index) {
+        return;
+      }
+      var item = e.model.get('item');
+      if (item.name) {
+        this.async(function() {
+          e.target._setFocused(false);
+        }, 1);
+        this.addSearchParam();
+      }
+    },
+
+    _hostKeyDown: function(e) {
+      if (e.keyCode !== 191) {
+        return;
+      }
+
+      var pos = 0;
+      var input = e.target;
+      if (document.selection) {
+        input.focus();
+        var sel = document.selection.createRange();
+        sel.moveStart('character', -input.value.length);
+        pos = sel.text.length;
+      } else if (input.selectionStart || input.selectionStart === '0') {
+        pos = input.selectionStart;
+      }
+      if (pos > 8) {
+        e.preventDefault();
+        this.set('model.path', '/');
+        this.$.path.focus();
+      }
+    },
+
+    _hostPaste: function(e) {
+      var data = e.clipboardData.getData('text/plain');
+      if (!data) {
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      this.set('value', data);
     }
   });
   </script>
