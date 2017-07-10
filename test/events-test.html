@@ -28,7 +28,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </test-fixture>
 
     <script>
-    /* global assert, fixture, MockInteractions, sinon */
+    /* global assert, fixture, MockInteractions, TestHelpers, sinon */
     suite('events tests', function() {
       var element;
       setup(function() {
@@ -40,6 +40,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         element.addEventListener('send-request', spy);
         MockInteractions.pressEnter(element._autocompleteTarget.inputElement);
         assert.isTrue(spy.calledOnce, 'Fired send-request event');
+      });
+
+      test('Fires "url-value-changed" custom event', function() {
+        var details = Polymer.dom(element.root).querySelector('url-detailed-editor');
+        details.setAttribute('opened', true);
+        TestHelpers.forceXIfStamp(details);
+        var spy = sinon.stub();
+        element.addEventListener('url-value-changed', spy);
+        details.set('model.host', 'https://test-com/');
+        assert.isTrue(spy.calledOnce, 'Fired url-value-changed event');
       });
 
     });
