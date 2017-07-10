@@ -31,16 +31,24 @@ the License.
 <script src="url-parser.js"></script>
 
 <!--
-`<url-input-editor>` An element that is responsible for displaying and
-manipulating the reuqest URL.
+# url-input-editor element
 
-By default the `url-input-editor` element renders single line input with option
-to switch to detailed view. Detailed view is a form for various URL parts.
+An editor of the request URL.
+
+The editor renders a simple editor view with a input fiedl. The input in this
+view is supported by the `paper-autocomplete` element that queries history saver
+for URL history data (`url-history-query` custom event).
+
+
+By setting `detailsOpened` property to `true` (the user can do this in the UI)
+it will render detailed editor. The editor allows to edit host, path, query
+parameetrs and hash separatelly.
 
 
 ### Example
-```
-<url-input-editor url="{{requestURL}}" on-send="_sendAction"></url-input-editor>
+
+```html
+<url-input-editor url="{{requestURL}}" on-send-request="_sendAction" on-url-value-changed="_handleNewUrl"></url-input-editor>
 ```
 
 ### Styling
@@ -49,6 +57,8 @@ to switch to detailed view. Detailed view is a form for various URL parts.
 Custom property | Description | Default
 ----------------|-------------|----------
 `--url-input-editor` | Mixin applied to the element | `{}`
+
+Use paper elements mixin to style this element.
 
 @group UI Elements
 @element url-input-editor
@@ -60,11 +70,11 @@ Custom property | Description | Default
     :host {
       @apply(--layout-vertical);
       position: relative;
+      @apply(--url-input-editor);
     }
 
     .content {
       @apply(--layout-horizontal);
-      /*@apply(--layout-center);*/
     }
 
     .main-input,
@@ -140,6 +150,14 @@ Custom property | Description | Default
      * Fired when the user use the "entrer" key in any of the fields.
      *
      * @event send-request
+     */
+    /**
+     * Fired when autocomplete element request data.
+     * This event is to be handled by `url-history-saver` element but it can be
+     * handled by any element that intercepts this event.
+     *
+     * @event url-history-query
+     * @param {String} q A query filter.
      */
     properties: {
       // Current URL value.
