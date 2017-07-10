@@ -255,9 +255,7 @@ Custom property | Description | Default
       row = row.pop();
       try {
         row.children[0].focus();
-      } catch (e) {
-
-      }
+      } catch (e) {}
     },
     /**
      * Adds a new Query Parameter to the list.
@@ -289,7 +287,6 @@ Custom property | Description | Default
     _isOpenedChanged: function(isOpened) {
       if (isOpened) {
         this.__initializetinOpened = true;
-        this._ensureEmptyRow();
       }
     },
 
