@@ -45,7 +45,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         details.setAttribute('opened', true);
         TestHelpers.forceXIfStamp(details);
         var model = details.model;
-        
+
         assert.equal(model.host, 'https://sub.domain.com',
           'Host value is parsed');
         assert.equal(model.path, '/path/to/resource', 'Path value is parsed');
