@@ -103,7 +103,7 @@ Custom property | Description | Default
 
       <div class="editor">
         <paper-input label="Request URL" value="{{value}}" class="main-input" required auto-validate error-message="An URL is required." hidden="[[detailsOpened]]" on-blur="_ensureUrlHasProtocol"></paper-input>
-        <paper-autocomplete loader open-on-focus target="[[_autocompleteTarget]]" on-query="_autocompleteQuery"></paper-autocomplete>
+        <paper-autocomplete loader open-on-focus target="[[_autocompleteTarget]]" on-query="_autocompleteQuery" opened="{{suggesionsOpened}}"></paper-autocomplete>
         <iron-collapse opened="[[detailsOpened]]">
           <url-detailed-editor value="{{value}}" attr-for-opened="opened" opened$="[[detailsOpened]]"></url-detailed-editor>
         </iron-collapse>
@@ -163,10 +163,19 @@ Custom property | Description | Default
         value: function() {
           return this.$$('.main-input');
         }
+      },
+      // True when a suggestion box for the URL is opened.
+      suggesionsOpened: {
+        type: Boolean,
+        notify: true
       }
     },
 
     observers: ['_detailsOpenedChanged(detailsOpened)'],
+
+    listeners: {
+      'keydown': '_keyDownHandler'
+    },
 
     ready: function() {
       this._ready = true;
@@ -372,6 +381,26 @@ Custom property | Description | Default
           this.set('value', url);
         }
       }
+    },
+    _keyDownHandler: function(e) {
+      e = Polymer.dom(e);
+      if (e.rootTarget.nodeName !== 'INPUT') {
+        return;
+      }
+      if (e.event.keyCode !== 13) {
+        return;
+      }
+      this._onEnter();
+    },
+    /**
+     * A handler called when the user press "enter" in any of the form fields.
+     * This will send a `send` event.
+     */
+    _onEnter: function() {
+      if (this.suggesionsOpened) {
+        return;
+      }
+      this.fire('send-request');
     },
     /**
      * Returns a string where all characters that are not valid for a URL
