@@ -131,16 +131,18 @@
       var _name = _params[0].trim();
       if (_name) {
         _part[0] = _name;
+      } else {
+        return;
       }
       if (_params[1]) {
         var _value = _params[1].trim();
         if (_value) {
           _part[1] = _value;
         }
+      } else {
+        _params[1] = '';
       }
-      if (_part[0] && _part[1]) {
-        return _part;
-      }
+      return _part;
     });
     return result.filter(function(item) {
       return !!item;
@@ -156,6 +158,7 @@
       if (!item[0] && !item[1]) {
         return;
       }
+      item[1] = item[1] || '';
       return item[0] + '=' + item[1];
     })
     .filter(function(item) {
@@ -190,20 +193,24 @@
       result += '//';
     }
     if (this.host) {
-      // if (this.protocol && this.host[0] !== '$') {
-      //   result += '//';
-      // }
       result += this.host;
     }
     if (this.path) {
-      if (this.path[0] !== '/') {
+      if (this.path === '/' && !this.host && !this.search && !this.anchor) {
+      } else {
+        if (this.path[0] !== '/') {
+          result += '/';
+        }
+        result += this.path;
+      }
+    } else {
+      if (this.search || this.anchor) {
         result += '/';
       }
-      result += this.path;
-    } else {
-      result += '/';
     }
     if (this.search) {
+      var p = this.searchParams;
+      this.searchParams = p;
       result += '?' + this.search;
     }
     if (this.anchor) {
