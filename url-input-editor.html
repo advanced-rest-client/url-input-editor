@@ -93,6 +93,10 @@ Custom property | Description | Default
       margin-top: 0px;
       padding-top: 0px;
     }
+
+    iron-collapse:not(.iron-collapse-closed) {
+      min-height: 54px;
+    }
     </style>
     <div class="content">
       <paper-icon-button class$="toggle [[_computeToogleClass(detailsOpened)]]" icon="arc:keyboard-arrow-right" on-tap="toggle"></paper-icon-button>
