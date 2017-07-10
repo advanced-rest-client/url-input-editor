@@ -305,7 +305,10 @@ Custom property | Description | Default
       var item = e.model.get('item');
       if (item.name) {
         this.async(function() {
-          e.target._setFocused(false);
+          var t = Polymer.dom(e).rootTarget;
+          if (t.focused) {
+            t._setFocused(false);
+          }
         }, 1);
         this.addSearchParam();
       }
@@ -317,7 +320,7 @@ Custom property | Description | Default
       }
 
       var pos = 0;
-      var input = e.target;
+      var input = e.target.inputElement || e.target;
       if (document.selection) {
         input.focus();
         var sel = document.selection.createRange();
