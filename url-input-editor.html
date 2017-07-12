@@ -12,7 +12,6 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="url-detailed-editor.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-input/paper-input-container.html">
@@ -22,12 +21,13 @@ the License.
 <link rel="import" href="../paper-menu/paper-menu.html">
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="../iron-form-element-behavior/iron-form-element-behavior.html">
 <link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
+<link rel="import" href="url-detailed-editor.html">
 <script src="url-parser.js"></script>
 
 <!--
@@ -82,50 +82,52 @@ Use paper elements mixin to style this element.
       @apply(--layout-flex);
     }
 
-    .toggle {
-      transition: transform 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
-      transform: rotateZ(0deg);
-    }
-
-    .toggle.opened {
-      transform: rotateZ(90deg);
-    }
-
     paper-autocomplete {
       bottom: 0;
     }
 
-    paper-icon-button {
-      margin-top: 20px;
-    }
-
     paper-menu-button {
-      margin-top: 0px;
+      margin-top: 20px;
       padding-top: 0px;
     }
 
-    iron-collapse:not(.iron-collapse-closed) {
-      min-height: 54px;
+    #detailedOpen {
+      @apply --toggle-button;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+    }
+
+    #detailedOpen:hover {
+      @apply --toggle-button-hover;
+    }
+
+    iron-collapse.sized {
+      min-height: 48px;
     }
     </style>
     <div class="content">
-      <paper-icon-button class$="toggle [[_computeToogleClass(detailsOpened)]]" icon="arc:keyboard-arrow-right" on-tap="toggle"></paper-icon-button>
 
       <div class="editor">
-        <paper-input label="Request URL" value="{{value}}" class="main-input" required auto-validate error-message="An URL is required." hidden="[[detailsOpened]]" on-blur="_ensureUrlHasProtocol"></paper-input>
+        <paper-input label="Request URL" value="{{value}}" class="main-input" required auto-validate error-message="An URL is required." hidden="[[detailsOpened]]" on-blur="_ensureUrlHasProtocol">
+          <paper-icon-button id="detailedOpen" suffix icon="arc:keyboard-arrow-down" on-tap="open"></paper-icon-button>
+        </paper-input>
         <paper-autocomplete loader open-on-focus target="[[_autocompleteTarget]]" on-query="_autocompleteQuery" opened="{{suggesionsOpened}}"></paper-autocomplete>
-        <iron-collapse opened="[[detailsOpened]]">
-          <url-detailed-editor value="{{value}}" attr-for-opened="opened" opened$="[[detailsOpened]]"></url-detailed-editor>
+        <iron-collapse id="collapse" opened="[[detailsOpened]]" transitioning="{{colapseTransitioning}}">
+          <url-detailed-editor value="{{value}}" attr-for-opened="opened" opened$="[[detailsOpened]]" details-opened="{{detailsOpened}}"></url-detailed-editor>
         </iron-collapse>
       </div>
 
       <paper-menu-button horizontal-align="right">
-        <paper-icon-button icon="arc:more-vert" class="dropdown-trigger"></paper-icon-button>
+        <paper-icon-button icon="arc:more-vert" class="dropdown-trigger" id="moreOptions"></paper-icon-button>
         <paper-menu class="dropdown-content" id="urlContextMenu" on-iron-select="_contextMenuAction">
           <paper-item data-action="encParamsAction">Encode URL</paper-item>
           <paper-item data-action="decParamsAction">Decode URL</paper-item>
         </paper-menu>
       </paper-menu-button>
+
+      <paper-tooltip animation-delay="200" for="detailedOpen">Open detailed editor</paper-tooltip>
+      <paper-tooltip animation-delay="200" for="moreOptions">More options</paper-tooltip>
     </div>
 
   </template>
@@ -190,6 +192,11 @@ Use paper elements mixin to style this element.
       suggesionsOpened: {
         type: Boolean,
         notify: true
+      },
+      // Controlled by the collapse element flad used to animate detail panel.
+      colapseTransitioning: {
+        type: Boolean,
+        observer: '_colapseTransitioning'
       }
     },
 
@@ -236,17 +243,10 @@ Use paper elements mixin to style this element.
     },
 
     /**
-     * Toggle detailed view.
+     * Opens detailed view.
      */
-    toggle: function() {
-      if (this.detailsOpened === undefined) {
-        this.detailsOpened = false;
-      }
-      this.detailsOpened = !this.detailsOpened;
-    },
-
-    _computeToogleClass: function(detailsOpened) {
-      return detailsOpened ? 'opened' : '';
+    open: function() {
+      this.detailsOpened = true;
     },
 
     /**
@@ -482,6 +482,23 @@ Use paper elements mixin to style this element.
       }
       var regexp = /\+/g;
       return decodeURIComponent(str.replace(regexp, '%20'));
+    },
+    /**
+     * A trick to instantly replace main URL input with host field and back
+     * without animation jumping when transitioning.
+     * Sets / removes `sized` class name from the collapse element. This class
+     * sets minimum height for the element so the host field will be visible
+     * instantly in place of dissapearing main URL.
+     */
+    _colapseTransitioning: function(value, oldValue) {
+      if (oldValue === undefined) {
+        return;
+      }
+      if (value && this.detailsOpened) {
+        this.$.collapse.classList.add('sized');
+      } else if (value && !this.detailsOpened) {
+        this.$.collapse.classList.remove('sized');
+      }
     }
   });
   </script>
