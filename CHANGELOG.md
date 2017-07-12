@@ -1,3 +1,13 @@
+<a name="0.1.2"></a>
+## [0.1.2](https://github.com/advanced-rest-client/url-input-editor/compare/0.1.1...v0.1.2) (2017-07-12)
+
+
+### Update
+
+* Moved detailed view toggle to inside the main input. ([4e34e09c29865b795e13c1986583af30a5dfd94a](https://github.com/advanced-rest-client/url-input-editor/commit/4e34e09c29865b795e13c1986583af30a5dfd94a))
+
+
+
 <a name="0.1.1"></a>
 ## 0.1.1 (2017-07-10)
 
