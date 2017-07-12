@@ -23,6 +23,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../url-history-saver/url-history-saver.html">
   <link rel="import" href="../../paper-input/paper-input.html">
   <link rel="import" href="../../paper-button/paper-button.html">
+  <link rel="import" href="../../paper-toast/paper-toast.html">
   <link rel="import" href="../url-input-editor.html">
 
   <style is="custom-style" include="demo-pages-shared-styles">
@@ -57,6 +58,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-button id="sendEventButton">Send event</paper-button>
     </p>
   </div>
+  <paper-toast></paper-toast>
   <script>
   document.getElementById('sendEventButton')
   .addEventListener('click', function() {
@@ -68,6 +70,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       bubbles: true
     });
     document.body.dispatchEvent(event);
+  });
+  document.body.addEventListener('send-request', function() {
+    var toast = document.querySelector('paper-toast');
+    toast.text = 'Request send requested';
+    toast.opened = true;
   });
   </script>
 </body>
