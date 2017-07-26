@@ -27,6 +27,7 @@ the License.
 <link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="../iron-form-element-behavior/iron-form-element-behavior.html">
 <link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
+<link rel="import" href="../events-target-behavior/events-target-behavior.html">
 <link rel="import" href="url-detailed-editor.html">
 <script src="url-parser.js"></script>
 
@@ -210,11 +211,12 @@ Use paper elements mixin to style this element.
       this._ready = true;
     },
 
-    attached: function() {
-      this.listen(window, 'url-value-changed', '_extValueChangedHandler');
+    _attachListeners: function(node) {
+      this.listen(node, 'url-value-changed', '_extValueChangedHandler');
     },
-    detached: function() {
-      this.unlisten(window, 'url-value-changed', '_extValueChangedHandler');
+
+    _detachListeners: function(node) {
+      this.unlisten(node, 'url-value-changed', '_extValueChangedHandler');
     },
     /**
      * A handler that is called on input
