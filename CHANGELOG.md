@@ -1,3 +1,13 @@
+<a name="0.1.6"></a>
+## [0.1.6](https://github.com/advanced-rest-client/url-input-editor/compare/0.1.5...0.1.6) (2017-07-26)
+
+
+### Fix
+
+* Added EventsTargetBehavior to the behaviors list. ([cd62fb8ebe9b72cdb885b3cef475e47ed78da5a2](https://github.com/advanced-rest-client/url-input-editor/commit/cd62fb8ebe9b72cdb885b3cef475e47ed78da5a2))
+
+
+
 <a name="0.1.5"></a>
 ## [0.1.5](https://github.com/advanced-rest-client/url-input-editor/compare/0.1.4...0.1.5) (2017-07-26)
 
