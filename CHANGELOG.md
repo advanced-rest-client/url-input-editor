@@ -1,3 +1,13 @@
+<a name="0.1.4"></a>
+## [0.1.4](https://github.com/advanced-rest-client/url-input-editor/compare/0.1.3...0.1.4) (2017-07-26)
+
+
+### New
+
+* Added events-target-behavior ([484cc182f7bc3d2a7bcdfe7fb204dfaeb33ef9d4](https://github.com/advanced-rest-client/url-input-editor/commit/484cc182f7bc3d2a7bcdfe7fb204dfaeb33ef9d4))
+
+
+
 <a name="0.1.3"></a>
 ## [0.1.3](https://github.com/advanced-rest-client/url-input-editor/compare/0.1.2...v0.1.3) (2017-07-12)
 
