@@ -1,3 +1,13 @@
+<a name="0.2.1"></a>
+## [0.2.1](https://github.com/advanced-rest-client/url-input-editor/compare/0.1.6...0.2.1) (2017-09-30)
+
+
+### Breaking
+
+* Moved context menu actions into the detailed editor ([2da6c01d5dea6fbc7b59f88c661f8631fa6b6f3a](https://github.com/advanced-rest-client/url-input-editor/commit/2da6c01d5dea6fbc7b59f88c661f8631fa6b6f3a))
+
+
+
 <a name="0.1.7"></a>
 ## [0.1.7](https://github.com/advanced-rest-client/url-input-editor/compare/0.1.6...0.1.7) (2017-07-26)
 
