@@ -14,17 +14,12 @@ the License.
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-input/paper-input.html">
-<link rel="import" href="../paper-input/paper-input-container.html">
-<link rel="import" href="../paper-input/paper-input-error.html">
 <link rel="import" href="../iron-form/iron-form.html">
-<link rel="import" href="../paper-menu-button/paper-menu-button.html">
-<link rel="import" href="../paper-menu/paper-menu.html">
-<link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-toast/paper-toast.html">
 <link rel="import" href="../paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="url-editor-behavior.html">
 <link rel="import" href="url-parser.html">
 <!--
@@ -125,6 +120,18 @@ Custom property | Description | Default
       </div>
       <paper-input label="Hash" value="{{model.anchor}}" class="anchor-input"></paper-input>
     </form>
+
+    <div class="encode-actions">
+      <span>
+        <paper-button on-tap="_encodeParameters">Encode URL</paper-button>
+        <paper-tooltip>URL encodes parameters in the editor</paper-tooltip>
+      </span>
+      <span>
+        <paper-button on-tap="_decodeParameters">Decode URL</paper-button>
+        <paper-tooltip>URL decodes parameters in the editor</paper-tooltip>
+      </span>
+    </div>
+
     <paper-tooltip animation-delay="200" for="detailedClose">Close detailed editor</paper-tooltip>
   </template>
   <script>
@@ -371,6 +378,37 @@ Custom property | Description | Default
     close: function() {
       this.detailsOpened = false;
     },
+    /**
+     * Dispatches the `url-encode` event. The editor handles the action.
+     */
+    _encodeParameters: function() {
+      this.fire('url-encode', undefined, {
+        bubbles: false
+      });
+    },
+    /**
+     * Dispatches the `url-decode` event. The editor handles the action.
+     */
+    _decodeParameters: function() {
+      this.fire('url-decode', undefined, {
+        bubbles: false
+      });
+    }
+
+    /**
+     * Fired when encode URL action has been called.
+     *
+     * The event does not bubbles.
+     *
+     * @event url-encode
+     */
+    /**
+     * Fired when decode URL action has been called.
+     *
+     * The event does not bubbles.
+     *
+     * @event url-decode
+     */
   });
   </script>
 </dom-module>
