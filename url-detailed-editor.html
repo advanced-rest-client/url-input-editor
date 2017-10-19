@@ -104,7 +104,6 @@ Custom property | Description | Default
 
       <div class="params-list">
         <label class="query-title">Query parameters</label>
-
         <template is="dom-repeat" id="paramsList" items="{{model.search}}" on-dom-change="_onParamsRender">
           <div class="form-row">
             <paper-input no-label-float inline auto-validate value="{{item.name}}" class="param-name" placeholder="Param name" pattern="\S*" error-message="You may want to encode this value before sending it to the server"></paper-input>
@@ -115,23 +114,20 @@ Custom property | Description | Default
             </span>
           </div>
         </template>
-
         <paper-button raised on-tap="addSearchParam">Add</paper-button>
       </div>
-      <paper-input label="Hash" value="{{model.anchor}}" class="anchor-input"></paper-input>
+      <paper-input id="hash" label="Hash" value="{{model.anchor}}" class="anchor-input"></paper-input>
     </form>
-
     <div class="encode-actions">
       <span>
-        <paper-button on-tap="_encodeParameters">Encode URL</paper-button>
+        <paper-button id="encode" on-tap="_encodeParameters">Encode URL</paper-button>
         <paper-tooltip>URL encodes parameters in the editor</paper-tooltip>
       </span>
       <span>
-        <paper-button on-tap="_decodeParameters">Decode URL</paper-button>
+        <paper-button id="decode" on-tap="_decodeParameters">Decode URL</paper-button>
         <paper-tooltip>URL decodes parameters in the editor</paper-tooltip>
       </span>
     </div>
-
     <paper-tooltip animation-delay="200" for="detailedClose">Close detailed editor</paper-tooltip>
   </template>
   <script>
