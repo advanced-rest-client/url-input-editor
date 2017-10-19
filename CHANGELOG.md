@@ -1,3 +1,14 @@
+<a name="0.2.2"></a>
+## [0.2.2](https://github.com/advanced-rest-client/url-input-editor/compare/0.2.1...0.2.2) (2017-10-19)
+
+
+### Update
+
+* Added [hidden] style ([908c6b2844329a39296702932d2d676970ec4d6b](https://github.com/advanced-rest-client/url-input-editor/commit/908c6b2844329a39296702932d2d676970ec4d6b))
+* Added inputs ids. ([cffb548f24d29c0d44eb9b503e9536373d1511da](https://github.com/advanced-rest-client/url-input-editor/commit/cffb548f24d29c0d44eb9b503e9536373d1511da))
+
+
+
 <a name="0.2.1"></a>
 ## [0.2.1](https://github.com/advanced-rest-client/url-input-editor/compare/0.1.6...0.2.1) (2017-09-30)
 
