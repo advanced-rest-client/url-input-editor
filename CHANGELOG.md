@@ -1,3 +1,13 @@
+<a name="0.2.4"></a>
+## [0.2.4](https://github.com/advanced-rest-client/url-input-editor/compare/0.2.3...0.2.4) (2017-10-31)
+
+
+### Update
+
+* Moved URL parser to external repository ([b5f0605e47dd0a38d56929c154606038529216e7](https://github.com/advanced-rest-client/url-input-editor/commit/b5f0605e47dd0a38d56929c154606038529216e7))
+
+
+
 <a name="0.2.3"></a>
 ## [0.2.3](https://github.com/advanced-rest-client/url-input-editor/compare/0.2.2...0.2.3) (2017-10-19)
 
