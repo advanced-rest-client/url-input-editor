@@ -121,15 +121,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.equal(eventData.value, 'https://arc.com:1234/path/o ther/?c=d#123');
       });
 
-      test('Do not notifies change for adding search param', function() {
-        TestHelpers.forceXIfStamp(element);
-        var button = Polymer.dom(element.root).querySelector('.params-list > paper-button');
-        var eventData = {};
-        observerChange(eventData);
-        MockInteractions.tap(button);
-        assert.isUndefined(eventData.value);
-      });
-
       test('Changes model when value change', function() {
         element.value = 'http://arc.com/o%20ther?test=value';
         var m = element.model;
