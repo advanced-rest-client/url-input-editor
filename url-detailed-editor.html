@@ -21,6 +21,8 @@ the License.
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../url-parser/url-parser.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../openable-panel-behavior/openable-panel-behavior.html">
 <link rel="import" href="url-editor-behavior.html">
 
 <!--
@@ -105,13 +107,14 @@ Custom property | Description | Default
 
       <div class="params-list">
         <label class="query-title">Query parameters</label>
-        <template is="dom-repeat" id="paramsList" items="{{model.search}}" on-dom-change="_onParamsRender">
+        <template is="dom-repeat" id="paramsList" items="{{queryParameters}}" on-dom-change="_onParamsRender">
           <div class="form-row">
+            <paper-toggle-button class="enable-button" checked="{{item.enabled}}" title="Enable / disable parameter"></paper-toggle-button>
             <paper-input no-label-float inline auto-validate value="{{item.name}}" class="param-name" placeholder="Param name" pattern="\S*" error-message="You may want to encode this value before sending it to the server"></paper-input>
             <paper-input no-label-float inline auto-validate value="{{item.value}}" class="param-value" placeholder="Param value" pattern="\S*" error-message="You may want to encode this value before sending it to the server"></paper-input>
             <span>
               <paper-icon-button icon="arc:close" on-tap="_removeSearchParam" on-focus="_valueFieldLeft"></paper-icon-button>
-              <paper-tooltip animation-delay="200">Remove parameter</paper-tooltip>
+              <paper-tooltip animation-delay="200" offset="0">Remove parameter</paper-tooltip>
             </span>
           </div>
         </template>
@@ -135,7 +138,10 @@ Custom property | Description | Default
   Polymer({
     is: 'url-detailed-editor',
 
-    behaviors: [ArcBehaviors.UrlEditorBehavior],
+    behaviors: [
+      ArcBehaviors.UrlEditorBehavior,
+      ArcBehaviors.OpenablePanelBehavior
+    ],
 
     properties: {
       model: Object,
@@ -153,35 +159,46 @@ Custom property | Description | Default
     },
 
     observers: [
-      '_isOpenedChanged(_isOpened)',
       '_valueChanged(value, _isOpened)',
-      '_modelChanged(model.*)'
+      '_modelChanged(model.*, queryParameters.*)',
+      '_ensureEmptyRow(_isOpened)'
     ],
-
-    ready: function() {
-      if (!this.model) {
-        this._computeModel('https://');
-      }
-    },
-
-    // Creates a model when value change from the outside of the element.
-    _valueChanged: function(value, _isOpened) {
-      if (!_isOpened || this.__internalValueChange) {
+    /**
+     * A handler that is called on input
+     */
+    _valueChanged: function(value, opened) {
+      if (this._cancelModelComputation) {
         return;
       }
-      this._computeModel(value);
-      this._ensureEmptyRow();
+      var qp = this.queryParameters;
+      if (!opened && !(qp && qp.length)) {
+        return;
+      }
+      this._computeModel(value, qp);
     },
-    /**
-     * Computes model for the view from a URL value.
-     */
-    _computeModel: function(value) {
+
+    _computeModel: function(value, queryModel) {
       if (!value) {
-        return this.set('model', {});
+        this.set('model', {});
+        this.set('queryParameters', []);
+        return;
       }
       this.__modelComputation = true;
-      this.set('model', {});
+      if (!queryModel) {
+        queryModel = [];
+      }
       var parser = new UrlParser(value);
+      this.__parser = parser;
+      var model = {};
+      model.host = this._getHostValue(parser) || '';
+      model.path = parser.path || '';
+      model.anchor = parser.anchor || '';
+      this.set('model', model);
+      this._computeSearchParams(parser, queryModel);
+      this.__modelComputation = false;
+    },
+
+    _getHostValue: function(parser) {
       var protocol = parser.protocol;
       var host = parser.host;
       if (host) {
@@ -193,46 +210,120 @@ Custom property | Description | Default
           host = protocol + '//';
         }
       }
-      this.set('model.host', host || '');
-      this.set('model.path', parser.path || '');
-      this.set('model.anchor', parser.anchor || '');
-      var params = parser.searchParams.map(function(item) {
-        return {
-          name: item[0],
-          value: item[1]
-        };
-      });
-      this.set('model.search', params);
-      this.__parser = parser;
-      this.__modelComputation = false;
+      return host;
     },
 
-    _modelChanged: function(record) {
+    _computeSearchParams: function(parser, queryModel) {
+      if (!queryModel) {
+        queryModel = [];
+
+      }
+      if (!this.queryParameters) {
+        this.set('queryParameters', queryModel);
+      }
+      // 1 keep disabled items in the model
+      // 2 remove items that are in query model but not in search params
+      // 3 update value of model
+      // 4 add existing search params to the model
+      var names = [];
+      for (var i = queryModel.length - 1; i >= 0; i--) {
+        if (queryModel[i].enabled === false) {
+          continue;
+        }
+        var param = this._getSearchParam(parser.searchParams, queryModel[i].name, names);
+        if (!param) {
+          this.splice('queryParameters', i, 1);
+        } else {
+          if (queryModel[i].value !== param[1]) {
+            this.set(['queryParameters', i, 'value'], param[1]);
+          }
+          if (!queryModel[i].enabled) {
+            this.set(['queryParameters', i, 'enabled'], true);
+          }
+          names.push(queryModel[i].name);
+        }
+      }
+      names = [];
+      // Add to `queryModel` params that are in `parser.searchParams`
+      parser.searchParams.forEach(function(pairs) {
+        var param = this._getModelParam(queryModel, pairs[0], names);
+        names.push(pairs[0]);
+        if (!param) {
+          this.push('queryParameters', {
+            name: pairs[0],
+            value: pairs[1],
+            enabled: true
+          });
+        }
+      }, this);
+    },
+
+    _getSearchParam: function(searchParams, name, names) {
+      var included = names.filter(function(item) {
+        return item === name;
+      });
+      included = included.length;
+      for (var i = searchParams.length - 1; i >=0; i--) {
+        if (searchParams[i][0] === name) {
+          if (included !== 0) {
+            included--;
+            continue;
+          }
+          return searchParams[i];
+        }
+      }
+    },
+
+    _getModelParam: function(model, name, names) {
+      var included = names.filter(function(item) {
+        return item === name;
+      });
+      included = included.length;
+      return model.find(function(item) {
+        if (!item.enabled || item.name !== name) {
+          return false;
+        }
+        if (included !== 0) {
+          included--;
+          return false;
+        }
+        return true;
+      });
+    },
+
+    _modelChanged: function(recordModel, recordQp) {
       if (this.__modelComputation) {
         return;
       }
-      if (record.path === 'model') {
-        return;
-      }
-      var path = record.path.split('.');
       if (!this.__parser) {
         this.__parser = new UrlParser('');
       }
-      if (path[2] === 'length') {
+      if (recordModel.path !== 'model') {
+        this._updateParserValues(recordModel);
+      }
+      if (recordQp.path !== 'queryParameters' && recordQp.path !== 'queryParameters.length') {
+        this._updateParserSearch(recordQp);
+      }
+      if (!this._isOpened) {
         return;
       }
+      this._cancelModelComputation = true;
+      this.set('value', this.__parser.value);
+      this._cancelModelComputation = false;
+    },
+    /**
+     * Updates parser values from change record.
+     *
+     * @param {Object} record Polymer's change record.
+     */
+    _updateParserValues: function(record) {
+      var path = record.path.split('.');
       switch (path[1]) {
         case 'host':
           this._updateParserHost(record.value);
         break;
         case 'path':
           this.__parser.path = record.value;
-        break;
-        case 'search':
-          if (!path[2]) {
-            return;
-          }
-          this._updateParserSearch(record.base.search);
         break;
         case 'anchor':
           this.__parser.anchor = record.value;
@@ -242,9 +333,21 @@ Custom property | Description | Default
       if (path[2] === 'splices' && path[1] !== 'search') {
         return;
       }
-      this.__internalValueChange = true;
-      this.set('value', this.__parser.value);
-      this.__internalValueChange = false;
+    },
+    /**
+     * Updates `queryParameters` model from change record.
+     *
+     * @param {Object} record Polymer's change record.
+     */
+    _updateParserSearch: function(record) {
+      var params = [];
+      record.base.forEach(function(item) {
+        if (!item.enabled) {
+          return;
+        }
+        params.push([item.name, item.value]);
+      });
+      this.__parser.searchParams = params;
     },
 
     _updateParserHost: function(value) {
@@ -258,20 +361,9 @@ Custom property | Description | Default
       }
     },
 
-    _updateParserSearch: function(search) {
-      this.__parser.searchParams = search.map(function(item) {
-        return [item.name, item.value];
-      });
-    },
-
     /** Called when URL params form has been renederd. */
     _onParamsRender: function() {
       if (!this.root) {
-        return;
-      }
-      if (this.__initializetinOpened) {
-        this.__initializetinOpened = false;
-        this.$.host.focus();
         return;
       }
       var row = Polymer.dom(this.root).querySelectorAll('.params-list > .form-row');
@@ -280,7 +372,7 @@ Custom property | Description | Default
       }
       row = row.pop();
       try {
-        row.children[0].focus();
+        row.children[1].focus();
       } catch (e) {}
     },
     /**
@@ -289,23 +381,21 @@ Custom property | Description | Default
     addSearchParam: function() {
       var obj = {
         name: '',
-        value: ''
+        value: '',
+        enabled: true
       };
-      if (!this.model) {
-        this.set('model', {});
-      }
-      if (this.model.search) {
-        this.push('model.search', obj);
+      if (!this.queryParameters) {
+        this.set('queryParameters', [obj]);
       } else {
-        this.set('model.search', [obj]);
+        this.push('queryParameters', obj);
       }
     },
-
+    // Handler for the remove button click.
     _removeSearchParam: function(e) {
       var index = e.model.get('index');
-      this.splice('model.search', index, 1);
+      this.splice('queryParameters', index, 1);
     },
-
+    // Validates the element.
     _getValidity: function() {
       return this.$.form.validate();
     },
@@ -317,15 +407,15 @@ Custom property | Description | Default
     },
 
     _ensureEmptyRow: function() {
-      var model = this.model;
-      if (!model || !model.search || !model.search.length) {
+      var model = this.queryParameters;
+      if (!model || !model.length) {
         this.addSearchParam();
       }
     },
 
     _valueFieldLeft: function(e) {
       var index = e.model.get('index');
-      if (this.model.search.length - 1 !== index) {
+      if (this.queryParameters.length - 1 !== index) {
         return;
       }
       var item = e.model.get('item');

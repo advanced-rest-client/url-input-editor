@@ -19,6 +19,33 @@ the License.
   'use strict';
 
   global.ArcBehaviors = global.ArcBehaviors || {};
+
+  /* @polymerBehavior */
+  global.ArcBehaviors.UrlEditorBehaviorImpl = {
+    properties: {
+      /**
+       * Current value of the editor.
+       */
+      value: {
+        type: String,
+        notify: true
+      },
+      /**
+       * List of query parameters model.
+       * It is passed to detailed editor to build query parameters form.
+       * If not set then it is computed from current URL.
+       *
+       * Model for query parameters is:
+       * - name {String} param name
+       * - value {String} param value
+       * - enabled {Boolean} is param included into the `value`
+       */
+      queryParameters: {
+        type: Array,
+        notify: true
+      }
+    }
+  };
   /**
    * A behavior to share functionality between URL editors elements.
    *
@@ -35,82 +62,9 @@ the License.
    *
    * @polymerBehavior ArcBehaviors.UrlEditorBehavior
    */
-  var UrlEditorBehaviorImpl = {
-    properties: {
-      /**
-       * Current value of the editor.
-       */
-      value: {
-        type: String,
-        notify: true
-      },
-      /**
-       * An attribute name describing if the element is currently displayed.
-       * If set, the element will not compute values until the attribute becomes truly.
-       *
-       * This is helpful when this editor is used alongside other payload editors and only one
-       * at the time should perform a computation.
-       *
-       * Note that setting a property instead of attribute will not work. It must be an
-       * attribute.
-       */
-      attrForOpened: String,
-      /**
-       * Will be set to true if the element is opened and `attrForOpened` is set or if
-       * `attrForOpened` is not set when the element is initialized.
-       */
-      _isOpened: Boolean
-    },
-
-    get _propertyForOpened() {
-      if (!this.attrForOpened) {
-        return;
-      }
-      return Polymer.CaseMap.dashToCamelCase(this.attrForOpened);
-    },
-
-    get _openedValue() {
-      var prop = this._propertyForOpened;
-      if (prop) {
-        return this.hasAttribute(prop);
-      }
-      return true;
-    },
-
-    observers: [
-      '__attrForOpenedChanged(attrForOpened)'
-    ],
-
-    ready: function() {
-      this.__attrForOpenedChanged(this.attrForOpened);
-    },
-
-    attributeChanged: function(name) {
-      var prop = this._propertyForOpened;
-      if (prop && prop === name) {
-        this.__updateOpenedState(name);
-      }
-    },
-    // Sets `_isOpened` to true if the `attrForOpened` is removed.
-    __attrForOpenedChanged: function(attrForOpened) {
-      if (!attrForOpened && !this._isOpened) {
-        this.set('_isOpened', true);
-      } else if (attrForOpened) {
-        this.__updateOpenedState(attrForOpened);
-      }
-    },
-
-    __updateOpenedState: function(name) {
-      var state = this.getAttribute(name) !== null;
-      if (this._isOpened !== state) {
-        this.set('_isOpened', state);
-      }
-    }
-  };
-  /* @polymerBehavior */
   global.ArcBehaviors.UrlEditorBehavior = [
     Polymer.IronValidatableBehavior,
-    UrlEditorBehaviorImpl
+    global.ArcBehaviors.UrlEditorBehaviorImpl
   ];
 })(window);
 </script>

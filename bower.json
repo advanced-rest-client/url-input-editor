@@ -32,7 +32,9 @@
     "iron-form": "PolymerElements/iron-form#<2",
     "paper-tooltip": "PolymerElements/paper-tooltip#<2",
     "events-target-behavior": "advanced-rest-client/events-target-behavior#^0.1.1",
-    "url-parser": "advanced-rest-client/url-parser#^0.1.1"
+    "url-parser": "advanced-rest-client/url-parser#^0.1.1",
+    "paper-toggle-button": "PolymerElements/paper-toggle-button#<2",
+    "openable-panel-behavior": "advanced-rest-client/openable-panel-behavior#^0.1.2"
   },
   "devDependencies": {
     "iron-component-page": "polymerelements/iron-component-page#1.0.0",
