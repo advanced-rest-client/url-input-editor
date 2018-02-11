@@ -39,3 +39,4 @@ Use paper elements mixin to style this element.
 | send-request | Fired when the user use the "entrer" key in any of the fields. | __none__ |
 | url-history-query | Fired when autocomplete element request data. This event is to be handled by `url-history-saver` element but it can be handled by any element that intercepts this event. | q **String** - A query filter. |
 | url-value-changed | Fired when the URL value change. Note that this event is fired before validation occur and therefore the URL may be invalid. | value **String** - The URL. |
+queryParameters **Array.<Object>** - Optional query parameters model. |
