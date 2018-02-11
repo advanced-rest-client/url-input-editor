@@ -42,7 +42,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.equal(m.host, 'https://arc.com:1234', 'Host is computed');
         assert.equal(m.path, '/path/o ther/', 'Path is computed');
         assert.equal(m.anchor, '123', 'Ancor is computed');
-        assert.lengthOf(m.search, 2, 'Search is computed');
+        assert.lengthOf(element.queryParameters, 2, 'Search is computed');
       });
 
       test('__parser is set', function() {
@@ -121,22 +121,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.equal(eventData.value, 'https://arc.com:1234/path/o ther/?c=d#123');
       });
 
-      test('Do not notifies change for adding search param', function() {
-        TestHelpers.forceXIfStamp(element);
-        var button = Polymer.dom(element.root).querySelector('.params-list > paper-button');
-        var eventData = {};
-        observerChange(eventData);
-        MockInteractions.tap(button);
-        assert.isUndefined(eventData.value);
-      });
-
       test('Changes model when value change', function() {
         element.value = 'http://arc.com/o%20ther?test=value';
         var m = element.model;
         assert.equal(m.host, 'http://arc.com', 'Host is computed');
         assert.equal(m.path, '/o%20ther', 'Path is computed');
         assert.equal(m.anchor, '', 'Ancor is computed');
-        assert.lengthOf(m.search, 1, 'Search is computed');
+        assert.lengthOf(element.queryParameters, 1, 'Search is computed');
       });
 
       test('Fires url-encode event', function() {
@@ -156,21 +147,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     });
 
-    suite('Empty editor', function() {
-      var element;
-      setup(function() {
-        element = fixture('basic');
-      });
-
-      test('Model is computed', function() {
-        var m = element.model;
-        assert.typeOf(m, 'object', 'Model is an object');
-        assert.equal(m.host, 'https://', 'Host is computed');
-        assert.equal(m.path, '/', 'Path is computed');
-        assert.equal(m.anchor, '', 'Ancor is computed');
-        assert.lengthOf(m.search, 0, 'Search is computed');
-      });
-    });
+    // suite('Empty editor', function() {
+    //   var element;
+    //   setup(function() {
+    //     element = fixture('basic');
+    //   });
+    //
+    //   test('Model is computed', function() {
+    //     var m = element.model;
+    //     assert.typeOf(m, 'object', 'Model is an object');
+    //     assert.equal(m.host, 'https://', 'Host is computed');
+    //     assert.equal(m.path, '/', 'Path is computed');
+    //     assert.equal(m.anchor, '', 'Ancor is computed');
+    //     assert.lengthOf(m.search, 0, 'Search is computed');
+    //   });
+    // });
     </script>
 
   </body>
