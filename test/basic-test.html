@@ -49,16 +49,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.equal(model.host, 'https://sub.domain.com',
           'Host value is parsed');
         assert.equal(model.path, '/path/to/resource', 'Path value is parsed');
-        assert.typeOf(model.search, 'array', 'search is an array');
+        assert.typeOf(details.queryParameters, 'array', 'search is an array');
         var searchCompare = [{
           name: 'param',
-          value: 'value'
+          value: 'value',
+          enabled: true
         },
         {
           name: 'other',
-          value: 'value'
+          value: 'value',
+          enabled: true
         }];
-        assert.deepEqual(model.search, searchCompare, 'search is parser');
+        assert.deepEqual(details.queryParameters, searchCompare, 'search is parser');
       });
 
       test('Should encode URL', function() {

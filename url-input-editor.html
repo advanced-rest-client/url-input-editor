@@ -18,6 +18,7 @@ the License.
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
+<link rel="import" href="../arc-polyfills/arc-polyfills.html">
 <link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="../iron-form-element-behavior/iron-form-element-behavior.html">
 <link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
@@ -107,7 +108,7 @@ Use paper elements mixin to style this element.
         </paper-input>
         <paper-autocomplete loader open-on-focus target="[[_autocompleteTarget]]" on-query="_autocompleteQuery" opened="{{suggesionsOpened}}"></paper-autocomplete>
         <iron-collapse id="collapse" opened="[[detailsOpened]]" transitioning="{{colapseTransitioning}}">
-          <url-detailed-editor value="{{value}}" attr-for-opened="opened" opened$="[[detailsOpened]]" details-opened="{{detailsOpened}}" on-url-encode="encodeParameters" on-url-decode="decodeParameters"></url-detailed-editor>
+          <url-detailed-editor value="{{value}}" attr-for-opened="opened" opened$="[[detailsOpened]]" details-opened="{{detailsOpened}}" query-parameters="{{queryParameters}}" on-url-encode="encodeParameters" on-url-decode="decodeParameters"></url-detailed-editor>
         </iron-collapse>
       </div>
       <paper-tooltip animation-delay="200" for="detailedOpen">Open detailed editor</paper-tooltip>
@@ -130,6 +131,7 @@ Use paper elements mixin to style this element.
      *
      * @event url-value-changed
      * @param {String} value The URL.
+     * @param {Array<Object>} queryParameters Optional query parameters model.
      */
     /**
      * Fired when the user use the "entrer" key in any of the fields.
@@ -180,6 +182,20 @@ Use paper elements mixin to style this element.
       colapseTransitioning: {
         type: Boolean,
         observer: '_colapseTransitioning'
+      },
+      /**
+       * List of query parameters model.
+       * It is passed to detailed editor to build query parameters form.
+       * If not set then it is computed from current URL.
+       *
+       * Model for query parameters is:
+       * - name {String} param name
+       * - value {String} param value
+       * - enabled {Boolean} is param included into the `value`
+       */
+      queryParameters: {
+        type: Array,
+        notify: true
       }
     },
 
@@ -203,12 +219,13 @@ Use paper elements mixin to style this element.
     /**
      * A handler that is called on input
      */
-    _onValueChanged: function() {
+    _onValueChanged: function(value) {
       if (!this._ready || this._preventValueChangeEvent) {
         return;
       }
       this.fire('url-value-changed', {
-        value: this.value
+        value: value,
+        queryParameters: this.queryParameters
       });
     },
 

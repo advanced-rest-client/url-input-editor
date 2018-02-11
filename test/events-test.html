@@ -52,6 +52,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.isTrue(spy.calledOnce, 'Fired url-value-changed event');
       });
 
+      test('"url-value-changed" contains properties', function(done) {
+        var details = Polymer.dom(element.root).querySelector('url-detailed-editor');
+        details.setAttribute('opened', true);
+        TestHelpers.forceXIfStamp(details);
+        element.addEventListener('url-value-changed', function clb(e) {
+          element.removeEventListener('url-value-changed', clb);
+          assert.equal(e.detail.value, 'https://test.com/');
+          assert.lengthOf(e.detail.queryParameters, 1);
+          done();
+        });
+        details.set('model.host', 'https://test.com');
+      });
     });
     </script>
 

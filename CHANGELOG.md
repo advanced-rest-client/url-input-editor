@@ -1,3 +1,14 @@
+<a name="0.2.6"></a>
+## [0.2.6](https://github.com/advanced-rest-client/url-input-editor/compare/0.2.5...0.2.6) (2018-02-11)
+
+
+### Fix
+
+* Adding polyfills for IE and Safari ([28f54ad5a81a80a9d2c59903d7900f6e7bc445e7](https://github.com/advanced-rest-client/url-input-editor/commit/28f54ad5a81a80a9d2c59903d7900f6e7bc445e7))
+* Fixes https://github.com/advanced-rest-client/arc-electron/issues/39 - ability to enable / disable query parameters. ([9e6e6965ab92dd0bbebb6d4579342dc0df320e39](https://github.com/advanced-rest-client/url-input-editor/commit/9e6e6965ab92dd0bbebb6d4579342dc0df320e39))
+
+
+
 <a name="0.2.5"></a>
 ## [0.2.5](https://github.com/advanced-rest-client/url-input-editor/compare/0.2.4...0.2.5) (2017-10-31)
 
