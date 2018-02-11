@@ -23,7 +23,7 @@ the License.
 <link rel="import" href="../url-parser/url-parser.html">
 <link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../openable-panel-behavior/openable-panel-behavior.html">
-<link rel="import" href="url-editor-behavior.html">
+<link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
 
 <!--
 `<url-detailed-editor>` Presents a form element that contains a list of URL
@@ -139,11 +139,19 @@ Custom property | Description | Default
     is: 'url-detailed-editor',
 
     behaviors: [
-      ArcBehaviors.UrlEditorBehavior,
+      Polymer.IronValidatableBehavior,
       ArcBehaviors.OpenablePanelBehavior
     ],
 
     properties: {
+      /**
+       * Current value of the editor.
+       */
+      value: {
+        type: String,
+        notify: true
+      },
+      // Computed model for the view.
       model: Object,
       // Reference to the Host input field.
       hostField: {
@@ -154,6 +162,19 @@ Custom property | Description | Default
       },
       detailsOpened: {
         type: Boolean,
+        notify: true
+      },
+      /**
+       * List of query parameters model.
+       * If not set then it is computed from current URL.
+       *
+       * Model for query parameters is:
+       * - name {String} param name
+       * - value {String} param value
+       * - enabled {Boolean} is param included into the `value`
+       */
+      queryParameters: {
+        type: Array,
         notify: true
       }
     },

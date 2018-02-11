@@ -182,7 +182,20 @@ Use paper elements mixin to style this element.
         type: Boolean,
         observer: '_colapseTransitioning'
       },
-      model: Object
+      /**
+       * List of query parameters model.
+       * It is passed to detailed editor to build query parameters form.
+       * If not set then it is computed from current URL.
+       *
+       * Model for query parameters is:
+       * - name {String} param name
+       * - value {String} param value
+       * - enabled {Boolean} is param included into the `value`
+       */
+      queryParameters: {
+        type: Array,
+        notify: true
+      }
     },
 
     observers: ['_detailsOpenedChanged(detailsOpened)'],
