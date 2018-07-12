@@ -98,6 +98,12 @@ Custom property | Description | Default
     #detailedClose:hover {
       @apply --toggle-button-hover;
     }
+
+    .add-param {
+      margin-top: 12px;
+      background-color: #2196F3;
+      color: #fff;
+    }
     </style>
     <form is="iron-form" id="form">
       <paper-input id="host" label="Host" value="{{model.host}}" class="host-input" required auto-validate error-message="Valid host is required. You can use variables here." on-keydown="_hostKeyDown" on-paste="_hostPaste">
@@ -118,7 +124,7 @@ Custom property | Description | Default
             </span>
           </div>
         </template>
-        <paper-button raised on-tap="addSearchParam">Add</paper-button>
+        <paper-button raised on-tap="addSearchParam" class="add-param">Add</paper-button>
       </div>
       <paper-input id="hash" label="Hash" value="{{model.anchor}}" class="anchor-input"></paper-input>
     </form>
