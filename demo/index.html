@@ -38,13 +38,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 </head>
 <body unresolved>
+  <url-history-saver></url-history-saver>
   <div class="vertical-section-container centered">
     <h3>The `url-input-editor`</h3>
     <demo-snippet>
       <template is="dom-bind">
         <url-input-editor value="{{url}}" id="editor"></url-input-editor>
-        <url-history-saver></url-history-saver>
-
         <pre>[[url]]</pre>
       </template>
     </demo-snippet>
@@ -75,9 +74,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var toast = document.querySelector('paper-toast');
     toast.text = 'Request send requested';
     toast.opened = true;
-  });
-  window.addEventListener('WebComponentsReady', function() {
-    document.getElementById('editor').value = 'https://domain.com/path/to/endpoint?param=value&array[]=one&array[]=two';
   });
   </script>
 </body>

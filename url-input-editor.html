@@ -103,7 +103,7 @@ Use paper elements mixin to style this element.
     </style>
     <div class="content">
       <div class="editor">
-        <paper-input label="Request URL" value="{{value}}" class="main-input" required auto-validate error-message="An URL is required." hidden="[[detailsOpened]]" on-blur="_ensureUrlHasProtocol">
+        <paper-input label="Request URL" value="{{value}}" class="main-input" required auto-validate error-message="An URL is required." hidden="[[detailsOpened]]" on-blur="_ensureUrlHasProtocol" on-focus="_mainFocus">
           <paper-icon-button id="detailedOpen" suffix icon="arc:keyboard-arrow-down" on-tap="open"></paper-icon-button>
         </paper-input>
         <paper-autocomplete loader open-on-focus target="[[_autocompleteTarget]]" on-query="_autocompleteQuery" opened="{{suggesionsOpened}}"></paper-autocomplete>
@@ -383,6 +383,15 @@ Use paper elements mixin to style this element.
         }
       }
     },
+    /**
+     * Ensures that protocol is set before user input.
+     */
+    _mainFocus: function() {
+      if (!this.value) {
+        this.value = this.defaultProtocol + '://';
+      }
+    },
+
     _keyDownHandler: function(e) {
       e = Polymer.dom(e);
       if (e.rootTarget.nodeName !== 'INPUT') {
