@@ -1,21 +1,10 @@
 <!doctype html>
-<!--
-@license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
 <html>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
     <script src="../../web-component-tester/browser.js"></script>
-    <script src="../../iron-test-helpers/test-helpers.js"></script>
     <script src="../../iron-test-helpers/mock-interactions.js"></script>
     <link rel="import" href="../url-input-editor.html">
   </head>
@@ -23,46 +12,50 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <test-fixture id="basic">
       <template>
-        <url-input-editor url="http://ux.mulesoft.com/path?param"></url-input-editor>
+        <url-input-editor value="http://ux.mulesoft.com/path?param=value"></url-input-editor>
       </template>
     </test-fixture>
 
     <script>
-    /* global assert, fixture, MockInteractions, TestHelpers, sinon */
     suite('events tests', function() {
-      var element;
+      let element;
       setup(function() {
         element = fixture('basic');
       });
 
-      test('Fires "send-request" custom event on main field', function() {
-        var spy = sinon.stub();
+      test('Dispatches "send-request" custom event on main field', function(done) {
+        const spy = sinon.stub();
         element.addEventListener('send-request', spy);
-        MockInteractions.pressEnter(element._autocompleteTarget.inputElement);
-        assert.isTrue(spy.calledOnce, 'Fired send-request event');
-      });
-
-      test('Fires "url-value-changed" custom event', function() {
-        var details = Polymer.dom(element.root).querySelector('url-detailed-editor');
-        details.setAttribute('opened', true);
-        TestHelpers.forceXIfStamp(details);
-        var spy = sinon.stub();
-        element.addEventListener('url-value-changed', spy);
-        details.set('model.host', 'https://test-com/');
-        assert.isTrue(spy.calledOnce, 'Fired url-value-changed event');
-      });
-
-      test('"url-value-changed" contains properties', function(done) {
-        var details = Polymer.dom(element.root).querySelector('url-detailed-editor');
-        details.setAttribute('opened', true);
-        TestHelpers.forceXIfStamp(details);
-        element.addEventListener('url-value-changed', function clb(e) {
-          element.removeEventListener('url-value-changed', clb);
-          assert.equal(e.detail.value, 'https://test.com/');
-          assert.lengthOf(e.detail.queryParameters, 1);
+        flush(() => {
+          const input = element.shadowRoot.querySelector('.main-input');
+          MockInteractions.pressEnter(input.inputElement.inputElement);
+          assert.isTrue(spy.calledOnce, 'Fired send-request event');
           done();
         });
-        details.set('model.host', 'https://test.com');
+      });
+
+      test('Fires "url-value-changed" custom event', function(done) {
+        flush(() => {
+          const spy = sinon.stub();
+          element.addEventListener('url-value-changed', spy);
+          const details = element.shadowRoot.querySelector('url-detailed-editor');
+          details.set('model.host', 'https://test-com/');
+          assert.isTrue(spy.calledOnce, 'Fired url-value-changed event');
+          done();
+        });
+      });
+
+      test('"url-value-changed" contains all properties', function(done) {
+        flush(() => {
+          element.addEventListener('url-value-changed', function clb(e) {
+            element.removeEventListener('url-value-changed', clb);
+            assert.equal(e.detail.value, 'https://test.com/path?param=value');
+            assert.lengthOf(e.detail.queryParameters, 1);
+            done();
+          });
+          const details = element.shadowRoot.querySelector('url-detailed-editor');
+          details.set('model.host', 'https://test.com');
+        });
       });
     });
     </script>

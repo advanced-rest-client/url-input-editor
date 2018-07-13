@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <title>url-input-editor test</title>
+  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <link rel="import" href="../url-input-editor.html">
+</head>
+<body>
+  <test-fixture id="Basic">
+    <template>
+      <url-input-editor></url-input-editor>
+    </template>
+  </test-fixture>
+
+  <script>
+  suite('Basic tests', () => {
+    let element;
+    test('Adds protocol on input focus', (done) => {
+      element = fixture('Basic');
+      flush(() => {
+        const input = element.shadowRoot.querySelector('.main-input');
+        const compare = 'http://';
+        input.focus();
+        assert.equal(input.value, compare);
+        done();
+      });
+    });
+
+    test('Adds protocol on input blur', (done) => {
+      element = fixture('Basic');
+      element.value = 'test';
+      flush(() => {
+        const input = element.shadowRoot.querySelector('.main-input');
+        const compare = 'http://test';
+        input.focus();
+        setTimeout(() => {
+          input.blur();
+          assert.equal(input.value, compare);
+          done();
+        }, 1);
+      });
+    });
+
+    test('_autocompleteTarget is set', (done) => {
+      element = fixture('Basic');
+      flush(() => {
+        const input = element.shadowRoot.querySelector('.main-input');
+        assert.isTrue(element._autocompleteTarget === input);
+        done();
+      });
+    });
+
+    test('Dispatches url-value-changed custom event', (done) => {
+      element = fixture('Basic');
+      const value = 'https://mulesoft.com/';
+      element.addEventListener('url-value-changed', (e) => {
+        assert.equal(e.detail.value, value);
+        done();
+      });
+      element.value = value;
+    });
+
+    test('Encodes URL', function() {
+      element = fixture('Basic');
+      const url = 'http://192.168.2.252/service/board/1/edit?description=We\'ll keep your precious' +
+        ' pup fed, watered, walked and socialized during their stay.';
+      const comp = 'http://192.168.2.252/service/board/1/edit?description=We\'ll+keep+your+' +
+        'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
+      element.value = url;
+      element.encodeParameters();
+      assert.equal(element.value, comp);
+    });
+
+    test('Decode URL', function() {
+      element = fixture('Basic');
+      const comp = 'http://192.168.2.252/service/board/1/edit?description=We\'ll keep your precious' +
+        ' pup fed, watered, walked and socialized during their stay.';
+      const url = 'http://192.168.2.252/service/board/1/edit?description=We%27ll+keep+your+' +
+        'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
+      element.value = url;
+      element.decodeParameters();
+      assert.equal(element.value, comp);
+    });
+
+    test('Opens detailed editor', (done) => {
+      element = fixture('Basic');
+      flush(() => {
+        const button = element.shadowRoot.querySelector('.toggle-button');
+        button.click();
+        assert.isTrue(element.detailsOpened);
+        done();
+      });
+    });
+  });
+
+  suite('Model computations', () => {
+    let element;
+    test('queryParameters model is not computed', (done) => {
+      element = fixture('Basic');
+      flush(() => {
+        assert.isUndefined(element.queryParameters);
+        done();
+      });
+    });
+
+    test('queryParameters model is computed as empty array', (done) => {
+      element = fixture('Basic');
+      element.value = 'test';
+      flush(() => {
+        assert.typeOf(element.queryParameters, 'array');
+        assert.lengthOf(element.queryParameters, 0);
+        done();
+      });
+    });
+
+    test('queryParameters model is computed', (done) => {
+      element = fixture('Basic');
+      element.value = 'https://mulesoft.com/path?a=b';
+      flush(() => {
+        assert.typeOf(element.queryParameters, 'array');
+        assert.lengthOf(element.queryParameters, 1);
+        done();
+      });
+    });
+  });
+
+  suite('Validation', () => {
+    let element;
+    setup((done) => {
+      element = fixture('Basic');
+      flush(() => done());
+    });
+
+    test('Empty value does not passes validation', () => {
+      const result = element.validate();
+      assert.isFalse(result);
+    });
+
+    test('Passes validation with value', () => {
+      element.value = 'test';
+      const result = element.validate();
+      assert.isTrue(result);
+    });
+  });
+  </script>
+</body>
+</html>
