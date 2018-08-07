@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -13,52 +14,82 @@
   <link rel="import" href="../../paper-button/paper-button.html">
   <link rel="import" href="../../paper-toast/paper-toast.html">
   <link rel="import" href="../../app-pouchdb/pouchdb.html">
+  <link rel="import" href="../../paper-toggle-button/paper-toggle-button.html">
+  <link rel="import" href="../../arc-electron-default-theme/arc-electron-default-theme.html">
   <link rel="import" href="../url-input-editor.html">
   <custom-style>
     <style include="demo-pages-shared-styles">
-      pre {
-        display: block;
-        word-break: break-all;
-        white-space: pre-wrap;
-      }
+    body,
+    html {
+      background-color: #e5e5e5;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    .card {
+      @apply --shadow-elevation-4dp;
+      padding: 20px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+      background-color: #fff;
+    }
+
+    pre {
+      display: block;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+
+    h3 {
+      @apply --paper-font-title;
+    }
     </style>
   </custom-style>
 </head>
+
 <body unresolved>
-  <dom-bind>
+  <dom-bind id="demo">
     <template>
       <url-history-saver></url-history-saver>
-      <div class="vertical-section-container centered">
+      <section class="vertical-section-container centered card" role="main">
         <h3>The `url-input-editor`</h3>
-        <url-input-editor value="{{url}}" id="editor"></url-input-editor>
+        <url-input-editor value="{{url}}" id="editor" readonly="[[readOnly]]"></url-input-editor>
+      </section>
+      <section class="vertical-section-container centered card">
+        <h3>Configuration</h3>
+        <paper-toggle-button checked="{{readOnly}}">Read only</paper-toggle-button>
+      </section>
+      <section class="vertical-section-container centered card">
         <label>URL value</label>
         <pre>[[url]]</pre>
         <label>Query parameters data model</label>
         <pre id="model"></pre>
-      </div>
-      <div class="vertical-section-container centered">
+      </section>
+      <section class="vertical-section-container centered card">
         <h3>Event based control</h3>
         <p>Fire url-value-changed custom event to set the value</p>
         <p>
-          <paper-input id="eventUrl" label="URL to send with the event"></paper-input>
-          <paper-button id="sendEventButton">Send event</paper-button>
+          <paper-input value="{{eventUrl}}" label="URL to send with the event"></paper-input>
+          <paper-button on-click="_sendEvent">Send event</paper-button>
         </p>
-      </div>
+      </section>
       <paper-toast></paper-toast>
-  </template>
-</dom-bind>
+    </template>
+  </dom-bind>
   <script>
-  document.getElementById('sendEventButton')
-  .addEventListener('click', function() {
-    const url = document.getElementById('eventUrl').value;
-    const ev = new CustomEvent('url-value-changed', {
-      detail: {
-        value: url
-      },
-      bubbles: true
-    });
-    document.body.dispatchEvent(ev);
-  });
+  (function(scope) {
+    scope.url = location.href;
+    scope._sendEvent = function() {
+      document.body.dispatchEvent(new CustomEvent('url-value-changed', {
+        detail: {
+          value: scope.eventUrl
+        },
+        bubbles: true
+      }));
+    };
+  })(document.getElementById('demo'));
   document.body.addEventListener('send-request', function() {
     const toast = document.querySelector('paper-toast');
     toast.text = 'Request send requested';
@@ -71,4 +102,5 @@
   });
   </script>
 </body>
+
 </html>
