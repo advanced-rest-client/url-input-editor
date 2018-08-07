@@ -73,28 +73,28 @@ the License.
     </style>
     <iron-form id="form">
       <form>
-        <paper-input id="host" label="Host" value="{{model.host}}" class="host-input" required auto-validate error-message="Valid host is required. You can use variables here." on-keydown="_hostKeyDown" on-paste="_hostPaste"></paper-input>
-        <paper-input id="path" label="Path" value="{{model.path}}" class="path-input" auto-validate pattern="\S*" error-message="You may want to encode this value before sending it to the server"></paper-input>
+        <paper-input id="host" label="Host" value="{{model.host}}" class="host-input" required auto-validate error-message="Valid host is required. You can use variables here." on-keydown="_hostKeyDown" on-paste="_hostPaste" readonly="[[readonly]]"></paper-input>
+        <paper-input id="path" label="Path" value="{{model.path}}" class="path-input" auto-validate pattern="\S*" error-message="You may want to encode this value before sending it to the server" readonly="[[readonly]]"></paper-input>
         <div class="params-list">
           <label class="query-title">Query parameters</label>
           <template is="dom-repeat" id="paramsList" items="{{queryParameters}}" on-dom-change="_onParamsRender">
             <div class="form-row">
-              <paper-toggle-button class="enable-button" checked="{{item.enabled}}" title="Enable / disable parameter"></paper-toggle-button>
-              <paper-input no-label-float inline auto-validate value="{{item.name}}" class="param-name" placeholder="Param name" pattern="\S*" error-message="You may want to encode this value before sending it to the server"></paper-input>
-              <paper-input no-label-float inline auto-validate value="{{item.value}}" class="param-value" placeholder="Param value" pattern="\S*" error-message="You may want to encode this value before sending it to the server"></paper-input>
-              <paper-icon-button icon="arc:close" on-tap="_removeSearchParam" on-focus="_valueFieldLeft" title="Remove parameter"></paper-icon-button>
+              <paper-toggle-button class="enable-button" checked="{{item.enabled}}" title="Enable / disable parameter" disabled="[[readonly]]"></paper-toggle-button>
+              <paper-input no-label-float inline auto-validate value="{{item.name}}" class="param-name" placeholder="Param name" pattern="\S*" error-message="You may want to encode this value before sending it to the server" readonly="[[readonly]]"></paper-input>
+              <paper-input no-label-float inline auto-validate value="{{item.value}}" class="param-value" placeholder="Param value" pattern="\S*" error-message="You may want to encode this value before sending it to the server" readonly="[[readonly]]"></paper-input>
+              <paper-icon-button icon="arc:close" on-tap="_removeSearchParam" on-focus="_valueFieldLeft" title="Remove parameter" disabled="[[readonly]]"></paper-icon-button>
             </div>
           </template>
           <div class="query-actions">
-            <paper-button raised on-tap="addSearchParam" class="add-param">Add</paper-button>
+            <paper-button raised on-tap="addSearchParam" class="add-param" disabled="[[readonly]]">Add</paper-button>
           </div>
         </div>
-        <paper-input id="hash" label="Hash" value="{{model.anchor}}" class="anchor-input"></paper-input>
+        <paper-input id="hash" label="Hash" value="{{model.anchor}}" class="anchor-input" readonly="[[readonly]]"></paper-input>
       </form>
     </iron-form>
     <div class="encode-actions">
-      <paper-button id="encode" on-tap="_encodeParameters" title="URL encodes parameters in the editor">Encode URL</paper-button>
-      <paper-button id="decode" on-tap="_decodeParameters" title="URL decodes parameters in the editor">Decode URL</paper-button>
+      <paper-button id="encode" on-tap="_encodeParameters" title="URL encodes parameters in the editor" disabled="[[readonly]]">Encode URL</paper-button>
+      <paper-button id="decode" on-tap="_decodeParameters" title="URL decodes parameters in the editor" disabled="[[readonly]]">Decode URL</paper-button>
     </div>
   </template>
   <script>
@@ -128,7 +128,7 @@ the License.
    */
   class UrlDetailedEditor extends
     Polymer.mixinBehaviors([Polymer.IronValidatableBehavior], Polymer.Element) {
-    static get is() { return 'url-detailed-editor';}
+    static get is() {return 'url-detailed-editor';}
     static get properties() {
       return {
         /**
@@ -155,7 +155,11 @@ the License.
         queryParameters: {
           type: Array,
           notify: true
-        }
+        },
+        /**
+         * When set the editor is in read only mode.
+         */
+        readonly: Boolean
       };
     }
 
@@ -379,6 +383,9 @@ the License.
      * Adds a new Query Parameter to the list.
      */
     addSearchParam() {
+      if (this.readonly) {
+        return;
+      }
       const obj = {
         name: '',
         value: '',

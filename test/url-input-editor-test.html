@@ -15,6 +15,12 @@
     </template>
   </test-fixture>
 
+  <test-fixture id="Readonly">
+    <template>
+      <url-input-editor readonly></url-input-editor>
+    </template>
+  </test-fixture>
+
   <script>
   suite('Basic tests', () => {
     let element;
@@ -124,6 +130,55 @@
         assert.lengthOf(element.queryParameters, 1);
         done();
       });
+    });
+  });
+
+  suite('Read only mode', function() {
+    let element;
+    setup((done) => {
+      element = fixture('Readonly');
+      flush(() => done());
+    });
+
+    test('Ignores input focus', () => {
+      const input = element.shadowRoot.querySelector('.main-input');
+      const compare = 'http://';
+      input.focus();
+      assert.notEqual(input.value, compare);
+    });
+
+    test('Ignores input blur', (done) => {
+      element.value = 'test';
+      const input = element.shadowRoot.querySelector('.main-input');
+      input.focus();
+      setTimeout(() => {
+        input.blur();
+        assert.equal(input.value, 'test');
+        done();
+      }, 1);
+    });
+
+    test('Skips url-value-changed custom event', () => {
+      const spy = sinon.spy();
+      element.addEventListener('url-value-changed', spy);
+      element.value = 'https://mulesoft.com/';
+      assert.isFalse(spy.called);
+    });
+
+    test('Does not encode URL', function() {
+      const url = 'http://192.168.2.252/service/board/1/edit?description=We\'ll keep your precious' +
+        ' pup fed, watered, walked and socialized during their stay.';
+      element.value = url;
+      element.encodeParameters();
+      assert.equal(element.value, url);
+    });
+
+    test('Does not eecode URL', function() {
+      const url = 'http://192.168.2.252/service/board/1/edit?description=We%27ll+keep+your+' +
+    'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
+      element.value = url;
+      element.decodeParameters();
+      assert.equal(element.value, url);
     });
   });
 

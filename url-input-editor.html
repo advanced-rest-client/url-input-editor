@@ -67,13 +67,13 @@ the License.
     </style>
     <div class="container">
       <div class="editor">
-        <paper-input label="Request URL" value="{{value}}" class="main-input" required auto-validate error-message="An URL is required." on-blur="_ensureUrlHasProtocol" on-focus="_mainFocus" hidden="[[detailsOpened]]"></paper-input>
+        <paper-input label="Request URL" readonly="[[readonly]]" value="{{value}}" class="main-input" required auto-validate error-message="An URL is required." on-blur="_ensureUrlHasProtocol" on-focus="_mainFocus" hidden="[[detailsOpened]]"></paper-input>
         <paper-autocomplete loader open-on-focus target="[[_autocompleteTarget]]" on-query="_autocompleteQuery" opened="{{suggesionsOpened}}"></paper-autocomplete>
         <iron-collapse id="collapse" opened="[[detailsOpened]]" transitioning="{{colapseTransitioning}}">
-          <url-detailed-editor value="{{value}}" query-parameters="{{queryParameters}}" on-url-encode="encodeParameters" on-url-decode="decodeParameters"></url-detailed-editor>
+          <url-detailed-editor value="{{value}}" query-parameters="{{queryParameters}}" on-url-encode="encodeParameters" on-url-decode="decodeParameters" readonly="[[readonly]]"></url-detailed-editor>
         </iron-collapse>
       </div>
-      <paper-icon-button class="toggle-button" icon="arc:keyboard-arrow-down" on-tap="toggle" title="Toggle detailed editor"></paper-icon-button>
+      <paper-icon-button class="toggle-button" icon="arc:keyboard-arrow-down" on-click="toggle" title="Toggle detailed editor"></paper-icon-button>
     </div>
   </template>
   <script>
@@ -117,8 +117,7 @@ the License.
   class UrlInputEditor extends
     ArcBehaviors.EventsTargetBehavior(
       Polymer.mixinBehaviors([Polymer.IronValidatableBehavior], Polymer.Element)) {
-
-    static get is() { return 'url-input-editor';}
+    static get is() {return 'url-input-editor';}
     static get properties() {
       return {
         // Current URL value.
@@ -168,7 +167,11 @@ the License.
         queryParameters: {
           type: Array,
           notify: true
-        }
+        },
+        /**
+         * When set the editor is in read only mode.
+         */
+        readonly: Boolean
       };
     }
 
@@ -191,9 +194,11 @@ the License.
 
     /**
      * A handler that is called on input
+     *
+     * @param {String} value
      */
     _onValueChanged(value) {
-      if (this._preventValueChangeEvent) {
+      if (this._preventValueChangeEvent || this.readonly) {
         return;
       }
       this.dispatchEvent(new CustomEvent('url-value-changed', {
@@ -210,9 +215,11 @@ the License.
      * A handler for the `url-value-changed` event.
      * If this element is not the source of the event then it will update the `value` property.
      * It's to be used besides the Polymer's data binding system.
+     *
+     * @param {CustomEvent} e
      */
     _extValueChangedHandler(e) {
-      if (e.composedPath()[0] === this) {
+      if (e.composedPath()[0] === this || this.readonly) {
         return;
       }
       this._preventValueChangeEvent = true;
@@ -231,6 +238,9 @@ the License.
      * HTTP encode query parameters
      */
     encodeParameters() {
+      if (this.readonly) {
+        return;
+      }
       this._decodeEncode('encode');
       this.dispatchEvent(new CustomEvent('send-analytics', {
         bubbles: true,
@@ -248,6 +258,9 @@ the License.
      * HTTP decode query parameters
      */
     decodeParameters() {
+      if (this.readonly) {
+        return;
+      }
       this._decodeEncode('decode');
       this.dispatchEvent(new CustomEvent('send-analytics', {
         bubbles: true,
@@ -263,6 +276,8 @@ the License.
 
     /**
      * HTTP encode or decode query parameters depending on [type].
+     *
+     * @param {String} type
      */
     _decodeEncode(type) {
       const url = this.value;
@@ -365,6 +380,9 @@ the License.
      * @return {undefined} It updates the `url` property.
      */
     _ensureUrlHasProtocol() {
+      if (this.readonly) {
+        return;
+      }
       let url = this.value;
       if (url.indexOf('http') !== 0) {
         if (url[0] !== '/' && url[0] !== '$' && url[0] !== '{') {
@@ -375,9 +393,11 @@ the License.
     }
     /**
      * Ensures that protocol is set before user input.
+     *
+     * @param {Event} e
      */
     _mainFocus(e) {
-      if (!this.value) {
+      if (!this.value && !this.readonly) {
         this.value = this.defaultProtocol + '://';
         e.target.inputElement.inputElement.setSelectionRange(0, this.value.length);
       }
@@ -471,6 +491,9 @@ the License.
      * Sets / removes `sized` class name from the collapse element. This class
      * sets minimum height for the element so the host field will be visible
      * instantly in place of dissapearing main URL.
+     *
+     * @param {Boolean} value
+     * @param {Boolean} oldValue
      */
     _colapseTransitioning(value, oldValue) {
       if (oldValue === undefined) {
