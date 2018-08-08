@@ -299,7 +299,7 @@ the License.
      * @param {Object} recordQp Change record for search parameters
      */
     _modelChanged(recordModel, recordQp) {
-      if (this.__modelComputation || this.readonly) {
+      if (this.__modelComputation || this.readonly || !recordModel.base) {
         return;
       }
       if (!this.__parser) {
