@@ -182,12 +182,13 @@ the License.
     }
 
     _attachListeners(node) {
+      this._autocompleteTarget = this.shadowRoot.querySelector('.main-input');
       node.addEventListener('url-value-changed', this._extValueChangedHandler);
       this.addEventListener('keydown', this._keyDownHandler);
-      this._autocompleteTarget = this.shadowRoot.querySelector('.main-input');
     }
 
     _detachListeners(node) {
+      this._autocompleteTarget = undefined;
       node.removeEventListener('url-value-changed', this._extValueChangedHandler);
       this.removeEventListener('keydown', this._keyDownHandler);
     }
