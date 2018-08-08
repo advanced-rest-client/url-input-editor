@@ -170,6 +170,8 @@ the License.
     }
     /**
      * A handler that is called on input
+     *
+     * @param {String} value
      */
     _valueChanged(value) {
       if (this._cancelModelComputation) {
@@ -296,7 +298,7 @@ the License.
      * @param {Object} recordQp Change record for search parameters
      */
     _modelChanged(recordModel, recordQp) {
-      if (this.__modelComputation) {
+      if (this.__modelComputation || this.readonly) {
         return;
       }
       if (!this.__parser) {
