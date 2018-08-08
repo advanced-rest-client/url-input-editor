@@ -47,6 +47,12 @@ the License.
     .toggle-button {
       @apply --toggle-button;
       margin-top: 16px;
+      transform: rotateZ(0deg);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .toggle-button.opened {
+      transform: rotateZ(-180deg);
     }
 
     .toggle-button:hover {
@@ -73,7 +79,7 @@ the License.
           <url-detailed-editor value="{{value}}" query-parameters="{{queryParameters}}" on-url-encode="encodeParameters" on-url-decode="decodeParameters" readonly="[[readonly]]"></url-detailed-editor>
         </iron-collapse>
       </div>
-      <paper-icon-button class="toggle-button" icon="arc:keyboard-arrow-down" on-click="toggle" title="Toggle detailed editor"></paper-icon-button>
+      <paper-icon-button class$="toggle-button [[_computeToggleClass(detailsOpened)]]" icon="arc:keyboard-arrow-down" on-click="toggle" title="Toggle detailed editor"></paper-icon-button>
     </div>
   </template>
   <script>
@@ -521,6 +527,14 @@ the License.
         element = this.shadowRoot.querySelector('.main-input');
       }
       return element.validate();
+    }
+    /**
+     * Computes class name for the toggle button
+     * @param {Boolean} opened Current sate of the editor.
+     * @return {String}
+     */
+    _computeToggleClass(opened) {
+      return opened ? 'opened' : '';
     }
     /**
      * Fired when the URL value change.
