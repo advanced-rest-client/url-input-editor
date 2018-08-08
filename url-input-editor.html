@@ -137,7 +137,8 @@ the License.
          */
         detailsOpened: {
           type: Boolean,
-          observer: '_detailsOpenedChanged'
+          observer: '_detailsOpenedChanged',
+          notify: true
         },
         /**
          * Default protocol for the URL if it's missing.
