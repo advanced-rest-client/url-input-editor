@@ -38,6 +38,7 @@
         flush(() => {
           const spy = sinon.stub();
           element.addEventListener('url-value-changed', spy);
+          element.detailsOpened = true;
           const details = element.shadowRoot.querySelector('url-detailed-editor');
           details.set('model.host', 'https://test-com/');
           assert.isTrue(spy.calledOnce, 'Fired url-value-changed event');
@@ -53,6 +54,7 @@
             assert.lengthOf(e.detail.queryParameters, 1);
             done();
           });
+          element.detailsOpened = true;
           const details = element.shadowRoot.querySelector('url-detailed-editor');
           details.set('model.host', 'https://test.com');
         });
