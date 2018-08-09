@@ -76,7 +76,7 @@ the License.
         <paper-input label="Request URL" readonly="[[readonly]]" value="{{value}}" class="main-input" required auto-validate error-message="An URL is required." on-blur="_ensureUrlHasProtocol" on-focus="_mainFocus" hidden="[[detailsOpened]]"></paper-input>
         <paper-autocomplete loader open-on-focus target="[[_autocompleteTarget]]" on-query="_autocompleteQuery" opened="{{suggesionsOpened}}"></paper-autocomplete>
         <iron-collapse id="collapse" opened="[[detailsOpened]]" transitioning="{{colapseTransitioning}}">
-          <url-detailed-editor value="{{value}}" query-parameters="{{queryParameters}}" on-url-encode="encodeParameters" on-url-decode="decodeParameters" readonly="[[readonly]]"></url-detailed-editor>
+          <url-detailed-editor value="{{_detailedValue}}" query-parameters="{{queryParameters}}" on-url-encode="encodeParameters" on-url-decode="decodeParameters" readonly="[[readonly]]"></url-detailed-editor>
         </iron-collapse>
       </div>
       <paper-icon-button class$="toggle-button [[_computeToggleClass(detailsOpened)]]" icon="arc:keyboard-arrow-down" on-click="toggle" title="Toggle detailed editor"></paper-icon-button>
@@ -173,13 +173,20 @@ the License.
          */
         queryParameters: {
           type: Array,
-          notify: true
+          // notify: true
         },
         /**
          * When set the editor is in read only mode.
          */
-        readonly: Boolean
+        readonly: Boolean,
+        _detailedValue: String
       };
+    }
+
+    static get observers() {
+      return [
+        '_detailedValueChanged(_detailedValue, detailsOpened)'
+      ];
     }
 
     constructor() {
@@ -209,6 +216,9 @@ the License.
       if (this._preventValueChangeEvent || this.readonly) {
         return;
       }
+      if (this._detailedValue !== value) {
+        this._detailedValue = value;
+      }
       this.dispatchEvent(new CustomEvent('url-value-changed', {
         bubbles: true,
         composed: true,
@@ -217,6 +227,13 @@ the License.
           queryParameters: this.queryParameters
         }
       }));
+    }
+
+    _detailedValueChanged(_detailedValue, detailsOpened) {
+      if (!detailsOpened) {
+        return;
+      }
+      this.value = _detailedValue;
     }
 
     /**
