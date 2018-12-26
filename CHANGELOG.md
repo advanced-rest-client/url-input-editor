@@ -1,3 +1,24 @@
+## [0.2.9](https://github.com/advanced-rest-client/url-input-editor/compare/0.2.6...0.2.9) (2018-07-13)
+
+
+### Update
+
+* Adding default protocol on input focus ([2ae74d74068a5c0165892cf1c1c26d0bf51854cd](https://github.com/advanced-rest-client/url-input-editor/commit/2ae74d74068a5c0165892cf1c1c26d0bf51854cd))
+* Changing default protocol to http. ([c7eaedccd328d2925563fb9700f84735d2e5fd10](https://github.com/advanced-rest-client/url-input-editor/commit/c7eaedccd328d2925563fb9700f84735d2e5fd10))
+
+
+
+<a name="0.2.8"></a>
+## [0.2.8](https://github.com/advanced-rest-client/url-input-editor/compare/0.2.6...0.2.8) (2018-07-12)
+
+
+### Update
+
+* Adding default protocol on input focus ([2ae74d74068a5c0165892cf1c1c26d0bf51854cd](https://github.com/advanced-rest-client/url-input-editor/commit/2ae74d74068a5c0165892cf1c1c26d0bf51854cd))
+* Changing default protocol to http. ([c7eaedccd328d2925563fb9700f84735d2e5fd10](https://github.com/advanced-rest-client/url-input-editor/commit/c7eaedccd328d2925563fb9700f84735d2e5fd10))
+
+
+
 <a name="0.2.7"></a>
 ## [0.2.7](https://github.com/advanced-rest-client/url-input-editor/compare/0.2.6...0.2.7) (2018-02-11)
 
