@@ -223,7 +223,7 @@ the License.
         bubbles: true,
         composed: true,
         detail: {
-          value: value,
+          value,
           queryParameters: this.queryParameters
         }
       }));
@@ -247,9 +247,12 @@ the License.
       if (e.composedPath()[0] === this || this.readonly) {
         return;
       }
-      this._preventValueChangeEvent = true;
-      this.set('value', e.detail.value);
-      this._preventValueChangeEvent = false;
+      const {value} = e.detail;
+      if (this.value !== value) {
+        this._preventValueChangeEvent = true;
+        this.set('value', value);
+        this._preventValueChangeEvent = false;
+      }
     }
 
     /**
@@ -267,16 +270,7 @@ the License.
         return;
       }
       this._decodeEncode('encode');
-      this.dispatchEvent(new CustomEvent('send-analytics', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          type: 'event',
-          category: 'Request view',
-          action: 'URL widget context menu action',
-          label: 'Encode parameters'
-        }
-      }));
+      this._dispatchAnalyticsEvent('Encode parameters');
     }
 
     /**
@@ -287,18 +281,27 @@ the License.
         return;
       }
       this._decodeEncode('decode');
-      this.dispatchEvent(new CustomEvent('send-analytics', {
+      this._dispatchAnalyticsEvent('Decode parameters');
+    }
+    /**
+     * Dispatches analytics event with "event" type.
+     * @param {String} label A label to use with GA event
+     * @return {CustomEvent}
+     */
+    _dispatchAnalyticsEvent(label) {
+      const e = new CustomEvent('send-analytics', {
         bubbles: true,
         composed: true,
         detail: {
           type: 'event',
           category: 'Request view',
-          action: 'URL widget context menu action',
-          label: 'Decode parameters'
+          action: 'URL editor',
+          label
         }
-      }));
+      });
+      this.dispatchEvent(e);
+      return e;
     }
-
     /**
      * HTTP encode or decode query parameters depending on [type].
      *
@@ -312,48 +315,42 @@ the License.
       /* global UrlParser */
       const parser = new UrlParser(url);
       if (type === 'decode') {
-        this._decode(parser);
+        this._processUrlParams(parser, 'decodeQueryString');
       } else {
-        this._encode(parser);
+        this._processUrlParams(parser, 'encodeQueryString');
       }
+      this.set('value', parser.value);
     }
-
-    _decode(parser) {
+    /**
+     * Processes query parameters and path value by `processFn`.
+     * The function has to be available on this instance.
+     * @param {UrlParser} parser Instance of UrlParser
+     * @param {String} processFn Function name to call on each parameter
+     */
+    _processUrlParams(parser, processFn) {
       const decoded = parser.searchParams.map((item) => {
-        const _key = this.decodeQueryString(item[0]);
-        const _value = this.decodeQueryString(item[1]);
-        return [_key, _value];
+        const key = this[processFn](item[0]);
+        const value = this[processFn](item[1]);
+        return [key, value];
       });
       parser.searchParams = decoded;
       const path = parser.path;
-      if (path) {
-        parser.path = path.split('/')
-        .map((item) => this.decodeQueryString(item))
-        .join('/');
-      }
-      this.set('value', parser.value);
-    }
-
-    _encode(parser) {
-      const encoded = parser.searchParams.map((item) => {
-        const _key = this.encodeQueryString(item[0]);
-        const _value = this.encodeQueryString(item[1]);
-        return [_key, _value];
-      });
-      parser.searchParams = encoded;
-      const path = parser.path;
-      if (path) {
-        parser.path = '/' + path.split('/')
-        .map((item) => {
-          if (!item) {
-            return;
+      if (path && path.length) {
+        const parts = path.split('/');
+        let tmp = '/';
+        for (let i = 0, len = parts.length; i < len; i++) {
+          let part = parts[i];
+          if (!part) {
+            continue;
           }
-          return this.encodeQueryString(item);
-        })
-        .filter((item) => !!item)
-        .join('/');
+          part = this[processFn](part);
+          tmp += part;
+          if (i + 1 !== len) {
+            tmp += '/';
+          }
+        }
+        parser.path = tmp;
       }
-      this.set('value', parser.value);
     }
     /**
      * Ensures the URL has protocol value when detailed editor closes.
@@ -369,6 +366,7 @@ the License.
      * Handler for autocomplete element query event.
      * Dispatches `url-history-query` to query history model for data.
      * @param {CustomEvent} e
+     * @return {Promise}
      */
     _autocompleteQuery(e) {
       e.preventDefault();
@@ -376,18 +374,14 @@ the License.
       const autocomplete = e.target;
       if (!e.detail.value) {
         autocomplete.source = [];
-        return;
+        return Promise.resolve();
       }
-      const ev = new CustomEvent('url-history-query', {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {
-          q: e.detail.value
-        }
-      });
-      this.dispatchEvent(ev);
-      ev.detail.result
+      const ev = this._dispatchUrlQuery(e.detail.value);
+      if (!ev.detail.result) {
+        console.warn('"url-history-query" event not handled');
+        return Promise.resolve();
+      }
+      return ev.detail.result
       .then((result) => {
         result = result.map((item) => item.url);
         autocomplete.source = result;
@@ -395,6 +389,23 @@ the License.
       .catch(() => {
         autocomplete.source = [];
       });
+    }
+    /**
+     * Dispatches `url-history-query` custom event.
+     * @param {String} q URL query
+     * @return {CustomEvent}
+     */
+    _dispatchUrlQuery(q) {
+      const e = new CustomEvent('url-history-query', {
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        detail: {
+          q
+        }
+      });
+      this.dispatchEvent(e);
+      return e;
     }
     /**
      * Ensures that the URL has a protocol.
@@ -408,7 +419,7 @@ the License.
       if (this.readonly) {
         return;
       }
-      let url = this.value;
+      let url = this.value || '';
       if (url.indexOf('http') !== 0) {
         if (url[0] !== '/' && url[0] !== '$' && url[0] !== '{') {
           url = this.defaultProtocol + '://' + url;
@@ -430,13 +441,12 @@ the License.
 
     _keyDownHandler(e) {
       const target = e.composedPath()[0];
-      if (target.nodeName !== 'INPUT') {
+      if (!target || target.nodeName !== 'INPUT') {
         return;
       }
-      if (e.keyCode !== 13) {
-        return;
+      if ((e.code && (e.code === 'Enter' || e.code === 'NumpadEnter')) || (e.keyCode && e.keyCode === 13)) {
+        this._onEnter();
       }
-      this._onEnter();
     }
     /**
      * A handler called when the user press "enter" in any of the form fields.
@@ -490,8 +500,7 @@ the License.
       if (!str) {
         return str;
       }
-      const regexp = /%20/g;
-      return encodeURIComponent(str).replace(regexp, '+');
+      return encodeURIComponent(str).replace(/%20/g, '+');
     }
     /**
      * Returns a string where all URL component escape sequences have been
@@ -507,8 +516,7 @@ the License.
       if (!str) {
         return str;
       }
-      const regexp = /\+/g;
-      return decodeURIComponent(str.replace(regexp, '%20'));
+      return decodeURIComponent(str.replace(/\+/g, '%20'));
     }
     /**
      * A trick to instantly replace main URL input with host field and back
@@ -535,14 +543,14 @@ the License.
      * @return {Boolean}
      */
     _getValidity() {
-      if (!this.shadowRoot) {
-        return true;
-      }
       let element;
       if (this.detailsOpened) {
         element = this.shadowRoot.querySelector('url-detailed-editor');
       } else {
         element = this.shadowRoot.querySelector('.main-input');
+      }
+      if (!element) {
+        return true;
       }
       return element.validate();
     }
