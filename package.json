@@ -1,5 +1,5 @@
 {
-  "name": "url-input-editor",
+  "name": "@advanced-rest-client/url-input-editor",
   "version": "2.0.0",
   "license": "Apache-2.0",
   "description": "An element that is responsible for displaying and manipulating the reuqest URL",
