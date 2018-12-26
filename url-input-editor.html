@@ -1,6 +1,6 @@
 <!--
 @license
-Copyright 2017 The Advanced REST client authors <arc@mulesoft.com>
+Copyright 2018 The Advanced REST client authors <arc@mulesoft.com>
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
 the License at
@@ -11,85 +11,51 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 -->
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../polymer/lib/legacy/class.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
-<link rel="import" href="../arc-polyfills/arc-polyfills.html">
 <link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="../iron-form-element-behavior/iron-form-element-behavior.html">
 <link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
 <link rel="import" href="../events-target-behavior/events-target-behavior.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../url-parser/url-parser.html">
+<link rel="import" href="../events-target-behavior/events-target-behavior.html">
 <link rel="import" href="url-detailed-editor.html">
-<!--
-# url-input-editor element
-
-An editor of the request URL.
-
-The editor renders a simple editor view with a input fiedl. The input in this
-view is supported by the `paper-autocomplete` element that queries history saver
-for URL history data (`url-history-query` custom event).
-
-
-By setting `detailsOpened` property to `true` (the user can do this in the UI)
-it will render detailed editor. The editor allows to edit host, path, query
-parameetrs and hash separatelly.
-
-
-### Example
-
-```html
-<url-input-editor url="{{requestURL}}" on-send-request="_sendAction" on-url-value-changed="_handleNewUrl"></url-input-editor>
-```
-
-### Styling
-`<url-input-editor>` provides the following custom properties and mixins for styling:
-
-Custom property | Description | Default
-----------------|-------------|----------
-`--url-input-editor` | Mixin applied to the element | `{}`
-
-Use paper elements mixin to style this element.
-
-@group UI Elements
-@element url-input-editor
-@demo demo/index.html
--->
 <dom-module id="url-input-editor">
   <template>
     <style>
     :host {
-      @apply(--layout-vertical);
+      @apply --layout-vertical;
       position: relative;
-      @apply(--url-input-editor);
-    }
-
-    .content {
-      @apply(--layout-horizontal);
+      @apply --url-input-editor;
     }
 
     .main-input,
     .editor {
-      @apply(--layout-flex);
+      @apply --layout-flex;
     }
 
     paper-autocomplete {
       bottom: 0;
     }
 
-    #detailedOpen {
+    .toggle-button {
       @apply --toggle-button;
-      padding: 0;
-      width: 24px;
-      height: 24px;
+      margin-top: 16px;
+      transform: rotateZ(0deg);
+      transition: transform 0.3s ease-in-out;
     }
 
-    #detailedOpen:hover {
+    .toggle-button.opened {
+      transform: rotateZ(-180deg);
+    }
+
+    .toggle-button:hover {
       @apply --toggle-button-hover;
     }
 
@@ -100,272 +66,347 @@ Use paper elements mixin to style this element.
     [hidden] {
       display: none !important;
     }
+
+    .container {
+      @apply --layout-horizontal;
+    }
     </style>
-    <div class="content">
+    <div class="container">
       <div class="editor">
-        <paper-input label="Request URL" value="{{value}}" class="main-input" required auto-validate error-message="An URL is required." hidden="[[detailsOpened]]" on-blur="_ensureUrlHasProtocol" on-focus="_mainFocus">
-          <paper-icon-button id="detailedOpen" suffix icon="arc:keyboard-arrow-down" on-tap="open"></paper-icon-button>
-        </paper-input>
+        <paper-input label="Request URL" readonly="[[readonly]]" value="{{value}}" class="main-input" required auto-validate error-message="An URL is required." on-blur="_ensureUrlHasProtocol" on-focus="_mainFocus" hidden="[[detailsOpened]]"></paper-input>
         <paper-autocomplete loader open-on-focus target="[[_autocompleteTarget]]" on-query="_autocompleteQuery" opened="{{suggesionsOpened}}"></paper-autocomplete>
         <iron-collapse id="collapse" opened="[[detailsOpened]]" transitioning="{{colapseTransitioning}}">
-          <url-detailed-editor value="{{value}}" attr-for-opened="opened" opened$="[[detailsOpened]]" details-opened="{{detailsOpened}}" query-parameters="{{queryParameters}}" on-url-encode="encodeParameters" on-url-decode="decodeParameters"></url-detailed-editor>
+          <url-detailed-editor value="{{_detailedValue}}" query-parameters="{{queryParameters}}" on-url-encode="encodeParameters" on-url-decode="decodeParameters" readonly="[[readonly]]"></url-detailed-editor>
         </iron-collapse>
       </div>
-      <paper-tooltip animation-delay="200" for="detailedOpen">Open detailed editor</paper-tooltip>
+      <paper-icon-button class$="toggle-button [[_computeToggleClass(detailsOpened)]]" icon="arc:keyboard-arrow-down" on-click="toggle" title="Toggle detailed editor"></paper-icon-button>
     </div>
   </template>
   <script>
-  Polymer({
-    is: 'url-input-editor',
+  /**
+   * The request URL editor
+   *
+   * The editor renders a simple editor view with an input field. The input
+   * uses `paper-autocomplete` element to render URL suggestions.
+   *
+   * When setting `detailsOpened` property to `true` it renders detailed editor.
+   * The editor allows to edit host, path, query parameetrs and hash
+   * separatelly.
+   *
+   * ### Example
+   *
+   * ```html
+   * <url-input-editor
+   *  url="{{requestURL}}"
+   *  on-send-request="_sendAction"
+   *  on-url-value-changed="_handleNewUrl"></url-input-editor>
+   * ```
+   *
+   * ### Styling
+   *
+   * `<url-input-editor>` provides the following custom properties and mixins
+   * for styling:
+   *
+   * Custom property | Description | Default
+   * ----------------|-------------|----------
+   * `--url-input-editor` | Mixin applied to the element | `{}`
+   *
+   * Use paper elements mixin to style this element.
+   *
+   * @polymer
+   * @customElement
+   * @memberof UiElements
+   * @demo demo/index.html
+   * @appliesMixin Polymer.IronValidatableBehavior
+   * @appliesMixin ArcBehaviors.EventsTargetBehavior
+   */
+  class UrlInputEditor extends
+    ArcBehaviors.EventsTargetBehavior(
+      Polymer.mixinBehaviors([Polymer.IronValidatableBehavior], Polymer.Element)) {
+    static get is() {return 'url-input-editor';}
+    static get properties() {
+      return {
+        // Current URL value.
+        value: {
+          type: String,
+          notify: true,
+          observer: '_onValueChanged'
+        },
+        /**
+         * True if detailed editor is opened.
+         */
+        detailsOpened: {
+          type: Boolean,
+          observer: '_detailsOpenedChanged',
+          notify: true
+        },
+        /**
+         * Default protocol for the URL if it's missing.
+         */
+        defaultProtocol: {
+          type: String,
+          value: 'http'
+        },
+        /**
+         * Input target for the `paper-autocomplete` element.
+         */
+        _autocompleteTarget: HTMLElement,
+        // True when a suggestion box for the URL is opened.
+        suggesionsOpened: {
+          type: Boolean,
+          notify: true
+        },
+        // Controlled by the collapse element flad used to animate detail panel.
+        colapseTransitioning: {
+          type: Boolean,
+          observer: '_colapseTransitioning'
+        },
+        /**
+         * List of query parameters model.
+         * It is passed to detailed editor to build query parameters form.
+         * If not set then it is computed from current URL.
+         *
+         * Model for query parameters is:
+         * - name {String} param name
+         * - value {String} param value
+         * - enabled {Boolean} is param included into the `value`
+         */
+        queryParameters: {
+          type: Array,
+          // notify: true
+        },
+        /**
+         * When set the editor is in read only mode.
+         */
+        readonly: Boolean,
+        _detailedValue: String
+      };
+    }
 
-    behaviors: [
-      ArcBehaviors.EventsTargetBehavior,
-      Polymer.IronValidatableBehavior,
-      Polymer.IronFormElementBehavior
-    ],
+    static get observers() {
+      return [
+        '_detailedValueChanged(_detailedValue, detailsOpened)'
+      ];
+    }
 
-    /**
-     * Fired when the URL value change.
-     * Note that this event is fired before validation occur and therefore
-     * the URL may be invalid.
-     *
-     * @event url-value-changed
-     * @param {String} value The URL.
-     * @param {Array<Object>} queryParameters Optional query parameters model.
-     */
-    /**
-     * Fired when the user use the "entrer" key in any of the fields.
-     *
-     * @event send-request
-     */
-    /**
-     * Fired when autocomplete element request data.
-     * This event is to be handled by `url-history-saver` element but it can be
-     * handled by any element that intercepts this event.
-     *
-     * @event url-history-query
-     * @param {String} q A query filter.
-     */
-    properties: {
-      // Current URL value.
-      value: {
-        type: String,
-        notify: true,
-        observer: '_onValueChanged'
-      },
-      /**
-       * True if detailed editor is opened.
-       */
-      detailsOpened: Boolean,
-      /**
-       * Default protocol for the URL if it's missing.
-       */
-      defaultProtocol: {
-        type: String,
-        value: 'http'
-      },
-      /**
-       * Input target for the `paper-autocomplete` element.
-       */
-      _autocompleteTarget: {
-        type: HTMLElement,
-        value: function() {
-          return this.$$('.main-input');
-        }
-      },
-      // True when a suggestion box for the URL is opened.
-      suggesionsOpened: {
-        type: Boolean,
-        notify: true
-      },
-      // Controlled by the collapse element flad used to animate detail panel.
-      colapseTransitioning: {
-        type: Boolean,
-        observer: '_colapseTransitioning'
-      },
-      /**
-       * List of query parameters model.
-       * It is passed to detailed editor to build query parameters form.
-       * If not set then it is computed from current URL.
-       *
-       * Model for query parameters is:
-       * - name {String} param name
-       * - value {String} param value
-       * - enabled {Boolean} is param included into the `value`
-       */
-      queryParameters: {
-        type: Array,
-        notify: true
-      }
-    },
+    constructor() {
+      super();
+      this._extValueChangedHandler = this._extValueChangedHandler.bind(this);
+      this._keyDownHandler = this._keyDownHandler.bind(this);
+    }
 
-    observers: ['_detailsOpenedChanged(detailsOpened)'],
+    _attachListeners(node) {
+      this._autocompleteTarget = this.shadowRoot.querySelector('.main-input');
+      node.addEventListener('url-value-changed', this._extValueChangedHandler);
+      this.addEventListener('keydown', this._keyDownHandler);
+    }
 
-    listeners: {
-      'keydown': '_keyDownHandler'
-    },
+    _detachListeners(node) {
+      this._autocompleteTarget = undefined;
+      node.removeEventListener('url-value-changed', this._extValueChangedHandler);
+      this.removeEventListener('keydown', this._keyDownHandler);
+    }
 
-    ready: function() {
-      this._ready = true;
-    },
-
-    _attachListeners: function(node) {
-      this.listen(node, 'url-value-changed', '_extValueChangedHandler');
-    },
-
-    _detachListeners: function(node) {
-      this.unlisten(node, 'url-value-changed', '_extValueChangedHandler');
-    },
     /**
      * A handler that is called on input
+     *
+     * @param {String} value
      */
-    _onValueChanged: function(value) {
-      if (!this._ready || this._preventValueChangeEvent) {
+    _onValueChanged(value) {
+      if (this._preventValueChangeEvent || this.readonly) {
         return;
       }
-      this.fire('url-value-changed', {
-        value: value,
-        queryParameters: this.queryParameters
-      });
-    },
+      if (this._detailedValue !== value) {
+        this._detailedValue = value;
+      }
+      this.dispatchEvent(new CustomEvent('url-value-changed', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          value,
+          queryParameters: this.queryParameters
+        }
+      }));
+    }
+
+    _detailedValueChanged(_detailedValue, detailsOpened) {
+      if (!detailsOpened) {
+        return;
+      }
+      this.value = _detailedValue;
+    }
 
     /**
      * A handler for the `url-value-changed` event.
      * If this element is not the source of the event then it will update the `value` property.
      * It's to be used besides the Polymer's data binding system.
+     *
+     * @param {CustomEvent} e
      */
-    _extValueChangedHandler: function(e) {
-      if (e.target === this) {
+    _extValueChangedHandler(e) {
+      if (e.composedPath()[0] === this || this.readonly) {
         return;
       }
-      this._preventValueChangeEvent = true;
-      this.set('value', e.detail.value);
-      this._preventValueChangeEvent = false;
-    },
+      const {value} = e.detail;
+      if (this.value !== value) {
+        this._preventValueChangeEvent = true;
+        this.set('value', value);
+        this._preventValueChangeEvent = false;
+      }
+    }
 
     /**
      * Opens detailed view.
      */
-    open: function() {
-      this.detailsOpened = true;
-    },
+    toggle() {
+      this.detailsOpened = !this.detailsOpened;
+    }
 
     /**
      * HTTP encode query parameters
      */
-    encodeParameters: function() {
+    encodeParameters() {
+      if (this.readonly) {
+        return;
+      }
       this._decodeEncode('encode');
-      this.fire('send-analytics', {
-        type: 'event',
-        category: 'Request view',
-        action: 'URL widget context menu action',
-        label: 'Encode parameters'
-      });
-    },
+      this._dispatchAnalyticsEvent('Encode parameters');
+    }
 
     /**
      * HTTP decode query parameters
      */
-    decodeParameters: function() {
+    decodeParameters() {
+      if (this.readonly) {
+        return;
+      }
       this._decodeEncode('decode');
-      this.fire('send-analytics', {
-        type: 'event',
-        category: 'Request view',
-        action: 'URL widget context menu action',
-        label: 'Decode parameters'
+      this._dispatchAnalyticsEvent('Decode parameters');
+    }
+    /**
+     * Dispatches analytics event with "event" type.
+     * @param {String} label A label to use with GA event
+     * @return {CustomEvent}
+     */
+    _dispatchAnalyticsEvent(label) {
+      const e = new CustomEvent('send-analytics', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          type: 'event',
+          category: 'Request view',
+          action: 'URL editor',
+          label
+        }
       });
-    },
-
+      this.dispatchEvent(e);
+      return e;
+    }
     /**
      * HTTP encode or decode query parameters depending on [type].
+     *
+     * @param {String} type
      */
-    _decodeEncode: function(type) {
-      var url = this.value;
+    _decodeEncode(type) {
+      const url = this.value;
       if (!url) {
         return;
       }
-      var parser = new UrlParser(url);
+      /* global UrlParser */
+      const parser = new UrlParser(url);
       if (type === 'decode') {
-        this._decode(parser);
+        this._processUrlParams(parser, 'decodeQueryString');
       } else {
-        this._encode(parser);
+        this._processUrlParams(parser, 'encodeQueryString');
       }
-    },
-
-    _decode: function(parser) {
-      var decoded = parser.searchParams.map(function(item) {
-        var _key = this.decodeQueryString(item[0]);
-        var _value = this.decodeQueryString(item[1]);
-        return [_key, _value];
-      }, this);
+      this.set('value', parser.value);
+    }
+    /**
+     * Processes query parameters and path value by `processFn`.
+     * The function has to be available on this instance.
+     * @param {UrlParser} parser Instance of UrlParser
+     * @param {String} processFn Function name to call on each parameter
+     */
+    _processUrlParams(parser, processFn) {
+      const decoded = parser.searchParams.map((item) => {
+        const key = this[processFn](item[0]);
+        const value = this[processFn](item[1]);
+        return [key, value];
+      });
       parser.searchParams = decoded;
-      var path = parser.path;
-      if (path) {
-        parser.path = path.split('/')
-        .map(function(item) {
-          return this.decodeQueryString(item);
-        }, this)
-        .join('/');
-      }
-      this.set('value', parser.value);
-    },
-
-    _encode: function(parser) {
-      var encoded = parser.searchParams.map(function(item) {
-        var _key = this.encodeQueryString(item[0]);
-        var _value = this.encodeQueryString(item[1]);
-        return [_key, _value];
-      }, this);
-      parser.searchParams = encoded;
-      var path = parser.path;
-      if (path) {
-        parser.path = '/' + path.split('/')
-        .map(function(item) {
-          if (!item) {
-            return;
+      const path = parser.path;
+      if (path && path.length) {
+        const parts = path.split('/');
+        let tmp = '/';
+        for (let i = 0, len = parts.length; i < len; i++) {
+          let part = parts[i];
+          if (!part) {
+            continue;
           }
-          return this.encodeQueryString(item);
-        }, this)
-        .filter(function(item) {
-          return !!item;
-        })
-        .join('/');
+          part = this[processFn](part);
+          tmp += part;
+          if (i + 1 !== len) {
+            tmp += '/';
+          }
+        }
+        parser.path = tmp;
       }
-      this.set('value', parser.value);
-    },
-
-    _detailsOpenedChanged: function(detailsOpened) {
+    }
+    /**
+     * Ensures the URL has protocol value when detailed editor closes.
+     * @param {Boolean} detailsOpened
+     */
+    _detailsOpenedChanged(detailsOpened) {
       if (detailsOpened) {
         return;
       }
       this._ensureUrlHasProtocol();
-    },
-
-    _autocompleteQuery: function(e) {
+    }
+    /**
+     * Handler for autocomplete element query event.
+     * Dispatches `url-history-query` to query history model for data.
+     * @param {CustomEvent} e
+     * @return {Promise}
+     */
+    _autocompleteQuery(e) {
       e.preventDefault();
       e.stopPropagation();
-      var autocomplete = e.target;
-
+      const autocomplete = e.target;
       if (!e.detail.value) {
         autocomplete.source = [];
-        return;
+        return Promise.resolve();
       }
-      var event = this.fire('url-history-query', {
-        q: e.detail.value
-      }, {
-        cancelable: true
-      });
-      if (event.defaultPrevented && !event.detail.error) {
-        event.detail.result.then(function(result) {
-          result = result.map(function(item) {
-            return item.url;
-          });
-          autocomplete.source = result;
-        });
-      } else {
+      const ev = this._dispatchUrlQuery(e.detail.value);
+      if (!ev.detail.result) {
+        console.warn('"url-history-query" event not handled');
+        return Promise.resolve();
+      }
+      return ev.detail.result
+      .then((result) => {
+        result = result.map((item) => item.url);
+        autocomplete.source = result;
+      })
+      .catch(() => {
         autocomplete.source = [];
-      }
-    },
+      });
+    }
+    /**
+     * Dispatches `url-history-query` custom event.
+     * @param {String} q URL query
+     * @return {CustomEvent}
+     */
+    _dispatchUrlQuery(q) {
+      const e = new CustomEvent('url-history-query', {
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        detail: {
+          q
+        }
+      });
+      this.dispatchEvent(e);
+      return e;
+    }
     /**
      * Ensures that the URL has a protocol.
      * The detault protocol is defined in `defaultProtocol` property.
@@ -374,44 +415,52 @@ Use paper elements mixin to style this element.
      *
      * @return {undefined} It updates the `url` property.
      */
-    _ensureUrlHasProtocol: function() {
-      var url = this.value;
+    _ensureUrlHasProtocol() {
+      if (this.readonly) {
+        return;
+      }
+      let url = this.value || '';
       if (url.indexOf('http') !== 0) {
         if (url[0] !== '/' && url[0] !== '$' && url[0] !== '{') {
           url = this.defaultProtocol + '://' + url;
           this.set('value', url);
         }
       }
-    },
+    }
     /**
      * Ensures that protocol is set before user input.
+     *
+     * @param {Event} e
      */
-    _mainFocus: function() {
-      if (!this.value) {
+    _mainFocus(e) {
+      if (!this.value && !this.readonly) {
         this.value = this.defaultProtocol + '://';
+        e.target.inputElement.inputElement.setSelectionRange(0, this.value.length);
       }
-    },
+    }
 
-    _keyDownHandler: function(e) {
-      e = Polymer.dom(e);
-      if (e.rootTarget.nodeName !== 'INPUT') {
+    _keyDownHandler(e) {
+      const target = e.composedPath()[0];
+      if (!target || target.nodeName !== 'INPUT') {
         return;
       }
-      if (e.event.keyCode !== 13) {
-        return;
+      if ((e.code && (e.code === 'Enter' || e.code === 'NumpadEnter')) || (e.keyCode && e.keyCode === 13)) {
+        this._onEnter();
       }
-      this._onEnter();
-    },
+    }
     /**
      * A handler called when the user press "enter" in any of the form fields.
      * This will send a `send` event.
      */
-    _onEnter: function() {
+    _onEnter() {
       if (this.suggesionsOpened) {
         return;
       }
-      this.fire('send-request');
-    },
+      this.dispatchEvent(new CustomEvent('send-request', {
+        bubbles: true,
+        composed: true
+      }));
+    }
     /**
      * Returns a string where all characters that are not valid for a URL
      * component have been escaped. The escaping of a character is done by
@@ -447,13 +496,12 @@ Use paper elements mixin to style this element.
      * @param {String} str A string containing invalid URL characters
      * @return {String} a string with all invalid URL characters escaped
      */
-    encodeQueryString: function(str) {
+    encodeQueryString(str) {
       if (!str) {
         return str;
       }
-      var regexp = /%20/g;
-      return encodeURIComponent(str).replace(regexp, '+');
-    },
+      return encodeURIComponent(str).replace(/%20/g, '+');
+    }
     /**
      * Returns a string where all URL component escape sequences have been
      * converted back to their original character representations.
@@ -464,21 +512,23 @@ Use paper elements mixin to style this element.
      * @param {String} str string containing encoded URL component sequences
      * @return {String} string with no encoded URL component encoded sequences
      */
-    decodeQueryString: function(str) {
+    decodeQueryString(str) {
       if (!str) {
         return str;
       }
-      var regexp = /\+/g;
-      return decodeURIComponent(str.replace(regexp, '%20'));
-    },
+      return decodeURIComponent(str.replace(/\+/g, '%20'));
+    }
     /**
      * A trick to instantly replace main URL input with host field and back
      * without animation jumping when transitioning.
      * Sets / removes `sized` class name from the collapse element. This class
      * sets minimum height for the element so the host field will be visible
      * instantly in place of dissapearing main URL.
+     *
+     * @param {Boolean} value
+     * @param {Boolean} oldValue
      */
-    _colapseTransitioning: function(value, oldValue) {
+    _colapseTransitioning(value, oldValue) {
       if (oldValue === undefined) {
         return;
       }
@@ -488,6 +538,53 @@ Use paper elements mixin to style this element.
         this.$.collapse.classList.remove('sized');
       }
     }
-  });
+    /**
+     * Validates the element.
+     * @return {Boolean}
+     */
+    _getValidity() {
+      let element;
+      if (this.detailsOpened) {
+        element = this.shadowRoot.querySelector('url-detailed-editor');
+      } else {
+        element = this.shadowRoot.querySelector('.main-input');
+      }
+      if (!element) {
+        return true;
+      }
+      return element.validate();
+    }
+    /**
+     * Computes class name for the toggle button
+     * @param {Boolean} opened Current sate of the editor.
+     * @return {String}
+     */
+    _computeToggleClass(opened) {
+      return opened ? 'opened' : '';
+    }
+    /**
+     * Fired when the URL value change.
+     * Note that this event is fired before validation occur and therefore
+     * the URL may be invalid.
+     *
+     * @event url-value-changed
+     * @param {String} value The URL.
+     * @param {Array<Object>} queryParameters Optional query parameters model.
+     */
+    /**
+     * Fired when the user use the "entrer" key in any of the fields.
+     *
+     * @event send-request
+     */
+    /**
+     * Fired when autocomplete element request data.
+     * This event is to be handled by `url-history-saver` element but it can be
+     * handled by any element that intercepts this event.
+     *
+     * @event url-history-query
+     * @param {String} q A query filter.
+     */
+  }
+  window.customElements.define(UrlInputEditor.is, UrlInputEditor);
   </script>
 </dom-module>

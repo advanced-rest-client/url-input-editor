@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <title>url-input-editor test</title>
+  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <link rel="import" href="../url-input-editor.html">
+</head>
+<body>
+  <test-fixture id="Basic">
+    <template>
+      <url-input-editor></url-input-editor>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="Readonly">
+    <template>
+      <url-input-editor readonly></url-input-editor>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="Details">
+    <template>
+      <url-input-editor details-opened></url-input-editor>
+    </template>
+  </test-fixture>
+
+  <script>
+  suite('Basic tests', () => {
+    let element;
+    test('Adds protocol on input focus', (done) => {
+      element = fixture('Basic');
+      flush(() => {
+        const input = element.shadowRoot.querySelector('.main-input');
+        const compare = 'http://';
+        input.focus();
+        assert.equal(input.value, compare);
+        done();
+      });
+    });
+
+    test('Adds protocol on input blur', (done) => {
+      element = fixture('Basic');
+      element.value = 'test';
+      flush(() => {
+        const input = element.shadowRoot.querySelector('.main-input').inputElement.inputElement;
+        const compare = 'http://test';
+        input.focus();
+        setTimeout(() => {
+          input.blur();
+          assert.equal(input.value, compare);
+          done();
+        }, 1);
+      });
+    });
+
+    test('_autocompleteTarget is set', (done) => {
+      element = fixture('Basic');
+      flush(() => {
+        const input = element.shadowRoot.querySelector('.main-input');
+        assert.isTrue(element._autocompleteTarget === input);
+        done();
+      });
+    });
+
+    test('Dispatches url-value-changed custom event', (done) => {
+      element = fixture('Basic');
+      const value = 'https://mulesoft.com/';
+      element.addEventListener('url-value-changed', (e) => {
+        assert.equal(e.detail.value, value);
+        done();
+      });
+      element.value = value;
+    });
+
+    test('Encodes URL', function() {
+      element = fixture('Basic');
+      const url = 'http://192.168.2.252/service/board/1/edit?description=We\'ll keep your precious' +
+        ' pup fed, watered, walked and socialized during their stay.';
+      const comp = 'http://192.168.2.252/service/board/1/edit?description=We\'ll+keep+your+' +
+        'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
+      element.value = url;
+      element.encodeParameters();
+      assert.equal(element.value, comp);
+    });
+
+    test('Decode URL', function() {
+      element = fixture('Basic');
+      const comp = 'http://192.168.2.252/service/board/1/edit?description=We\'ll keep your precious' +
+        ' pup fed, watered, walked and socialized during their stay.';
+      const url = 'http://192.168.2.252/service/board/1/edit?description=We%27ll+keep+your+' +
+        'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
+      element.value = url;
+      element.decodeParameters();
+      assert.equal(element.value, comp);
+    });
+
+    test('Opens detailed editor', (done) => {
+      element = fixture('Basic');
+      flush(() => {
+        const button = element.shadowRoot.querySelector('.toggle-button');
+        button.click();
+        assert.isTrue(element.detailsOpened);
+        done();
+      });
+    });
+  });
+
+  suite('Model computations', () => {
+    let element;
+    test('queryParameters model is not computed', (done) => {
+      element = fixture('Basic');
+      flush(() => {
+        assert.isUndefined(element.queryParameters);
+        done();
+      });
+    });
+
+    test('queryParameters model is computed as empty array', (done) => {
+      element = fixture('Basic');
+      element.value = 'test';
+      flush(() => {
+        assert.typeOf(element.queryParameters, 'array');
+        assert.lengthOf(element.queryParameters, 0);
+        done();
+      });
+    });
+
+    test('queryParameters model is computed', (done) => {
+      element = fixture('Basic');
+      element.value = 'https://mulesoft.com/path?a=b';
+      flush(() => {
+        assert.typeOf(element.queryParameters, 'array');
+        assert.lengthOf(element.queryParameters, 1);
+        done();
+      });
+    });
+  });
+
+  suite('Read only mode', function() {
+    let element;
+    setup((done) => {
+      element = fixture('Readonly');
+      flush(() => done());
+    });
+
+    test('Ignores input focus', () => {
+      const input = element.shadowRoot.querySelector('.main-input');
+      const compare = 'http://';
+      input.focus();
+      assert.notEqual(input.value, compare);
+    });
+
+    test('Ignores input blur', (done) => {
+      element.value = 'test';
+      const input = element.shadowRoot.querySelector('.main-input');
+      input.focus();
+      setTimeout(() => {
+        input.blur();
+        assert.equal(input.value, 'test');
+        done();
+      }, 1);
+    });
+
+    test('Skips url-value-changed custom event', () => {
+      const spy = sinon.spy();
+      element.addEventListener('url-value-changed', spy);
+      element.value = 'https://mulesoft.com/';
+      assert.isFalse(spy.called);
+    });
+
+    test('Does not encode URL', function() {
+      const url = 'http://192.168.2.252/service/board/1/edit?description=We\'ll keep your precious' +
+        ' pup fed, watered, walked and socialized during their stay.';
+      element.value = url;
+      element.encodeParameters();
+      assert.equal(element.value, url);
+    });
+
+    test('Does not eecode URL', function() {
+      const url = 'http://192.168.2.252/service/board/1/edit?description=We%27ll+keep+your+' +
+    'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
+      element.value = url;
+      element.decodeParameters();
+      assert.equal(element.value, url);
+    });
+  });
+
+  suite('Validation', () => {
+    let element;
+    setup((done) => {
+      element = fixture('Basic');
+      flush(() => done());
+    });
+
+    test('Empty value does not passes validation', () => {
+      const result = element.validate();
+      assert.isFalse(result);
+    });
+
+    test('Passes validation with value', () => {
+      element.value = 'test';
+      const result = element.validate();
+      assert.isTrue(result);
+    });
+  });
+
+  suite('_onValueChanged()', () => {
+    let element;
+    setup((done) => {
+      element = fixture('Basic');
+      flush(() => done());
+    });
+
+    test('Does nothing when "_preventValueChangeEvent" is set', () => {
+      element._preventValueChangeEvent = true;
+      const spy = sinon.spy();
+      element.addEventListener('url-value-changed', spy);
+      element._onValueChanged('test');
+      assert.isFalse(spy.called);
+    });
+
+    test('Does nothing when read only mode', () => {
+      element.readonly = true;
+      const spy = sinon.spy();
+      element.addEventListener('url-value-changed', spy);
+      element._onValueChanged('test');
+      assert.isFalse(spy.called);
+    });
+
+    test('Sets "_detailedValue"', () => {
+      const value = 'test';
+      element._onValueChanged(value);
+      assert.equal(element._detailedValue, value);
+    });
+
+    test('Dispatches "url-value-changed" event', () => {
+      const value = 'https://test';
+      const spy = sinon.spy();
+      element.addEventListener('url-value-changed', spy);
+      element._onValueChanged(value);
+      assert.isTrue(spy.called);
+    });
+
+    test('Event has "value"', () => {
+      const value = 'https://test';
+      const spy = sinon.spy();
+      element.addEventListener('url-value-changed', spy);
+      element._onValueChanged(value);
+      const e = spy.args[0][0];
+      assert.equal(e.detail.value, value);
+    });
+
+    test('Event has "queryParameters"', () => {
+      const value = 'https://test?a=b';
+      const spy = sinon.spy();
+      element.addEventListener('url-value-changed', spy);
+      element.value = value;
+      const e = spy.args[0][0];
+      assert.typeOf(e.detail.queryParameters, 'array');
+      assert.lengthOf(e.detail.queryParameters, 1);
+    });
+  });
+
+  suite('_detailedValueChanged()', () => {
+    const newValue = 'https://test-value';
+
+    test('Does nothing when details are not opened', (done) => {
+      const element = fixture('Basic');
+      flush(() => {
+        element._detailedValueChanged(newValue, false);
+        assert.equal(element.value, '');
+        done();
+      });
+    });
+
+    test('Updates value of the editor', () => {
+      const element = fixture('Basic');
+      element._detailedValueChanged(newValue, true);
+      assert.equal(element.value, newValue);
+    });
+
+    test('Value is automatically set when detailed editor changes', (done) => {
+      const element = fixture('Details');
+      flush(() => {
+        const node = element.shadowRoot.querySelector('url-detailed-editor');
+        node.value = newValue;
+        assert.equal(element.value, newValue);
+        done();
+      });
+    });
+  });
+
+  suite('_extValueChangedHandler()', () => {
+    const newValue = 'https://test-value';
+
+    test('Ignores events dispatched by self', () => {
+      const element = fixture('Basic');
+      element._extValueChangedHandler({
+        composedPath: () => [element],
+        detail: {
+          value: newValue
+        }
+      });
+      assert.notEqual(element.value, newValue);
+    });
+
+    test('Ignores events when readonly', () => {
+      const element = fixture('Readonly');
+      element._extValueChangedHandler({
+        composedPath: () => [],
+        detail: {
+          value: newValue
+        }
+      });
+      assert.notEqual(element.value, newValue);
+    });
+
+    test('Sets new value', () => {
+      const element = fixture('Basic');
+      element._extValueChangedHandler({
+        composedPath: () => [],
+        detail: {
+          value: newValue
+        }
+      });
+      assert.equal(element.value, newValue);
+    });
+
+    test('Re-sets _preventValueChangeEvent flag', () => {
+      const element = fixture('Basic');
+      element._extValueChangedHandler({
+        composedPath: () => [],
+        detail: {
+          value: newValue
+        }
+      });
+      assert.isFalse(element._preventValueChangeEvent);
+    });
+
+    test('Does nothing when value already set', () => {
+      const element = fixture('Basic');
+      element.value = newValue;
+      element._extValueChangedHandler({
+        composedPath: () => [],
+        detail: {
+          value: newValue
+        }
+      });
+      assert.isUndefined(element._preventValueChangeEvent);
+    });
+
+    test('url-value-changed event is not dispatched', () => {
+      const element = fixture('Basic');
+      const spy = sinon.spy();
+      element.addEventListener('url-value-changed', spy);
+      element._extValueChangedHandler({
+        composedPath: () => [],
+        detail: {
+          value: newValue
+        }
+      });
+      assert.isFalse(spy.called);
+    });
+  });
+
+  suite('toggle()', () => {
+    let element;
+    setup((done) => {
+      element = fixture('Basic');
+      flush(() => done());
+    });
+
+    test('Toggles detailsOpened', () => {
+      element.toggle();
+      assert.isTrue(element.detailsOpened);
+    });
+
+    test('Toggles back detailsOpened', () => {
+      element.detailsOpened = true;
+      element.toggle();
+      assert.isFalse(element.detailsOpened);
+    });
+
+    test('iron-collapse is opened after toggle', () => {
+      element.toggle();
+      assert.isTrue(element.$.collapse.opened);
+    });
+
+    test('iron-collapse is closed by default', () => {
+      assert.isFalse(element.$.collapse.opened);
+    });
+  });
+
+  suite('_dispatchAnalyticsEvent()', () => {
+    let element;
+    const label = 'test-label';
+    setup((done) => {
+      element = fixture('Basic');
+      flush(() => done());
+    });
+
+    test('Dispatches the event', () => {
+      const spy = sinon.spy();
+      element.addEventListener('send-analytics', spy);
+      element._dispatchAnalyticsEvent(label);
+      assert.isTrue(spy.called);
+    });
+
+    test('Returns the same event', () => {
+      const e = element._dispatchAnalyticsEvent(label);
+      assert.typeOf(e, 'customevent');
+    });
+
+    test('Event bubbles', () => {
+      const e = element._dispatchAnalyticsEvent(label);
+      assert.isTrue(e.bubbles);
+    });
+
+    test('Event is composed', () => {
+      const e = element._dispatchAnalyticsEvent(label);
+      if (e.composed !== undefined) {
+        // Edge...
+        assert.isTrue(e.composed);
+      }
+    });
+
+    test('Detail.type is set', () => {
+      const e = element._dispatchAnalyticsEvent(label);
+      assert.equal(e.detail.type, 'event');
+    });
+
+    test('Detail.category is set', () => {
+      const e = element._dispatchAnalyticsEvent(label);
+      assert.equal(e.detail.category, 'Request view');
+    });
+
+    test('Detail.action is set', () => {
+      const e = element._dispatchAnalyticsEvent(label);
+      assert.equal(e.detail.action, 'URL editor');
+    });
+
+    test('Detail.label is set', () => {
+      const e = element._dispatchAnalyticsEvent(label);
+      assert.equal(e.detail.label, label);
+    });
+  });
+
+  suite('encodeParameters()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Basic');
+    });
+
+    test('Calls _decodeEncode with "encode" argument', () => {
+      const spy = sinon.spy(element, '_decodeEncode');
+      element.encodeParameters();
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'encode');
+    });
+
+    test('Calls _dispatchAnalyticsEvent with label', () => {
+      const spy = sinon.spy(element, '_dispatchAnalyticsEvent');
+      element.encodeParameters();
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'Encode parameters');
+    });
+
+    test('Does nothing when read only mode', () => {
+      element.readonly = true;
+      const spy = sinon.spy(element, '_decodeEncode');
+      element.encodeParameters();
+      assert.isFalse(spy.called);
+    });
+  });
+
+  suite('decodeParameters()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Basic');
+    });
+
+    test('Calls _decodeEncode with "decode" argument', () => {
+      const spy = sinon.spy(element, '_decodeEncode');
+      element.decodeParameters();
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'decode');
+    });
+
+    test('Calls _dispatchAnalyticsEvent with label', () => {
+      const spy = sinon.spy(element, '_dispatchAnalyticsEvent');
+      element.decodeParameters();
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'Decode parameters');
+    });
+
+    test('Does nothing when read only mode', () => {
+      element.readonly = true;
+      const spy = sinon.spy(element, '_decodeEncode');
+      element.decodeParameters();
+      assert.isFalse(spy.called);
+    });
+  });
+
+  suite('_decodeEncode()', () => {
+    let element;
+    const encodedUrl = 'http://192.168.2.252/service/board+1/edit?description=We\'ll+keep+your+' +
+    'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
+    const decodedUrl = 'http://192.168.2.252/service/board 1/edit?description=We\'ll keep your precious' +
+      ' pup fed, watered, walked and socialized during their stay.';
+    setup(() => {
+      element = fixture('Basic');
+    });
+
+    test('Calls "_processUrlParams()" with parser instance and decode function', () => {
+      element.value = encodedUrl;
+      const spy = sinon.spy(element, '_processUrlParams');
+      element._decodeEncode('decode');
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0].constructor.name, 'UrlParser');
+      assert.equal(spy.args[0][1], 'decodeQueryString');
+    });
+
+    test('Sets decoded value', () => {
+      element.value = encodedUrl;
+      element._decodeEncode('decode');
+      assert.equal(element.value, decodedUrl);
+    });
+
+    test('Calls "_processUrlParams()" with parser instance and encode function', () => {
+      element.value = decodedUrl;
+      const spy = sinon.spy(element, '_processUrlParams');
+      element._decodeEncode('encode');
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0].constructor.name, 'UrlParser');
+      assert.equal(spy.args[0][1], 'encodeQueryString');
+    });
+
+    test('Sets decoded value', () => {
+      element.value = decodedUrl;
+      element._decodeEncode('encode');
+      assert.equal(element.value, encodedUrl);
+    });
+
+    test('Does nothing when no value', () => {
+      element.value = '';
+      const spy = sinon.spy(element, '_processUrlParams');
+      element._decodeEncode('encode');
+      assert.isFalse(spy.called);
+    });
+  });
+
+  /* global UrlParser */
+  suite('_processUrlParams() - decoding', () => {
+    let element;
+    const encodedUrl = 'http://192.168.2.252/service/board+1/edit?desc+ription=We\'ll+keep+your+' +
+    'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
+    const fnName = 'decodeQueryString';
+    let parser;
+    setup(() => {
+      element = fixture('Basic');
+    });
+
+    test('Decodes query parameters', () => {
+      parser = new UrlParser(encodedUrl);
+      element._processUrlParams(parser, fnName);
+      const param = parser.searchParams[0];
+      assert.equal(param[0], 'desc ription');
+      assert.equal(param[1], 'We\'ll keep your precious pup fed, watered, walked and socialized during their stay.');
+    });
+
+    test('Decodes path', () => {
+      parser = new UrlParser(encodedUrl);
+      element._processUrlParams(parser, fnName);
+      assert.equal(parser.path, '/service/board 1/edit');
+    });
+
+    test('Ignores path when not set', () => {
+      parser = new UrlParser('?a=b');
+      element._processUrlParams(parser, fnName);
+      // No error
+    });
+  });
+
+  suite('_processUrlParams() - decoding', () => {
+    let element;
+    const encodedUrl = 'http://192.168.2.252/service/board 1/edit?desc ription=We\'ll keep your ' +
+    'precious pup fed, watered, walked and socialized during their stay.';
+    const fnName = 'encodeQueryString';
+    let parser;
+    setup(() => {
+      element = fixture('Basic');
+    });
+
+    test('Decodes query parameters', () => {
+      parser = new UrlParser(encodedUrl);
+      element._processUrlParams(parser, fnName);
+      const param = parser.searchParams[0];
+      assert.equal(param[0], 'desc+ription');
+      assert.equal(param[1], 'We\'ll+keep+your+precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.');
+    });
+
+    test('Decodes path', () => {
+      parser = new UrlParser(encodedUrl);
+      element._processUrlParams(parser, fnName);
+      assert.equal(parser.path, '/service/board+1/edit');
+    });
+
+    test('Ignores path when not set', () => {
+      parser = new UrlParser('?a=b');
+      element._processUrlParams(parser, fnName);
+      // No error
+    });
+  });
+
+  suite('_detailsOpenedChanged()', () => {
+    let element;
+    setup((done) => {
+      element = fixture('Basic');
+      flush(() => done());
+    });
+
+    test('Calls _ensureUrlHasProtocol() when not opened', () => {
+      const spy = sinon.spy(element, '_ensureUrlHasProtocol');
+      element._detailsOpenedChanged(false);
+      assert.isTrue(spy.called);
+    });
+
+    test('Calls _ensureUrlHasProtocol() when detailsOpened is set', () => {
+      const spy = sinon.spy(element, '_ensureUrlHasProtocol');
+      element.detailsOpened = false;
+      assert.isTrue(spy.called);
+    });
+
+    test('Do not calls _ensureUrlHasProtocol() when opened', () => {
+      const spy = sinon.spy(element, '_ensureUrlHasProtocol');
+      element._detailsOpenedChanged(true);
+      assert.isFalse(spy.called);
+    });
+  });
+
+  suite('_dispatchUrlQuery()', () => {
+    let element;
+    const query = 'http://';
+    setup(() => {
+      element = fixture('Basic');
+    });
+
+    test('Dispatches the event', () => {
+      const spy = sinon.spy();
+      element.addEventListener('url-history-query', spy);
+      element._dispatchUrlQuery(query);
+      assert.isTrue(spy.called);
+    });
+
+    test('Returns the same event', () => {
+      const e = element._dispatchUrlQuery(query);
+      assert.typeOf(e, 'customevent');
+    });
+
+    test('Event bubbles', () => {
+      const e = element._dispatchUrlQuery(query);
+      assert.isTrue(e.bubbles);
+    });
+
+    test('Event is composed', () => {
+      const e = element._dispatchUrlQuery(query);
+      if (e.composed !== undefined) {
+        assert.isTrue(e.composed);
+      }
+    });
+
+    test('Event is cancelable', () => {
+      const e = element._dispatchUrlQuery(query);
+      assert.isTrue(e.cancelable);
+    });
+
+    test('Detail.q is set', () => {
+      const e = element._dispatchUrlQuery(query);
+      assert.equal(e.detail.q, query);
+    });
+  });
+
+  suite('_autocompleteQuery()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Basic');
+    });
+
+    test('Cancels the event', () => {
+      const e = {
+        preventDefault: () => {},
+        stopPropagation: () => {},
+        target: {},
+        detail: {}
+      };
+      const spy = sinon.spy(e, 'preventDefault');
+      element._autocompleteQuery(e);
+      assert.isTrue(spy.called);
+    });
+
+    test('Stops event propagation', () => {
+      const e = {
+        preventDefault: () => {},
+        stopPropagation: () => {},
+        target: {},
+        detail: {}
+      };
+      const spy = sinon.spy(e, 'stopPropagation');
+      element._autocompleteQuery(e);
+      assert.isTrue(spy.called);
+    });
+
+    test('Sets empty suggestions when no value', () => {
+      const e = {
+        preventDefault: () => {},
+        stopPropagation: () => {},
+        target: {},
+        detail: {}
+      };
+      element._autocompleteQuery(e);
+      assert.typeOf(e.target.source, 'array');
+      assert.lengthOf(e.target.source, 0);
+    });
+
+    test('Dispatches "url-history-query" event', () => {
+      const spy = sinon.spy();
+      element.addEventListener('url-history-query', spy);
+      const e = {
+        preventDefault: () => {},
+        stopPropagation: () => {},
+        target: {},
+        detail: {
+          value: 'test'
+        }
+      };
+      element._autocompleteQuery(e);
+      assert.isTrue(spy.called);
+    });
+
+    test('Sets suggestions on the target', () => {
+      element.addEventListener('url-history-query', function f(e) {
+        element.removeEventListener('url-history-query', f);
+        e.preventDefault();
+        e.detail.result = Promise.resolve([{
+          url: 'http://test'
+        }]);
+      });
+      const e = {
+        preventDefault: () => {},
+        stopPropagation: () => {},
+        target: {},
+        detail: {
+          value: 'test'
+        }
+      };
+      return element._autocompleteQuery(e)
+      .then(() => {
+        assert.typeOf(e.target.source, 'array');
+        assert.lengthOf(e.target.source, 1);
+        assert.equal(e.target.source[0], 'http://test');
+      });
+    });
+
+    test('Sets empty suggestions on the target when error', () => {
+      element.addEventListener('url-history-query', function f(e) {
+        element.removeEventListener('url-history-query', f);
+        e.preventDefault();
+        e.detail.result = Promise.reject(new Error('test'));
+      });
+      const e = {
+        preventDefault: () => {},
+        stopPropagation: () => {},
+        target: {},
+        detail: {
+          value: 'test'
+        }
+      };
+      return element._autocompleteQuery(e)
+      .then(() => {
+        assert.typeOf(e.target.source, 'array');
+        assert.lengthOf(e.target.source, 0);
+      });
+    });
+  });
+
+  suite('_ensureUrlHasProtocol()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Basic');
+    });
+
+    test('Does nothing when in readonly mode', () => {
+      element.readonly = true;
+      element._ensureUrlHasProtocol();
+      assert.isUndefined(element.value);
+    });
+
+    test('Does nothing when current value has "http" protocol', () => {
+      element.value = 'http:/test';
+      element._ensureUrlHasProtocol();
+      assert.equal(element.value, 'http:/test');
+    });
+
+    test('Does nothing when current value has "https" protocol', () => {
+      element.value = 'https:/test';
+      element._ensureUrlHasProtocol();
+      assert.equal(element.value, 'https:/test');
+    });
+
+    test('Adds default protocol', () => {
+      element.value = '';
+      element._ensureUrlHasProtocol();
+      assert.equal(element.value, element.defaultProtocol + '://');
+    });
+
+    test('Skips adding protocol when path starts with "/"', () => {
+      element.value = '/path';
+      element._ensureUrlHasProtocol();
+      assert.equal(element.value, '/path');
+    });
+
+    test('Skips adding protocol when path starts with "{"', () => {
+      element.value = '{path}';
+      element._ensureUrlHasProtocol();
+      assert.equal(element.value, '{path}');
+    });
+
+    test('Skips adding protocol when path starts with "$"', () => {
+      element.value = '${path}';
+      element._ensureUrlHasProtocol();
+      assert.equal(element.value, '${path}');
+    });
+  });
+
+  suite('_mainFocus()', () => {
+    let element;
+    let input;
+    setup((done) => {
+      element = fixture('Basic');
+      flush(() => {
+        input = element.shadowRoot.querySelector('.main-input');
+        done();
+      });
+    });
+
+    test('Sets default protocol when no value', () => {
+      element._mainFocus({
+        target: input
+      });
+      assert.equal(element.value, element.defaultProtocol + '://');
+    });
+
+    test('Does nothing when input has value', () => {
+      element.value = 'test';
+      element._mainFocus({
+        target: input
+      });
+      assert.equal(element.value, 'test');
+    });
+
+    test('Does nothing when readonly mode', () => {
+      element.readonly = true;
+      element._mainFocus({
+        target: input
+      });
+      assert.equal(element.value, '');
+    });
+  });
+
+  suite('_keyDownHandler()', () => {
+    let element;
+    setup((done) => {
+      element = fixture('Basic');
+      flush(() => done());
+    });
+
+    test('Does nothing when no target', () => {
+      const e = {
+        composedPath: () => []
+      };
+      const spy = sinon.spy();
+      element.addEventListener('send-request', spy);
+      element._keyDownHandler(e);
+      assert.isFalse(spy.called);
+    });
+
+    test('Does nothing when targwet is not an input', () => {
+      const e = {
+        composedPath: () => [document.createElement('span')]
+      };
+      const spy = sinon.spy();
+      element.addEventListener('send-request', spy);
+      element._keyDownHandler(e);
+      assert.isFalse(spy.called);
+    });
+
+    test('Calls "_onEnter()" when keyboard code is "Enter"', () => {
+      const e = {
+        composedPath: () => [document.createElement('input')],
+        code: 'Enter'
+      };
+      const spy = sinon.spy(element, '_onEnter');
+      element._keyDownHandler(e);
+      assert.isTrue(spy.called);
+    });
+
+    test('Calls "_onEnter()" when keyboard code is "NumpadEnter"', () => {
+      const e = {
+        composedPath: () => [document.createElement('input')],
+        code: 'NumpadEnter'
+      };
+      const spy = sinon.spy(element, '_onEnter');
+      element._keyDownHandler(e);
+      assert.isTrue(spy.called);
+    });
+
+    test('Calls "_onEnter()" when keyCode is "13"', () => {
+      const e = {
+        composedPath: () => [document.createElement('input')],
+        keyCode: 13
+      };
+      const spy = sinon.spy(element, '_onEnter');
+      element._keyDownHandler(e);
+      assert.isTrue(spy.called);
+    });
+
+    test('Does not call "_onEnter()" when other keyCode', () => {
+      const e = {
+        composedPath: () => [document.createElement('input')],
+        keyCode: 23
+      };
+      const spy = sinon.spy(element, '_onEnter');
+      element._keyDownHandler(e);
+      assert.isFalse(spy.called);
+    });
+
+    test('Does not call "_onEnter()" when other keyboard code', () => {
+      const e = {
+        composedPath: () => [document.createElement('input')],
+        code: 'KeyS'
+      };
+      const spy = sinon.spy(element, '_onEnter');
+      element._keyDownHandler(e);
+      assert.isFalse(spy.called);
+    });
+  });
+
+  suite('_onEnter()', () => {
+    let element;
+    setup((done) => {
+      element = fixture('Basic');
+      flush(() => done());
+    });
+
+    test('Do nothing when suggestions are opened', () => {
+      element.suggesionsOpened = true;
+      const spy = sinon.spy();
+      element.addEventListener('send-request', spy);
+      element._onEnter();
+      assert.isFalse(spy.called);
+    });
+
+    test('Dispatches "send-request" event', () => {
+      const spy = sinon.spy();
+      element.addEventListener('send-request', spy);
+      element._onEnter();
+      assert.isTrue(spy.called);
+    });
+
+    test('The event bubbles', () => {
+      const spy = sinon.spy();
+      element.addEventListener('send-request', spy);
+      element._onEnter();
+      assert.isTrue(spy.args[0][0].bubbles);
+    });
+
+    test('The event is composed', () => {
+      const spy = sinon.spy();
+      element.addEventListener('send-request', spy);
+      element._onEnter();
+      assert.isTrue(spy.args[0][0].composed);
+    });
+  });
+
+  suite('encodeQueryString()', () => {
+    let element;
+    setup((done) => {
+      element = fixture('Basic');
+      flush(() => done());
+    });
+
+    test('Returns empty string when argument is empty', () => {
+      const result = element.encodeQueryString('');
+      assert.equal(result, '');
+    });
+
+    test('Returns empty string when argument is empty', () => {
+      const result = element.encodeQueryString('');
+      assert.equal(result, '');
+    });
+
+    test('URL encodes string', () => {
+      const result = element.encodeQueryString(';This / is? &test:= + $ , #');
+      assert.equal(result, '%3BThis+%2F+is%3F+%26test%3A%3D+%2B+%24+%2C+%23');
+    });
+  });
+
+  suite('decodeQueryString()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Basic');
+    });
+
+    test('Returns empty string when argument is empty', () => {
+      const result = element.decodeQueryString('');
+      assert.equal(result, '');
+    });
+
+    test('Returns empty string when argument is empty', () => {
+      const result = element.decodeQueryString('');
+      assert.equal(result, '');
+    });
+
+    test('URL encodes string', () => {
+      const result = element.decodeQueryString('%3BThis+%2F+is%3F+%26test%3A%3D+%2B+%24+%2C+%23');
+      assert.equal(result, ';This / is? &test:= + $ , #');
+    });
+  });
+
+  suite('_colapseTransitioning()', () => {
+    let element;
+    setup((done) => {
+      element = fixture('Basic');
+      flush(() => done());
+    });
+
+    test('Adds class name to collapse when value and opened', () => {
+      element.detailsOpened = true;
+      element._colapseTransitioning('test', 'other');
+      const node = element.shadowRoot.querySelector('#collapse');
+      assert.isTrue(node.classList.contains('sized'));
+    });
+
+    test('Removes class name to collapse when value and not opened', () => {
+      const node = element.shadowRoot.querySelector('#collapse');
+      node.classList.add('sized');
+      element.detailsOpened = false;
+      element._colapseTransitioning('test', 'other');
+      assert.isFalse(node.classList.contains('sized'));
+    });
+
+    test('Does nothing when oldValue is undefined', () => {
+      element.detailsOpened = true;
+      const node = element.shadowRoot.querySelector('#collapse');
+      node.classList.remove('sized');
+      element._colapseTransitioning('test');
+      assert.isFalse(node.classList.contains('sized'));
+    });
+  });
+
+  suite('_getValidity()', () => {
+    test('Returns true when shadowRoot is not yet initialized', () => {
+      const element = fixture('Basic');
+      const result = element._getValidity();
+      assert.isTrue(result);
+    });
+
+    test('Calls validate on detailed editor', (done) => {
+      const element = fixture('Details');
+      flush(() => {
+        const node = element.shadowRoot.querySelector('url-detailed-editor');
+        const spy = sinon.spy(node, 'validate');
+        element._getValidity();
+        assert.isTrue(spy.called);
+        done();
+      });
+    });
+
+    test('Calls validate on main input', (done) => {
+      const element = fixture('Basic');
+      flush(() => {
+        const node = element.shadowRoot.querySelector('.main-input');
+        const spy = sinon.spy(node, 'validate');
+        element._getValidity();
+        assert.isTrue(spy.called);
+        done();
+      });
+    });
+
+    test('Validate is false when no input', (done) => {
+      const element = fixture('Basic');
+      flush(() => {
+        const result = element._getValidity();
+        assert.isFalse(result);
+        done();
+      });
+    });
+
+    test('Validate is true when has value', (done) => {
+      const element = fixture('Basic');
+      element.value = 'http://test';
+      flush(() => {
+        const result = element._getValidity();
+        assert.isTrue(result);
+        done();
+      });
+    });
+  });
+
+  suite('_computeToggleClass()', () => {
+    let element;
+    setup(() => {
+      element = fixture('Basic');
+    });
+
+    test('Retuerns empty string when not opened', () => {
+      const result = element._computeToggleClass(false);
+      assert.equal(result, '');
+    });
+
+    test('Retuerns "opened" when opened', () => {
+      const result = element._computeToggleClass(true);
+      assert.equal(result, 'opened');
+    });
+  });
+  </script>
+</body>
+</html>

@@ -1,0 +1,641 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <link rel="import" href="../url-detailed-editor.html">
+  </head>
+  <body>
+
+    <test-fixture id="Basic">
+      <template>
+        <url-detailed-editor value="https://arc.com:1234/path/o ther/?a=b&c=d#123"></url-detailed-editor>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="Empty">
+      <template>
+        <url-detailed-editor></url-detailed-editor>
+      </template>
+    </test-fixture>
+
+    <script>
+    /* global sinon */
+    suite('Basic tests', function() {
+      let element;
+      setup(function() {
+        element = fixture('Basic');
+      });
+
+      test('Model is computed', function() {
+        const m = element.model;
+        assert.typeOf(m, 'object', 'Model is an object');
+        assert.equal(m.host, 'https://arc.com:1234', 'Host is computed');
+        assert.equal(m.path, '/path/o ther/', 'Path is computed');
+        assert.equal(m.anchor, '123', 'Ancor is computed');
+        assert.lengthOf(element.queryParameters, 2, 'Search is computed');
+      });
+
+      test('__parser is set', function() {
+        assert.typeOf(element.__parser, 'object');
+      });
+
+      test('Notifies change for host', function(done) {
+        flush(() => {
+          const input = element.shadowRoot.querySelector('#host');
+          element.addEventListener('value-changed', function clb(e) {
+            element.removeEventListener('value-changed', clb);
+            assert.equal(e.detail.value, 'https://domain.com/path/o ther/?a=b&c=d#123');
+            done();
+          });
+          input.value = 'https://domain.com';
+        });
+      });
+
+      test('Notifies change for path', function(done) {
+        flush(() => {
+          const input = element.shadowRoot.querySelector('#path');
+          element.addEventListener('value-changed', function clb(e) {
+            element.removeEventListener('value-changed', clb);
+            assert.equal(e.detail.value, 'https://arc.com:1234/other-path/?a=b&c=d#123');
+            done();
+          });
+          input.value = '/other-path/';
+        });
+      });
+
+      test('Notifies change for hash', function(done) {
+        flush(() => {
+          const input = element.shadowRoot.querySelector('#hash');
+          element.addEventListener('value-changed', function clb(e) {
+            element.removeEventListener('value-changed', clb);
+            assert.equal(e.detail.value, 'https://arc.com:1234/path/o ther/?a=b&c=d#hash-test');
+            done();
+          });
+          input.value = 'hash-test';
+        });
+      });
+
+      test('Notifies change for search param name', function(done) {
+        flush(() => {
+          const input = element.shadowRoot.querySelector('.param-name');
+          element.addEventListener('value-changed', function clb(e) {
+            element.removeEventListener('value-changed', clb);
+            assert.equal(e.detail.value, 'https://arc.com:1234/path/o ther/?a-changed=b&c=d#123');
+            done();
+          });
+          input.value = 'a-changed';
+        });
+      });
+
+      test('Notifies change for search param value', function(done) {
+        flush(() => {
+          const input = element.shadowRoot.querySelector('.param-value');
+          element.addEventListener('value-changed', function clb(e) {
+            element.removeEventListener('value-changed', clb);
+            assert.equal(e.detail.value, 'https://arc.com:1234/path/o ther/?a=a-value&c=d#123');
+            done();
+          });
+          input.value = 'a-value';
+        });
+      });
+
+      test('Notifies change for search param value with variable', function(done) {
+        flush(() => {
+          const input = element.shadowRoot.querySelector('.param-value');
+          element.addEventListener('value-changed', function clb(e) {
+            element.removeEventListener('value-changed', clb);
+            assert.equal(e.detail.value, 'https://arc.com:1234/path/o ther/?a=a-value${test}&c=d#123');
+            done();
+          });
+          input.value = 'a-value${test}';
+        });
+      });
+
+      test('Notifies change for removing search param', function(done) {
+        flush(() => {
+          const button = element.shadowRoot.querySelector('.form-row > paper-icon-button');
+          element.addEventListener('value-changed', function clb(e) {
+            element.removeEventListener('value-changed', clb);
+            assert.equal(e.detail.value, 'https://arc.com:1234/path/o ther/?c=d#123');
+            done();
+          });
+          button.click();
+        });
+      });
+
+      test('Changes model when value change', function() {
+        element.value = 'http://arc.com/o%20ther?test=value';
+        const m = element.model;
+        assert.equal(m.host, 'http://arc.com', 'Host is computed');
+        assert.equal(m.path, '/o%20ther', 'Path is computed');
+        assert.equal(m.anchor, '', 'Ancor is computed');
+        assert.lengthOf(element.queryParameters, 1, 'Search is computed');
+      });
+
+      test('Fires url-encode event', function() {
+        const spy = sinon.spy();
+        element.addEventListener('url-encode', spy);
+        const button = element.shadowRoot.querySelector('#encode');
+        button.click();
+        assert.isTrue(spy.calledOnce);
+      });
+
+      test('Fires url-decode event', function() {
+        const spy = sinon.spy();
+        element.addEventListener('url-decode', spy);
+        const button = element.shadowRoot.querySelector('#decode');
+        button.click();
+        assert.isTrue(spy.calledOnce);
+      });
+    });
+
+    suite('_valueChanged()', () => {
+      let element;
+      setup(function() {
+        element = fixture('Basic');
+      });
+
+      test('Calls "_computeModel()"', () => {
+        const spy = sinon.spy(element, '_computeModel');
+        element._valueChanged('http://');
+        assert.isTrue(spy.called);
+      });
+
+      test('_computeModel() is called with passed value', () => {
+        const spy = sinon.spy(element, '_computeModel');
+        element._valueChanged('http://');
+        assert.equal(spy.args[0][0], 'http://');
+      });
+
+      test('_computeModel() is called with default query parameters model', () => {
+        const spy = sinon.spy(element, '_computeModel');
+        element._valueChanged('http://');
+        const params = spy.args[0][1];
+        assert.typeOf(params, 'array');
+        assert.lengthOf(params, 0);
+      });
+
+      test('_computeModel() is called with computed query model', () => {
+        const spy = sinon.spy(element, '_computeModel');
+        const model = [{name: 'a', value: 'b', enabled: true}];
+        element.queryParameters = model;
+        element._valueChanged('http://');
+        const params = spy.args[0][1];
+        assert.deepEqual(params, model);
+      });
+
+      test('Does nothing when no value and model', () => {
+        const spy = sinon.spy(element, '_computeModel');
+        element.queryParameters = undefined;
+        element._valueChanged();
+        assert.isFalse(spy.called);
+      });
+
+      test('Does nothing when _cancelModelComputation is set', () => {
+        const spy = sinon.spy(element, '_computeModel');
+        element._cancelModelComputation = true;
+        element._valueChanged();
+        assert.isFalse(spy.called);
+      });
+    });
+
+    suite('_computeModel()', () => {
+      let element;
+      setup(function() {
+        element = fixture('Basic');
+      });
+
+      test('Sets "model" to empty object when no value', () => {
+        element._computeModel();
+        assert.typeOf(element.model, 'object');
+        assert.lengthOf(Object.keys(element.model), 0);
+      });
+
+      test('Sets "queryParameters" to empty array when no value', () => {
+        element._computeModel();
+        assert.typeOf(element.queryParameters, 'array');
+        assert.lengthOf(element.queryParameters, 0);
+      });
+
+      test('Creates empty query model when missing', () => {
+        element._computeModel('/test');
+        // No error
+      });
+
+      test('Missing path does not causes errors', () => {
+        element._computeModel('test');
+        // No error
+      });
+
+      test('Sets model property', () => {
+        element._computeModel('http://test.com/path?a=b&c=d#hash');
+        assert.typeOf(element.model, 'object');
+        assert.equal(element.model.host, 'http://test.com');
+        assert.equal(element.model.path, '/path');
+        assert.equal(element.model.anchor, 'hash');
+      });
+
+      test('Calls _computeSearchParams()', () => {
+        const spy = sinon.spy(element, '_computeSearchParams');
+        element._computeModel('http://test.com/path?a=b&c=d#hash');
+        assert.isTrue(spy.called);
+      });
+
+      test('Re-sets __modelComputation flag', () => {
+        element._computeModel('/test');
+        assert.isFalse(element.__modelComputation);
+      });
+    });
+
+    /* global UrlParser */
+    suite('_getHostValue()', () => {
+      let element;
+      let parser;
+      setup(function() {
+        element = fixture('Basic');
+      });
+
+      test('Build host value', () => {
+        parser = new UrlParser('http://test.com/path');
+        const result = element._getHostValue(parser);
+        assert.equal(result, 'http://test.com');
+      });
+
+      test('Returns protocol only', () => {
+        parser = new UrlParser('http://');
+        const result = element._getHostValue(parser);
+        assert.equal(result, 'http://');
+      });
+    });
+
+    suite('_computeSearchParams()', () => {
+      let element;
+      let parser;
+      setup(function(done) {
+        element = fixture('Empty');
+        flush(() => done());
+      });
+
+      test('Sets "queryParameters"', () => {
+        parser = new UrlParser('/?a=b&c=d');
+        element._computeSearchParams(parser);
+        assert.typeOf(element.queryParameters, 'array');
+        assert.lengthOf(element.queryParameters, 2);
+      });
+
+      test('Adds disabled items to the model', () => {
+        const model = [{
+          name: 'disabled',
+          value: 'true',
+          enabled: false
+        }];
+        parser = new UrlParser('/?a=b&c=d');
+        element._computeSearchParams(parser, model);
+        assert.typeOf(element.queryParameters, 'array');
+        assert.lengthOf(element.queryParameters, 3);
+        assert.isFalse(element.queryParameters[0].enabled);
+      });
+
+      test('Duplicates the entry keeping enabled / diabled state', () => {
+        const model = [{
+          name: 'a',
+          value: 'b',
+          enabled: false
+        }];
+        parser = new UrlParser('/?a=b&c=d');
+        element._computeSearchParams(parser, model);
+        assert.typeOf(element.queryParameters, 'array');
+        assert.lengthOf(element.queryParameters, 3);
+        assert.isFalse(element.queryParameters[0].enabled);
+        assert.isTrue(element.queryParameters[1].enabled);
+        assert.isTrue(element.queryParameters[2].enabled);
+      });
+
+      test('Removes missing query parameters', () => {
+        const model = [{
+          name: 'a',
+          value: 'b',
+          enabled: true
+        }];
+        parser = new UrlParser('/?c=d');
+        element._computeSearchParams(parser, model);
+        assert.typeOf(element.queryParameters, 'array');
+        assert.lengthOf(element.queryParameters, 1);
+        assert.equal(element.queryParameters[0].name, 'c');
+      });
+    });
+
+    suite('_findSearchParam()', () => {
+      let element;
+      setup(function() {
+        element = fixture('Empty');
+      });
+
+      test('Finds a param by name', () => {
+        const params = [['test', 'v']];
+        const result = element._findSearchParam(params, 'test');
+        assert.typeOf(result, 'array');
+      });
+
+      test('Returns undefined when no item in the array', () => {
+        const params = [['test', 'v']];
+        const result = element._findSearchParam(params, 'other');
+        assert.isUndefined(result);
+      });
+    });
+
+    suite('_findModelParam()', () => {
+      let element;
+      setup(function() {
+        element = fixture('Empty');
+      });
+
+      test('Finds item by name', () => {
+        const params = [{
+          name: 'test',
+          enabled: true
+        }];
+        const result = element._findModelParam(params, 'test');
+        assert.typeOf(result, 'object');
+      });
+
+      test('Ignores disabled items', () => {
+        const params = [{
+          name: 'test',
+          enabled: false
+        }];
+        const result = element._findModelParam(params, 'test');
+        assert.isUndefined(result);
+      });
+
+      test('Returns undefined when item not found', () => {
+        const params = [{
+          name: 'test',
+          enabled: true
+        }];
+        const result = element._findModelParam(params, 'other');
+        assert.isUndefined(result);
+      });
+    });
+
+    suite('_modelChanged()', () => {
+      let element;
+      setup(function() {
+        element = fixture('Empty');
+      });
+
+      test('Does nothing when __modelComputation is set', () => {
+        element.__modelComputation = true;
+        element._modelChanged();
+        // no null error
+      });
+
+      test('Does nothing when readonly is set', () => {
+        element.readonly = true;
+        element._modelChanged();
+        // no null error
+      });
+
+      test('Does nothing when recordModel.base is not set', () => {
+        element._modelChanged({});
+        // no null error
+      });
+
+      test('Sets __parser property when missing', () => {
+        element._modelChanged({
+          base: [],
+          path: 'model'
+        }, {
+          base: [],
+          path: 'queryParameters'
+        });
+        assert.ok(element.__parser);
+      });
+
+      test('Updates host value', () => {
+        element._modelChanged({
+          base: [],
+          path: 'model.host',
+          value: 'http://test.com'
+        }, {
+          base: [],
+          path: 'queryParameters'
+        });
+        assert.equal(element.value, 'http://test.com/');
+      });
+
+      test('Updates host value without protocol', () => {
+        element._modelChanged({
+          base: [],
+          path: 'model.host',
+          value: 'test.com'
+        }, {
+          base: [],
+          path: 'queryParameters'
+        });
+        assert.equal(element.value, 'test.com/');
+      });
+
+      test('Updates path value', () => {
+        element._modelChanged({
+          base: [],
+          path: 'model.path',
+          value: '/my/path'
+        }, {
+          base: [],
+          path: 'queryParameters'
+        });
+        assert.equal(element.value, '/my/path');
+      });
+
+      test('Updates anchor value', () => {
+        element._modelChanged({
+          base: [],
+          path: 'model.anchor',
+          value: 'anchor-value'
+        }, {
+          base: [],
+          path: 'queryParameters'
+        });
+        assert.equal(element.value, '/#anchor-value');
+      });
+
+      test('Sets query parameters', () => {
+        element._modelChanged({
+          base: [],
+          path: 'model.path',
+          value: '/api'
+        }, {
+          base: [{name: 'test', value: 'value', enabled: true}],
+          path: 'queryParameters.0.value'
+        });
+        assert.equal(element.value, '/api?test=value');
+      });
+
+      test('Ignores disabled items', () => {
+        element._modelChanged({
+          base: [],
+          path: 'model.path',
+          value: '/api'
+        }, {
+          base: [{name: 'test', value: 'value', enabled: true}, {name: 't2', value: 'v2', enabled: false}],
+          path: 'queryParameters.0.value'
+        });
+        assert.equal(element.value, '/api?test=value');
+      });
+    });
+
+    suite('addSearchParam()', () => {
+      let element;
+      setup(function() {
+        element = fixture('Empty');
+      });
+
+      test('Does nothing in readonly mode', () => {
+        element.readonly = true;
+        element.addSearchParam();
+        assert.isUndefined(element.queryParameters);
+      });
+
+      test('Sets queryParameters property', () => {
+        element.addSearchParam();
+        assert.typeOf(element.queryParameters, 'array');
+        assert.lengthOf(element.queryParameters, 1);
+      });
+
+      test('Added property is empty', () => {
+        element.addSearchParam();
+        const param = element.queryParameters[0];
+        assert.equal(param.name, '');
+        assert.equal(param.value, '');
+        assert.isTrue(param.enabled);
+      });
+
+      test('Adds property to existing list', () => {
+        element.addSearchParam();
+        element.addSearchParam();
+        assert.lengthOf(element.queryParameters, 2);
+      });
+    });
+
+    suite('_closeFocus()', () => {
+      let element;
+      setup(function() {
+        element = fixture('Empty');
+      });
+
+      test('Cancels the event', () => {
+        const e = {
+          preventDefault: () => {},
+          stopPropagation: () => {}
+        };
+        const spy = sinon.spy(e, 'preventDefault');
+        element._closeFocus(e);
+        assert.isTrue(spy.called);
+      });
+
+      test('Stops event propagation', () => {
+        const e = {
+          preventDefault: () => {},
+          stopPropagation: () => {}
+        };
+        const spy = sinon.spy(e, 'stopPropagation');
+        element._closeFocus(e);
+        assert.isTrue(spy.called);
+      });
+    });
+
+    suite('_hostPaste()', () => {
+      let element;
+      setup(function() {
+        element = fixture('Empty');
+      });
+
+      test('Does nothing when no clipboard data', () => {
+        const e = {
+          preventDefault: () => {},
+          stopPropagation: () => {},
+          clipboardData: {
+            getData: () => {}
+          }
+        };
+        element._hostPaste(e);
+        assert.isUndefined(element.value);
+      });
+
+      test('Sets new value', () => {
+        const e = {
+          preventDefault: () => {},
+          stopPropagation: () => {},
+          clipboardData: {
+            getData: () => 'http://test.com'
+          }
+        };
+        element._hostPaste(e);
+        assert.equal(element.value, 'http://test.com');
+      });
+
+      test('Cancels the event', () => {
+        const e = {
+          preventDefault: () => {},
+          stopPropagation: () => {},
+          clipboardData: {
+            getData: () => 'http://test.com'
+          }
+        };
+        const spy = sinon.spy(e, 'preventDefault');
+        element._closeFocus(e);
+        assert.isTrue(spy.called);
+      });
+
+      test('Stops event propagation', () => {
+        const e = {
+          preventDefault: () => {},
+          stopPropagation: () => {},
+          clipboardData: {
+            getData: () => 'http://test.com'
+          }
+        };
+        const spy = sinon.spy(e, 'stopPropagation');
+        element._closeFocus(e);
+        assert.isTrue(spy.called);
+      });
+    });
+
+    suite('_hostKeyDown()', () => {
+      let element;
+      setup(function(done) {
+        element = fixture('Empty');
+        flush(() => done());
+      });
+
+      test('Does nothing if code is not "Slash"', () => {
+        element._hostKeyDown({
+          code: 'Enter'
+        });
+        // No null error
+      });
+
+      test('Does nothing if keyCode is not "191"', () => {
+        element._hostKeyDown({
+          keyCode: 24
+        });
+        // No null error
+      });
+
+      test('Does nothing if keyCode is not "191"', () => {
+        element.value = 'http://domain.com/path';
+        element._hostKeyDown({
+          keyCode: 191,
+          preventDefault: () => {}
+        });
+        // no error
+      });
+    });
+    </script>
+
+  </body>
+</html>
