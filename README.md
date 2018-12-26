@@ -1,42 +1,26 @@
-[![Build Status](https://travis-ci.org/advanced-rest-client/url-input-editor.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/url-input-editor)  
+[![Build Status](https://travis-ci.org/advanced-rest-client/api-url-data-model.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/url-input-editor)
+
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/advanced-rest-client/url-input-editor)
 
 # url-input-editor
 
-# url-input-editor element
+An element that is responsible for displaying and manipulating the reuqest URL
 
-An editor of the request URL.
-
-The editor renders a simple editor view with a input fiedl. The input in this
-view is supported by the `paper-autocomplete` element that queries history saver
-for URL history data (`url-history-query` custom event).
-
-
-By setting `detailsOpened` property to `true` (the user can do this in the UI)
-it will render detailed editor. The editor allows to edit host, path, query
-parameetrs and hash separatelly.
-
-
-### Example
+<!---
+```
+<custom-element-demo>
+  <template>
+    <link rel="import" href="url-input-editor.html">
+    <next-code-block></next-code-block>
+  </template>
+</custom-element-demo>
+```
+-->
 
 ```html
-<url-input-editor url="{{requestURL}}" on-send-request="_sendAction" on-url-value-changed="_handleNewUrl"></url-input-editor>
+<url-input-editor value="http://domain.com/path?param=value"></url-input-editor>
 ```
 
-### Styling
-`<url-input-editor>` provides the following custom properties and mixins for styling:
+### API components
 
-Custom property | Description | Default
-----------------|-------------|----------
-`--url-input-editor` | Mixin applied to the element | `{}`
-
-Use paper elements mixin to style this element.
-
-
-
-### Events
-| Name | Description | Params |
-| --- | --- | --- |
-| send-request | Fired when the user use the "entrer" key in any of the fields. | __none__ |
-| url-history-query | Fired when autocomplete element request data. This event is to be handled by `url-history-saver` element but it can be handled by any element that intercepts this event. | q **String** - A query filter. |
-| url-value-changed | Fired when the URL value change. Note that this event is fired before validation occur and therefore the URL may be invalid. | value **String** - The URL. |
-queryParameters **Array.<Object>** - Optional query parameters model. |
+This components is a part of API components ecosystem: https://elements.advancedrestclient.com/
