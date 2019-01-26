@@ -45,6 +45,10 @@
     h3 {
       @apply --paper-font-title;
     }
+
+    .element {
+      max-width: 1100px;
+    }
     </style>
   </custom-style>
 </head>
@@ -53,13 +57,14 @@
   <dom-bind id="demo">
     <template>
       <url-history-saver></url-history-saver>
-      <section class="vertical-section-container centered card" role="main">
+      <section class="vertical-section-container centered card element" role="main">
         <h3>The `url-input-editor`</h3>
-        <url-input-editor value="{{url}}" id="editor" readonly="[[readOnly]]"></url-input-editor>
+        <url-input-editor value="{{url}}" id="editor" readonly="[[readOnly]]" narrow="[[narrow]]"></url-input-editor>
       </section>
       <section class="vertical-section-container centered card">
         <h3>Configuration</h3>
         <paper-toggle-button checked="{{readOnly}}">Read only</paper-toggle-button>
+        <paper-toggle-button checked="{{narrow}}">Narrow layout</paper-toggle-button>
       </section>
       <section class="vertical-section-container centered card">
         <label>URL value</label>
@@ -80,7 +85,7 @@
   </dom-bind>
   <script>
   (function(scope) {
-    scope.url = location.href;
+    scope.url = location.href + '?token=eyJhbGRiOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIxMTMXNDgzOTM3NzUyNjE2NTgwMDIiLCJzY29wZXMiOlsiYWxsIl0sImlhdCI6MTU0NzYwOTc4OSwiZXhwIjoxNTQ3Njk2MTg5LCJpc3MiOiJ1cm46YXJjLWNUIn0.iLHFXNtfJx-wDDMGFDN6ooM9IZQoD72ZcswbFV0x0Pk';
     scope._sendEvent = function() {
       document.body.dispatchEvent(new CustomEvent('url-value-changed', {
         detail: {

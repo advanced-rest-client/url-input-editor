@@ -46,13 +46,35 @@ the License.
     .form-row {
       @apply --layout-horizontal;
       @apply --layout-flex;
+      @apply --layout-center;
     }
 
-    .param-name {
-      margin-right: 12px;
+    .row-inputs {
+      @apply --layout-horizontal;
       @apply --layout-flex;
     }
 
+    .narrow-line {
+      @apply --layout-horizontal;
+      min-width: 120px;
+      width: 20%;
+      margin-right: 12px;
+    }
+
+    :host([narrow]) .form-row {
+      margin-bottom: 20px;
+    }
+
+    :host([narrow]) .row-inputs {
+      @apply --layout-vertical;
+    }
+
+    :host([narrow]) .narrow-line {
+      width: 100%;
+      margin-right: 0;
+    }
+
+    .param-name,
     .param-value {
       @apply --layout-flex;
     }
@@ -63,7 +85,7 @@ the License.
 
     .query-title {
       @apply --arc-font-caption;
-      color: #737373;
+      color: var(--url-input-editor-query-title-color, #737373);
     }
 
     .add-param {
@@ -80,22 +102,26 @@ the License.
           <label class="query-title">Query parameters</label>
           <template is="dom-repeat" id="paramsList" items="{{queryParameters}}" on-dom-change="_onParamsRender">
             <div class="form-row">
-              <paper-toggle-button class="enable-button" checked="{{item.enabled}}" title="Enable / disable parameter" disabled="[[readonly]]"></paper-toggle-button>
-              <paper-input no-label-float inline auto-validate value="{{item.name}}" class="param-name" placeholder="Param name" pattern="\S*" error-message="You may want to encode this value before sending it to the server" readonly="[[readonly]]"></paper-input>
-              <paper-input no-label-float inline auto-validate value="{{item.value}}" class="param-value" placeholder="Param value" pattern="\S*" error-message="You may want to encode this value before sending it to the server" readonly="[[readonly]]"></paper-input>
-              <paper-icon-button icon="arc:close" on-tap="_removeSearchParam" on-focus="_valueFieldLeft" title="Remove parameter" disabled="[[readonly]]"></paper-icon-button>
+              <div class="row-inputs">
+                <div class="narrow-line">
+                  <paper-toggle-button class="enable-button" checked="{{item.enabled}}" title="Enable / disable parameter" disabled="[[readonly]]"></paper-toggle-button>
+                  <paper-input inline auto-validate value="{{item.name}}" class="param-name" label="Parameter name" pattern="\S*" error-message="Encode this value" readonly="[[readonly]]"></paper-input>
+                </div>
+                <paper-input inline auto-validate value="{{item.value}}" class="param-value" label="Parameter value" pattern="\S*" error-message="You may want to encode this value before sending it to the server" readonly="[[readonly]]"></paper-input>
+              </div>
+              <paper-icon-button icon="arc:close" on-click="_removeSearchParam" on-focus="_valueFieldLeft" title="Remove parameter" disabled="[[readonly]]"></paper-icon-button>
             </div>
           </template>
           <div class="query-actions">
-            <paper-button raised on-tap="addSearchParam" class="add-param" disabled="[[readonly]]">Add</paper-button>
+            <paper-button raised on-click="addSearchParam" class="add-param" disabled="[[readonly]]">Add</paper-button>
           </div>
         </div>
         <paper-input id="hash" label="Hash" value="{{model.anchor}}" class="anchor-input" readonly="[[readonly]]"></paper-input>
       </form>
     </iron-form>
     <div class="encode-actions">
-      <paper-button id="encode" on-tap="_encodeParameters" title="URL encodes parameters in the editor" disabled="[[readonly]]">Encode URL</paper-button>
-      <paper-button id="decode" on-tap="_decodeParameters" title="URL decodes parameters in the editor" disabled="[[readonly]]">Decode URL</paper-button>
+      <paper-button id="encode" on-click="_encodeParameters" title="URL encodes parameters in the editor" disabled="[[readonly]]">Encode URL</paper-button>
+      <paper-button id="decode" on-click="_decodeParameters" title="URL decodes parameters in the editor" disabled="[[readonly]]">Decode URL</paper-button>
     </div>
   </template>
   <script>
@@ -120,6 +146,7 @@ the License.
    * `--url-input-editor` | Mixin applied to the element | `{}`
    * `--url-input-editor-add-param-background-color` | Add param button background color | `#2196F3`
    * `--url-input-editor-add-param-color` | Add param button color | `#fff`
+   * `--url-input-editor-query-title-color` | Color of the query parameters section title | `#737373`
    *
    * @polymer
    * @customElement
@@ -160,7 +187,11 @@ the License.
         /**
          * When set the editor is in read only mode.
          */
-        readonly: Boolean
+        readonly: Boolean,
+        /**
+         * When set it renders "narrow" layout.
+         */
+        narrow: {type: Boolean, reflectToAttribute: true}
       };
     }
 
@@ -368,7 +399,8 @@ the License.
       setTimeout(() => {
         try {
           const last = row[row.length - 1];
-          last.children[1].focus();
+          const node = last.querySelector('.param-name');
+          node.focus();
         } catch (e) {}
       }, 1);
     }

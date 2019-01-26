@@ -76,7 +76,7 @@ the License.
         <paper-input label="Request URL" readonly="[[readonly]]" value="{{value}}" class="main-input" required auto-validate error-message="An URL is required." on-blur="_ensureUrlHasProtocol" on-focus="_mainFocus" hidden="[[detailsOpened]]"></paper-input>
         <paper-autocomplete loader open-on-focus target="[[_autocompleteTarget]]" on-query="_autocompleteQuery" opened="{{suggesionsOpened}}"></paper-autocomplete>
         <iron-collapse id="collapse" opened="[[detailsOpened]]" transitioning="{{colapseTransitioning}}">
-          <url-detailed-editor value="{{_detailedValue}}" query-parameters="{{queryParameters}}" on-url-encode="encodeParameters" on-url-decode="decodeParameters" readonly="[[readonly]]"></url-detailed-editor>
+          <url-detailed-editor value="{{_detailedValue}}" query-parameters="{{queryParameters}}" on-url-encode="encodeParameters" on-url-decode="decodeParameters" readonly="[[readonly]]" narrow="[[narrow]]"></url-detailed-editor>
         </iron-collapse>
       </div>
       <paper-icon-button class$="toggle-button [[_computeToggleClass(detailsOpened)]]" icon="arc:keyboard-arrow-down" on-click="toggle" title="Toggle detailed editor"></paper-icon-button>
@@ -179,6 +179,10 @@ the License.
          * When set the editor is in read only mode.
          */
         readonly: Boolean,
+        /**
+         * When set it renders "narrow" layout.
+         */
+        narrow: {type: Boolean, reflectToAttribute: true},
         _detailedValue: String
       };
     }
