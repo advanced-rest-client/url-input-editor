@@ -110,6 +110,11 @@ declare namespace UiElements {
      * When set the editor is in read only mode.
      */
     readonly: boolean|null|undefined;
+
+    /**
+     * When set it renders "narrow" layout.
+     */
+    narrow: boolean|null|undefined;
     _detailedValue: string|null|undefined;
     _attachListeners(node: any): void;
     _detachListeners(node: any): void;

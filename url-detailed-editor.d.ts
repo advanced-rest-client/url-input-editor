@@ -48,6 +48,7 @@ declare namespace UiElements {
    * `--url-input-editor` | Mixin applied to the element | `{}`
    * `--url-input-editor-add-param-background-color` | Add param button background color | `#2196F3`
    * `--url-input-editor-add-param-color` | Add param button color | `#fff`
+   * `--url-input-editor-query-title-color` | Color of the query parameters section title | `#737373`
    */
   class UrlDetailedEditor extends
     Polymer.IronValidatableBehavior(
@@ -78,6 +79,11 @@ declare namespace UiElements {
      * When set the editor is in read only mode.
      */
     readonly: boolean|null|undefined;
+
+    /**
+     * When set it renders "narrow" layout.
+     */
+    narrow: boolean|null|undefined;
 
     /**
      * A handler that is called on input

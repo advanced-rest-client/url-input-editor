@@ -4,7 +4,7 @@
   "license": "Apache-2.0",
   "description": "An element that is responsible for displaying and manipulating the reuqest URL",
   "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.6.0"
+    "@polymer/gen-typescript-declarations": "^1.6.1"
   },
   "private": false,
   "main": "url-input-editor.html",
