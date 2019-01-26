@@ -217,3 +217,36 @@
 
 
 
+## [2.0.1](https://github.com/advanced-rest-client/url-input-editor/compare/0.2.6...2.0.1) (2019-01-26)
+
+
+### Docs
+
+* Updating documentation ([8e126c90c0796af8edf9c3479a8723136f876048](https://github.com/advanced-rest-client/url-input-editor/commit/8e126c90c0796af8edf9c3479a8723136f876048))
+* Updating Polymer docs ([110117c2d0f0e92288e99988b8f9a3fe1aa722d9](https://github.com/advanced-rest-client/url-input-editor/commit/110117c2d0f0e92288e99988b8f9a3fe1aa722d9))
+
+### Fix
+
+* Fixing model computation conditions ([5522d9ce88465b4fd65e0441f8d8c3d88eb6f86c](https://github.com/advanced-rest-client/url-input-editor/commit/5522d9ce88465b4fd65e0441f8d8c3d88eb6f86c))
+* Fixing problem with model computation when in readonly mode ([b63342e8bb1bfbd0fa36e455d4516ee9aed0fa53](https://github.com/advanced-rest-client/url-input-editor/commit/b63342e8bb1bfbd0fa36e455d4516ee9aed0fa53))
+* Fixing styling for inputs in detailed editor ([714dbdeeac64b4a2e7f8518d9e8e2ce991a77a20](https://github.com/advanced-rest-client/url-input-editor/commit/714dbdeeac64b4a2e7f8518d9e8e2ce991a77a20))
+
+### New
+
+* Adding `readonly` option to disable the editor ([053c6f31052e7077a655043fda337ae902dde425](https://github.com/advanced-rest-client/url-input-editor/commit/053c6f31052e7077a655043fda337ae902dde425))
+* Adding support for "narrow" layout ([351877590fd0cb22ad800458a7ec9ab18e521e36](https://github.com/advanced-rest-client/url-input-editor/commit/351877590fd0cb22ad800458a7ec9ab18e521e36))
+
+### Update
+
+* Adding default protocol on input focus ([2ae74d74068a5c0165892cf1c1c26d0bf51854cd](https://github.com/advanced-rest-client/url-input-editor/commit/2ae74d74068a5c0165892cf1c1c26d0bf51854cd))
+* Changed order of initialization ([3983eaf48428f5c3df788e889743ab4d8cae60cc](https://github.com/advanced-rest-client/url-input-editor/commit/3983eaf48428f5c3df788e889743ab4d8cae60cc))
+* Changing default protocol to http. ([c7eaedccd328d2925563fb9700f84735d2e5fd10](https://github.com/advanced-rest-client/url-input-editor/commit/c7eaedccd328d2925563fb9700f84735d2e5fd10))
+* Removing old CI files ([60d2bfbcc8515efe0dfe71f5ded181f5d489680e](https://github.com/advanced-rest-client/url-input-editor/commit/60d2bfbcc8515efe0dfe71f5ded181f5d489680e))
+* The element will now notify about details opened state change ([0e8e073b2b7526e8398b4da1cbafb0cac6ea70c6](https://github.com/advanced-rest-client/url-input-editor/commit/0e8e073b2b7526e8398b4da1cbafb0cac6ea70c6))
+* Toggle button now animate ([04b989e453b82380829aae3919e8982db9ab5a36](https://github.com/advanced-rest-client/url-input-editor/commit/04b989e453b82380829aae3919e8982db9ab5a36))
+* Updating demo page styles ([282ce78ea1d61822896300ed0c25c890c9e63ec6](https://github.com/advanced-rest-client/url-input-editor/commit/282ce78ea1d61822896300ed0c25c890c9e63ec6))
+* Updating detailed state computation ([10dca08d86ffd37d5b599d4e433c16dc6416b972](https://github.com/advanced-rest-client/url-input-editor/commit/10dca08d86ffd37d5b599d4e433c16dc6416b972))
+* Upgrading component to work with Polymer 2.0 ([eff882ab991b3f039c4149020ebded114029d721](https://github.com/advanced-rest-client/url-input-editor/commit/eff882ab991b3f039c4149020ebded114029d721))
+
+
+
