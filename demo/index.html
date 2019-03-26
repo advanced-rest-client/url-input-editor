@@ -1,22 +1,20 @@
-<!doctype html>
-<html>
-
-<head>
+<!DOCTYPE html><html><head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
   <title>url-input-editor demo</title>
-  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
-  <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
-  <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
-  <link rel="import" href="../../url-history-saver/url-history-saver.html">
-  <link rel="import" href="../../paper-input/paper-input.html">
-  <link rel="import" href="../../paper-button/paper-button.html">
-  <link rel="import" href="../../paper-toast/paper-toast.html">
-  <link rel="import" href="../../app-pouchdb/pouchdb.html">
-  <link rel="import" href="../../paper-toggle-button/paper-toggle-button.html">
-  <link rel="import" href="../../arc-electron-default-theme/arc-electron-default-theme.html">
-  <link rel="import" href="../url-input-editor.html">
+  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+  <script type="module" src="../../../@polymer/iron-demo-helpers/demo-pages-shared-styles.js"></script>
+  <script type="module" src="../../../@polymer/iron-demo-helpers/demo-snippet.js"></script>
+  <script type="module" src="../../../@advanced-rest-client/arc-models/url-history-model.js"></script>
+  <script type="module" src="../../../@polymer/paper-input/paper-input.js"></script>
+  <script type="module" src="../../../@polymer/paper-button/paper-button.js"></script>
+  <script type="module" src="../../../@polymer/paper-toast/paper-toast.js"></script>
+  <script src="../../../pouchdb/dist/pouchdb.js"></script>
+  <script type="module" src="../../../@polymer/paper-toggle-button/paper-toggle-button.js"></script>
+  <script type="module" src="../../../@advanced-rest-client/arc-electron-default-theme/arc-electron-default-theme.js"></script>
+  <script type="module" src="../url-input-editor.js"></script>
+
   <custom-style>
     <style include="demo-pages-shared-styles">
     body,
@@ -53,12 +51,12 @@
   </custom-style>
 </head>
 
-<body unresolved>
+<body unresolved="">
   <dom-bind id="demo">
     <template>
-      <url-history-saver></url-history-saver>
+      <url-history-model></url-history-model>
       <section class="vertical-section-container centered card element" role="main">
-        <h3>The `url-input-editor`</h3>
+        <h3>The url-input-editor</h3>
         <url-input-editor value="{{url}}" id="editor" readonly="[[readOnly]]" narrow="[[narrow]]"></url-input-editor>
       </section>
       <section class="vertical-section-container centered card">
@@ -83,7 +81,7 @@
       <paper-toast></paper-toast>
     </template>
   </dom-bind>
-  <script>
+  <script type="module">
   (function(scope) {
     scope.url = location.href + '?token=eyJhbGRiOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIxMTMXNDgzOTM3NzUyNjE2NTgwMDIiLCJzY29wZXMiOlsiYWxsIl0sImlhdCI6MTU0NzYwOTc4OSwiZXhwIjoxNTQ3Njk2MTg5LCJpc3MiOiJ1cm46YXJjLWNUIn0.iLHFXNtfJx-wDDMGFDN6ooM9IZQoD72ZcswbFV0x0Pk';
     scope._sendEvent = function() {
@@ -100,12 +98,8 @@
     toast.text = 'Request send requested';
     toast.opened = true;
   });
-  window.addEventListener('WebComponentsReady', () => {
-    document.getElementById('editor').addEventListener('query-parameters-changed', (e) => {
-      document.getElementById('model').innerText = JSON.stringify(e.target.queryParameters, null, 2);
-    });
+  document.getElementById('editor').addEventListener('query-parameters-changed', (e) => {
+    document.getElementById('model').innerText = JSON.stringify(e.target.queryParameters, null, 2);
   });
   </script>
-</body>
-
-</html>
+</body></html>

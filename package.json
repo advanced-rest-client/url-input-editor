@@ -1,22 +1,38 @@
 {
-  "name": "@advanced-rest-client/url-input-editor",
-  "version": "2.0.1",
-  "license": "Apache-2.0",
   "description": "An element that is responsible for displaying and manipulating the reuqest URL",
-  "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.6.1"
+  "keywords": [
+    "web-components",
+    "polymer"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/advanced-rest-client/url-input-editor.git"
   },
-  "private": false,
-  "main": "url-input-editor.html",
+  "name": "@advanced-rest-client/url-input-editor",
+  "version": "3.0.0-preview.1",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@advanced-rest-client/arc-electron-default-theme": "^3.0.0-preview.2",
+    "@advanced-rest-client/arc-models": "^3.0.0-preview.2",
+    "@polymer/gen-typescript-declarations": "^1.6.1",
+    "@polymer/iron-component-page": "^4.0.0",
+    "@polymer/iron-demo-helpers": "^3.0.0",
+    "@polymer/iron-test-helpers": "^3.0.0",
+    "@polymer/paper-toast": "^3.0.0",
+    "@polymer/test-fixture": "^4.0.2",
+    "@webcomponents/webcomponentsjs": "^2.0.0",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "pouchdb": "^7.0.0",
+    "sinon": "^7.2.3",
+    "wct-mocha": "^1.0.0"
+  },
+  "main": "url-input-editor.js",
   "scripts": {
     "lint": "polymer lint url-input-editor.html",
     "test-sauce": "polymer test --plugin sauce --job-name \"url-input-editor:local-test\"",
     "test": "polymer test --plugin local",
     "update-types": "gen-typescript-declarations --deleteExisting --outDir ."
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/advanced-rest-client/url-input-editor.git"
   },
   "bugs": {
     "url": "https://github.com/advanced-rest-client/url-input-editor/issues",
@@ -25,5 +41,24 @@
   "authors": [
     "Pawel Psztyc",
     "The Advanced REST client authors <arc@mulesoft.com>"
-  ]
+  ],
+  "contributors": [
+    "Pawel Psztyc",
+    "The Advanced REST client authors <arc@mulesoft.com>"
+  ],
+  "dependencies": {
+    "@advanced-rest-client/arc-icons": "^3.0.0-preview.2",
+    "@advanced-rest-client/events-target-mixin": "^3.0.0-preview.2",
+    "@advanced-rest-client/paper-autocomplete": "^3.0.0-preview.2",
+    "@advanced-rest-client/url-parser": "^3.0.0-preview.2",
+    "@polymer/iron-collapse": "^3.0.0",
+    "@polymer/iron-flex-layout": "^3.0.0",
+    "@polymer/iron-form": "^3.0.0",
+    "@polymer/iron-validatable-behavior": "^3.0.0",
+    "@polymer/paper-button": "^3.0.0",
+    "@polymer/paper-icon-button": "^3.0.0",
+    "@polymer/paper-input": "^3.0.0",
+    "@polymer/paper-toggle-button": "^3.0.0",
+    "@polymer/polymer": "^3.0.0"
+  }
 }

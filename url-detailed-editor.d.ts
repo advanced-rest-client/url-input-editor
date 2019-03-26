@@ -5,25 +5,12 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   url-detailed-editor.html
+ *   url-detailed-editor.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 // tslint:disable:no-any describes the API as best we are able today
-
-/// <reference path="../polymer/types/polymer-element.d.ts" />
-/// <reference path="../polymer/types/lib/legacy/class.d.ts" />
-/// <reference path="../paper-icon-button/paper-icon-button.d.ts" />
-/// <reference path="../paper-input/paper-input.d.ts" />
-/// <reference path="../iron-form/iron-form.d.ts" />
-/// <reference path="../paper-button/paper-button.d.ts" />
-/// <reference path="../paper-autocomplete/paper-autocomplete.d.ts" />
-/// <reference path="../arc-icons/arc-icons.d.ts" />
-/// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
-/// <reference path="../url-parser/url-parser.d.ts" />
-/// <reference path="../paper-toggle-button/paper-toggle-button.d.ts" />
-/// <reference path="../iron-validatable-behavior/iron-validatable-behavior.d.ts" />
 
 declare namespace UiElements {
 
@@ -172,6 +159,11 @@ declare namespace UiElements {
   }
 }
 
-interface HTMLElementTagNameMap {
-  "url-detailed-editor": UiElements.UrlDetailedEditor;
+declare global {
+
+  interface HTMLElementTagNameMap {
+    "url-detailed-editor": UiElements.UrlDetailedEditor;
+  }
 }
+
+export {};

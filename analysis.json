@@ -4,7 +4,7 @@
     {
       "description": "`<url-detailed-editor>` Presents a form element that contains a list of\nURL parameters.\n\nThe element can be validated as a regular form element.\n\n### Example\n\n```html\n<url-detailed-editor url=\"{{url}}\" invalid=\"{{invalid}}\"></url-detailed-editor>\n```\n\n### Styling\n\n`<url-input-editor>` provides the following custom properties and mixins for styling:\n\nCustom property | Description | Default\n----------------|-------------|----------\n`--url-input-editor` | Mixin applied to the element | `{}`\n`--url-input-editor-add-param-background-color` | Add param button background color | `#2196F3`\n`--url-input-editor-add-param-color` | Add param button color | `#fff`\n`--url-input-editor-query-title-color` | Color of the query parameters section title | `#737373`",
       "summary": "",
-      "path": "url-detailed-editor.html",
+      "path": "url-detailed-editor.js",
       "properties": [
         {
           "name": "value",
@@ -13,12 +13,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 164,
-              "column": 8
+              "line": 227,
+              "column": 6
             },
             "end": {
-              "line": 168,
-              "column": 9
+              "line": 231,
+              "column": 7
             }
           },
           "metadata": {
@@ -36,12 +36,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 172,
-              "column": 8
+              "line": 235,
+              "column": 6
             },
             "end": {
-              "line": 172,
-              "column": 21
+              "line": 235,
+              "column": 19
             }
           },
           "metadata": {
@@ -57,12 +57,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 182,
-              "column": 8
+              "line": 245,
+              "column": 6
             },
             "end": {
-              "line": 185,
-              "column": 9
+              "line": 248,
+              "column": 7
             }
           },
           "metadata": {
@@ -79,12 +79,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 189,
-              "column": 8
+              "line": 252,
+              "column": 6
             },
             "end": {
-              "line": 189,
-              "column": 25
+              "line": 252,
+              "column": 23
             }
           },
           "metadata": {
@@ -100,12 +100,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 193,
-              "column": 8
+              "line": 256,
+              "column": 6
             },
             "end": {
-              "line": 193,
-              "column": 57
+              "line": 256,
+              "column": 55
             }
           },
           "metadata": {
@@ -122,12 +122,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 207,
-              "column": 4
+              "line": 270,
+              "column": 2
             },
             "end": {
-              "line": 220,
-              "column": 5
+              "line": 283,
+              "column": 3
             }
           },
           "metadata": {},
@@ -147,12 +147,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 222,
-              "column": 4
+              "line": 285,
+              "column": 2
             },
             "end": {
-              "line": 241,
-              "column": 5
+              "line": 304,
+              "column": 3
             }
           },
           "metadata": {},
@@ -174,12 +174,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 243,
-              "column": 4
+              "line": 306,
+              "column": 2
             },
             "end": {
-              "line": 256,
-              "column": 5
+              "line": 319,
+              "column": 3
             }
           },
           "metadata": {},
@@ -195,12 +195,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 258,
-              "column": 4
+              "line": 321,
+              "column": 2
             },
             "end": {
-              "line": 294,
-              "column": 5
+              "line": 357,
+              "column": 3
             }
           },
           "metadata": {},
@@ -222,12 +222,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 301,
-              "column": 4
+              "line": 364,
+              "column": 2
             },
             "end": {
-              "line": 307,
-              "column": 5
+              "line": 370,
+              "column": 3
             }
           },
           "metadata": {},
@@ -254,12 +254,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 314,
-              "column": 4
+              "line": 377,
+              "column": 2
             },
             "end": {
-              "line": 322,
-              "column": 5
+              "line": 385,
+              "column": 3
             }
           },
           "metadata": {},
@@ -286,12 +286,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 328,
-              "column": 4
+              "line": 391,
+              "column": 2
             },
             "end": {
-              "line": 345,
-              "column": 5
+              "line": 407,
+              "column": 3
             }
           },
           "metadata": {},
@@ -317,12 +317,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 351,
-              "column": 4
+              "line": 413,
+              "column": 2
             },
             "end": {
-              "line": 364,
-              "column": 5
+              "line": 426,
+              "column": 3
             }
           },
           "metadata": {},
@@ -343,12 +343,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 370,
-              "column": 4
+              "line": 432,
+              "column": 2
             },
             "end": {
-              "line": 379,
-              "column": 5
+              "line": 441,
+              "column": 3
             }
           },
           "metadata": {},
@@ -369,12 +369,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 381,
-              "column": 4
+              "line": 443,
+              "column": 2
             },
             "end": {
-              "line": 390,
-              "column": 5
+              "line": 452,
+              "column": 3
             }
           },
           "metadata": {},
@@ -393,12 +393,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 393,
-              "column": 4
+              "line": 455,
+              "column": 2
             },
             "end": {
-              "line": 405,
-              "column": 5
+              "line": 467,
+              "column": 3
             }
           },
           "metadata": {},
@@ -413,12 +413,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 409,
-              "column": 4
+              "line": 471,
+              "column": 2
             },
             "end": {
-              "line": 423,
-              "column": 5
+              "line": 485,
+              "column": 3
             }
           },
           "metadata": {},
@@ -433,12 +433,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 425,
-              "column": 4
+              "line": 487,
+              "column": 2
             },
             "end": {
-              "line": 428,
-              "column": 5
+              "line": 490,
+              "column": 3
             }
           },
           "metadata": {},
@@ -457,12 +457,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 434,
-              "column": 4
+              "line": 496,
+              "column": 2
             },
             "end": {
-              "line": 436,
-              "column": 5
+              "line": 498,
+              "column": 3
             }
           },
           "metadata": {},
@@ -478,12 +478,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 438,
-              "column": 4
+              "line": 500,
+              "column": 2
             },
             "end": {
-              "line": 453,
-              "column": 5
+              "line": 515,
+              "column": 3
             }
           },
           "metadata": {},
@@ -502,12 +502,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 455,
-              "column": 4
+              "line": 517,
+              "column": 2
             },
             "end": {
-              "line": 475,
-              "column": 5
+              "line": 537,
+              "column": 3
             }
           },
           "metadata": {},
@@ -526,12 +526,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 477,
-              "column": 4
+              "line": 539,
+              "column": 2
             },
             "end": {
-              "line": 485,
-              "column": 5
+              "line": 547,
+              "column": 3
             }
           },
           "metadata": {},
@@ -550,12 +550,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 489,
-              "column": 4
+              "line": 551,
+              "column": 2
             },
             "end": {
-              "line": 493,
-              "column": 5
+              "line": 555,
+              "column": 3
             }
           },
           "metadata": {},
@@ -570,12 +570,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 497,
-              "column": 4
+              "line": 559,
+              "column": 2
             },
             "end": {
-              "line": 501,
-              "column": 5
+              "line": 563,
+              "column": 3
             }
           },
           "metadata": {},
@@ -590,12 +590,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 503,
-              "column": 4
+              "line": 565,
+              "column": 2
             },
             "end": {
-              "line": 506,
-              "column": 5
+              "line": 568,
+              "column": 3
             }
           },
           "metadata": {},
@@ -619,12 +619,12 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 156,
-          "column": 2
+          "line": 55,
+          "column": 0
         },
         "end": {
-          "line": 522,
-          "column": 3
+          "line": 584,
+          "column": 1
         }
       },
       "privacy": "public",
@@ -636,12 +636,12 @@
           "description": "Current value of the editor.",
           "sourceRange": {
             "start": {
-              "line": 164,
-              "column": 8
+              "line": 227,
+              "column": 6
             },
             "end": {
-              "line": 168,
-              "column": 9
+              "line": 231,
+              "column": 7
             }
           },
           "metadata": {},
@@ -652,12 +652,12 @@
           "description": "Computed data model for the view.",
           "sourceRange": {
             "start": {
-              "line": 172,
-              "column": 8
+              "line": 235,
+              "column": 6
             },
             "end": {
-              "line": 172,
-              "column": 21
+              "line": 235,
+              "column": 19
             }
           },
           "metadata": {},
@@ -668,12 +668,12 @@
           "description": "List of query parameters model.\nIf not set then it is computed from current URL.\n\nModel for query parameters is:\n- name {String} param name\n- value {String} param value\n- enabled {Boolean} is param included into the `value`",
           "sourceRange": {
             "start": {
-              "line": 182,
-              "column": 8
+              "line": 245,
+              "column": 6
             },
             "end": {
-              "line": 185,
-              "column": 9
+              "line": 248,
+              "column": 7
             }
           },
           "metadata": {},
@@ -684,12 +684,12 @@
           "description": "When set the editor is in read only mode.",
           "sourceRange": {
             "start": {
-              "line": 189,
-              "column": 8
+              "line": 252,
+              "column": 6
             },
             "end": {
-              "line": 189,
-              "column": 25
+              "line": 252,
+              "column": 23
             }
           },
           "metadata": {},
@@ -700,12 +700,12 @@
           "description": "When set it renders \"narrow\" layout.",
           "sourceRange": {
             "start": {
-              "line": 193,
-              "column": 8
+              "line": 256,
+              "column": 6
             },
             "end": {
-              "line": 193,
-              "column": 57
+              "line": 256,
+              "column": 55
             }
           },
           "metadata": {},
@@ -751,55 +751,8 @@
     {
       "description": "The request URL editor\n\nThe editor renders a simple editor view with an input field. The input\nuses `paper-autocomplete` element to render URL suggestions.\n\nWhen setting `detailsOpened` property to `true` it renders detailed editor.\nThe editor allows to edit host, path, query parameetrs and hash\nseparatelly.\n\n### Example\n\n```html\n<url-input-editor\n url=\"{{requestURL}}\"\n on-send-request=\"_sendAction\"\n on-url-value-changed=\"_handleNewUrl\"></url-input-editor>\n```\n\n### Styling\n\n`<url-input-editor>` provides the following custom properties and mixins\nfor styling:\n\nCustom property | Description | Default\n----------------|-------------|----------\n`--url-input-editor` | Mixin applied to the element | `{}`\n\nUse paper elements mixin to style this element.",
       "summary": "",
-      "path": "url-input-editor.html",
+      "path": "url-input-editor.js",
       "properties": [
-        {
-          "name": "eventsTarget",
-          "type": "Object | null | undefined",
-          "description": "Events handlers target. By default the element listens on\n`window` object. If set, all events listeners will be attached to this\nobject instead of `window`.",
-          "privacy": "public",
-          "sourceRange": {
-            "file": "../events-target-behavior/events-target-behavior.html",
-            "start": {
-              "line": 73,
-              "column": 8
-            },
-            "end": {
-              "line": 76,
-              "column": 9
-            }
-          },
-          "metadata": {
-            "polymer": {
-              "observer": "\"_eventsTargetChanged\"",
-              "attributeType": "Object"
-            }
-          },
-          "inheritedFrom": "ArcBehaviors.EventsTargetBehavior"
-        },
-        {
-          "name": "_oldEventsTarget",
-          "type": "Object | null | undefined",
-          "description": "An event target used to attach listeners.",
-          "privacy": "protected",
-          "sourceRange": {
-            "file": "../events-target-behavior/events-target-behavior.html",
-            "start": {
-              "line": 78,
-              "column": 8
-            },
-            "end": {
-              "line": 78,
-              "column": 32
-            }
-          },
-          "metadata": {
-            "polymer": {
-              "attributeType": "Object"
-            }
-          },
-          "inheritedFrom": "ArcBehaviors.EventsTargetBehavior"
-        },
         {
           "name": "value",
           "type": "string | null | undefined",
@@ -807,12 +760,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 129,
-              "column": 8
+              "line": 160,
+              "column": 6
             },
             "end": {
-              "line": 133,
-              "column": 9
+              "line": 164,
+              "column": 7
             }
           },
           "metadata": {
@@ -830,12 +783,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 137,
-              "column": 8
+              "line": 168,
+              "column": 6
             },
             "end": {
-              "line": 141,
-              "column": 9
+              "line": 172,
+              "column": 7
             }
           },
           "metadata": {
@@ -853,12 +806,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 145,
-              "column": 8
+              "line": 176,
+              "column": 6
             },
             "end": {
-              "line": 148,
-              "column": 9
+              "line": 179,
+              "column": 7
             }
           },
           "metadata": {
@@ -875,12 +828,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 152,
-              "column": 8
+              "line": 183,
+              "column": 6
             },
             "end": {
-              "line": 152,
-              "column": 40
+              "line": 183,
+              "column": 38
             }
           },
           "metadata": {
@@ -896,12 +849,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 154,
-              "column": 8
+              "line": 185,
+              "column": 6
             },
             "end": {
-              "line": 157,
-              "column": 9
+              "line": 188,
+              "column": 7
             }
           },
           "metadata": {
@@ -918,12 +871,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 159,
-              "column": 8
+              "line": 190,
+              "column": 6
             },
             "end": {
-              "line": 162,
-              "column": 9
+              "line": 193,
+              "column": 7
             }
           },
           "metadata": {
@@ -940,12 +893,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 173,
-              "column": 8
+              "line": 204,
+              "column": 6
             },
             "end": {
-              "line": 176,
-              "column": 9
+              "line": 207,
+              "column": 7
             }
           },
           "metadata": {
@@ -961,12 +914,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 180,
-              "column": 8
+              "line": 211,
+              "column": 6
             },
             "end": {
-              "line": 180,
-              "column": 25
+              "line": 211,
+              "column": 23
             }
           },
           "metadata": {
@@ -982,12 +935,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 184,
-              "column": 8
+              "line": 215,
+              "column": 6
             },
             "end": {
-              "line": 184,
-              "column": 57
+              "line": 215,
+              "column": 55
             }
           },
           "metadata": {
@@ -1003,12 +956,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 185,
-              "column": 8
+              "line": 216,
+              "column": 6
             },
             "end": {
-              "line": 185,
-              "column": 30
+              "line": 216,
+              "column": 28
             }
           },
           "metadata": {
@@ -1020,89 +973,17 @@
       ],
       "methods": [
         {
-          "name": "connectedCallback",
-          "description": "",
-          "privacy": "public",
-          "sourceRange": {
-            "file": "../events-target-behavior/events-target-behavior.html",
-            "start": {
-              "line": 81,
-              "column": 4
-            },
-            "end": {
-              "line": 84,
-              "column": 6
-            }
-          },
-          "metadata": {},
-          "params": [],
-          "return": {
-            "type": "void"
-          },
-          "inheritedFrom": "ArcBehaviors.EventsTargetBehavior"
-        },
-        {
-          "name": "disconnectedCallback",
-          "description": "",
-          "privacy": "public",
-          "sourceRange": {
-            "file": "../events-target-behavior/events-target-behavior.html",
-            "start": {
-              "line": 86,
-              "column": 5
-            },
-            "end": {
-              "line": 91,
-              "column": 6
-            }
-          },
-          "metadata": {},
-          "params": [],
-          "return": {
-            "type": "void"
-          },
-          "inheritedFrom": "ArcBehaviors.EventsTargetBehavior"
-        },
-        {
-          "name": "_eventsTargetChanged",
-          "description": "Removes old handlers (if any) and attaches listeners on new event\nevent target.",
-          "privacy": "protected",
-          "sourceRange": {
-            "file": "../events-target-behavior/events-target-behavior.html",
-            "start": {
-              "line": 99,
-              "column": 4
-            },
-            "end": {
-              "line": 105,
-              "column": 5
-            }
-          },
-          "metadata": {},
-          "params": [
-            {
-              "name": "eventsTarget",
-              "type": "?Node",
-              "description": "Event target to set handlers on. If not set it\nwill set handlers on the `window` object."
-            }
-          ],
-          "return": {
-            "type": "void"
-          },
-          "inheritedFrom": "ArcBehaviors.EventsTargetBehavior"
-        },
-        {
           "name": "_attachListeners",
           "description": "",
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 201,
-              "column": 4
+              "line": 232,
+              "column": 2
             },
             "end": {
-              "line": 205,
-              "column": 5
+              "line": 236,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1121,12 +1002,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 207,
-              "column": 4
+              "line": 238,
+              "column": 2
             },
             "end": {
-              "line": 211,
-              "column": 5
+              "line": 242,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1145,12 +1026,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 218,
-              "column": 4
+              "line": 249,
+              "column": 2
             },
             "end": {
-              "line": 233,
-              "column": 5
+              "line": 264,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1170,12 +1051,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 235,
-              "column": 4
+              "line": 266,
+              "column": 2
             },
             "end": {
-              "line": 240,
-              "column": 5
+              "line": 271,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1197,12 +1078,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 249,
-              "column": 4
+              "line": 280,
+              "column": 2
             },
             "end": {
-              "line": 259,
-              "column": 5
+              "line": 290,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1222,12 +1103,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 264,
-              "column": 4
+              "line": 295,
+              "column": 2
             },
             "end": {
-              "line": 266,
-              "column": 5
+              "line": 297,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1242,12 +1123,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 271,
-              "column": 4
+              "line": 302,
+              "column": 2
             },
             "end": {
-              "line": 277,
-              "column": 5
+              "line": 308,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1262,12 +1143,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 282,
-              "column": 4
+              "line": 313,
+              "column": 2
             },
             "end": {
-              "line": 288,
-              "column": 5
+              "line": 319,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1282,12 +1163,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 294,
-              "column": 4
+              "line": 325,
+              "column": 2
             },
             "end": {
-              "line": 307,
-              "column": 5
+              "line": 338,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1308,12 +1189,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 313,
-              "column": 4
+              "line": 344,
+              "column": 2
             },
             "end": {
-              "line": 326,
-              "column": 5
+              "line": 356,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1333,12 +1214,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 333,
-              "column": 4
+              "line": 363,
+              "column": 2
             },
             "end": {
-              "line": 357,
-              "column": 5
+              "line": 387,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1364,12 +1245,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 362,
-              "column": 4
+              "line": 392,
+              "column": 2
             },
             "end": {
-              "line": 367,
-              "column": 5
+              "line": 397,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1389,12 +1270,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 374,
-              "column": 4
+              "line": 404,
+              "column": 2
             },
             "end": {
-              "line": 395,
-              "column": 5
+              "line": 425,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1414,12 +1295,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 401,
-              "column": 4
+              "line": 431,
+              "column": 2
             },
             "end": {
-              "line": 412,
-              "column": 5
+              "line": 442,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1440,12 +1321,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 421,
-              "column": 4
+              "line": 451,
+              "column": 2
             },
             "end": {
-              "line": 432,
-              "column": 5
+              "line": 462,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1461,12 +1342,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 438,
-              "column": 4
+              "line": 468,
+              "column": 2
             },
             "end": {
-              "line": 443,
-              "column": 5
+              "line": 473,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1486,12 +1367,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 445,
-              "column": 4
+              "line": 475,
+              "column": 2
             },
             "end": {
-              "line": 453,
-              "column": 5
+              "line": 483,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1510,12 +1391,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 458,
-              "column": 4
+              "line": 488,
+              "column": 2
             },
             "end": {
-              "line": 466,
-              "column": 5
+              "line": 496,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1530,12 +1411,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 502,
-              "column": 4
+              "line": 532,
+              "column": 2
             },
             "end": {
-              "line": 507,
-              "column": 5
+              "line": 537,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1557,12 +1438,12 @@
           "privacy": "public",
           "sourceRange": {
             "start": {
-              "line": 518,
-              "column": 4
+              "line": 548,
+              "column": 2
             },
             "end": {
-              "line": 523,
-              "column": 5
+              "line": 553,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1584,12 +1465,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 534,
-              "column": 4
+              "line": 564,
+              "column": 2
             },
             "end": {
-              "line": 543,
-              "column": 5
+              "line": 573,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1613,12 +1494,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 548,
-              "column": 4
+              "line": 578,
+              "column": 2
             },
             "end": {
-              "line": 559,
-              "column": 5
+              "line": 589,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1633,12 +1514,12 @@
           "privacy": "protected",
           "sourceRange": {
             "start": {
-              "line": 565,
-              "column": 4
+              "line": 595,
+              "column": 2
             },
             "end": {
-              "line": 567,
-              "column": 5
+              "line": 597,
+              "column": 3
             }
           },
           "metadata": {},
@@ -1664,12 +1545,12 @@
       "metadata": {},
       "sourceRange": {
         "start": {
-          "line": 122,
-          "column": 2
+          "line": 66,
+          "column": 0
         },
         "end": {
-          "line": 590,
-          "column": 3
+          "line": 620,
+          "column": 1
         }
       },
       "privacy": "public",
@@ -1677,34 +1558,16 @@
       "name": "UiElements.UrlInputEditor",
       "attributes": [
         {
-          "name": "events-target",
-          "description": "Events handlers target. By default the element listens on\n`window` object. If set, all events listeners will be attached to this\nobject instead of `window`.",
-          "sourceRange": {
-            "file": "../events-target-behavior/events-target-behavior.html",
-            "start": {
-              "line": 73,
-              "column": 8
-            },
-            "end": {
-              "line": 76,
-              "column": 9
-            }
-          },
-          "metadata": {},
-          "type": "Object | null | undefined",
-          "inheritedFrom": "ArcBehaviors.EventsTargetBehavior"
-        },
-        {
           "name": "value",
           "description": "Current URL value.",
           "sourceRange": {
             "start": {
-              "line": 129,
-              "column": 8
+              "line": 160,
+              "column": 6
             },
             "end": {
-              "line": 133,
-              "column": 9
+              "line": 164,
+              "column": 7
             }
           },
           "metadata": {},
@@ -1715,12 +1578,12 @@
           "description": "True if detailed editor is opened.",
           "sourceRange": {
             "start": {
-              "line": 137,
-              "column": 8
+              "line": 168,
+              "column": 6
             },
             "end": {
-              "line": 141,
-              "column": 9
+              "line": 172,
+              "column": 7
             }
           },
           "metadata": {},
@@ -1731,12 +1594,12 @@
           "description": "Default protocol for the URL if it's missing.",
           "sourceRange": {
             "start": {
-              "line": 145,
-              "column": 8
+              "line": 176,
+              "column": 6
             },
             "end": {
-              "line": 148,
-              "column": 9
+              "line": 179,
+              "column": 7
             }
           },
           "metadata": {},
@@ -1747,12 +1610,12 @@
           "description": "True when a suggestion box for the URL is opened.",
           "sourceRange": {
             "start": {
-              "line": 154,
-              "column": 8
+              "line": 185,
+              "column": 6
             },
             "end": {
-              "line": 157,
-              "column": 9
+              "line": 188,
+              "column": 7
             }
           },
           "metadata": {},
@@ -1763,12 +1626,12 @@
           "description": "Controlled by the collapse element flad used to animate detail panel.",
           "sourceRange": {
             "start": {
-              "line": 159,
-              "column": 8
+              "line": 190,
+              "column": 6
             },
             "end": {
-              "line": 162,
-              "column": 9
+              "line": 193,
+              "column": 7
             }
           },
           "metadata": {},
@@ -1779,12 +1642,12 @@
           "description": "List of query parameters model.\nIt is passed to detailed editor to build query parameters form.\nIf not set then it is computed from current URL.\n\nModel for query parameters is:\n- name {String} param name\n- value {String} param value\n- enabled {Boolean} is param included into the `value`",
           "sourceRange": {
             "start": {
-              "line": 173,
-              "column": 8
+              "line": 204,
+              "column": 6
             },
             "end": {
-              "line": 176,
-              "column": 9
+              "line": 207,
+              "column": 7
             }
           },
           "metadata": {},
@@ -1795,12 +1658,12 @@
           "description": "When set the editor is in read only mode.",
           "sourceRange": {
             "start": {
-              "line": 180,
-              "column": 8
+              "line": 211,
+              "column": 6
             },
             "end": {
-              "line": 180,
-              "column": 25
+              "line": 211,
+              "column": 23
             }
           },
           "metadata": {},
@@ -1811,12 +1674,12 @@
           "description": "When set it renders \"narrow\" layout.",
           "sourceRange": {
             "start": {
-              "line": 184,
-              "column": 8
+              "line": 215,
+              "column": 6
             },
             "end": {
-              "line": 184,
-              "column": 57
+              "line": 215,
+              "column": 55
             }
           },
           "metadata": {},
@@ -1868,8 +1731,7 @@
       "slots": [],
       "tagname": "url-input-editor",
       "mixins": [
-        "Polymer.IronValidatableBehavior",
-        "ArcBehaviors.EventsTargetBehavior"
+        "EventsTargetMixin"
       ]
     }
   ]

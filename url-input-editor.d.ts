@@ -5,27 +5,12 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   url-input-editor.html
+ *   url-input-editor.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 // tslint:disable:no-any describes the API as best we are able today
-
-/// <reference path="../polymer/types/polymer-element.d.ts" />
-/// <reference path="../polymer/types/lib/legacy/class.d.ts" />
-/// <reference path="../paper-icon-button/paper-icon-button.d.ts" />
-/// <reference path="../paper-input/paper-input.d.ts" />
-/// <reference path="../paper-button/paper-button.d.ts" />
-/// <reference path="../paper-autocomplete/paper-autocomplete.d.ts" />
-/// <reference path="../arc-icons/arc-icons.d.ts" />
-/// <reference path="../iron-collapse/iron-collapse.d.ts" />
-/// <reference path="../iron-form-element-behavior/iron-form-element-behavior.d.ts" />
-/// <reference path="../iron-validatable-behavior/iron-validatable-behavior.d.ts" />
-/// <reference path="../events-target-behavior/events-target-behavior.d.ts" />
-/// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
-/// <reference path="../url-parser/url-parser.d.ts" />
-/// <reference path="url-detailed-editor.d.ts" />
 
 declare namespace UiElements {
 
@@ -60,9 +45,8 @@ declare namespace UiElements {
    * Use paper elements mixin to style this element.
    */
   class UrlInputEditor extends
-    Polymer.IronValidatableBehavior(
-    ArcBehaviors.EventsTargetBehavior(
-    Object)) {
+    EventsTargetMixin(
+    Object) {
 
     /**
      * Current URL value.
@@ -280,6 +264,11 @@ declare namespace UiElements {
   }
 }
 
-interface HTMLElementTagNameMap {
-  "url-input-editor": UiElements.UrlInputEditor;
+declare global {
+
+  interface HTMLElementTagNameMap {
+    "url-input-editor": UiElements.UrlInputEditor;
+  }
 }
+
+export {};
