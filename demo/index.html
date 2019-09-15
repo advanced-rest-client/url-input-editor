@@ -1,105 +1,44 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
-  <title>url-input-editor demo</title>
-  <script src="../../../@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-  <script type="module" src="../../../@polymer/iron-demo-helpers/demo-pages-shared-styles.js"></script>
-  <script type="module" src="../../../@polymer/iron-demo-helpers/demo-snippet.js"></script>
-  <script type="module" src="../../../@advanced-rest-client/arc-models/url-history-model.js"></script>
-  <script type="module" src="../../../@polymer/paper-input/paper-input.js"></script>
-  <script type="module" src="../../../@polymer/paper-button/paper-button.js"></script>
-  <script type="module" src="../../../@polymer/paper-toast/paper-toast.js"></script>
-  <script src="../../../pouchdb/dist/pouchdb.js"></script>
-  <script type="module" src="../../../@polymer/paper-toggle-button/paper-toggle-button.js"></script>
-  <script type="module" src="../../../@advanced-rest-client/arc-electron-default-theme/arc-electron-default-theme.js"></script>
-  <script type="module" src="../url-input-editor.js"></script>
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <title>ARC URL editor demo</title>
+  <script src="../node_modules/web-animations-js/web-animations.min.js"></script>
+  <style>
+  .centered[role="main"] {
+    max-width: 1400px;
+  }
 
-  <custom-style>
-    <style include="demo-pages-shared-styles">
-    body,
-    html {
-      background-color: #e5e5e5;
-      height: 100vh;
-      margin: 0;
-      padding: 0;
-    }
+  url-input-editor {
+    width: 700px;
+  }
 
-    .card {
-      @apply --shadow-elevation-4dp;
-      padding: 20px;
-      margin-top: 20px;
-      margin-bottom: 20px;
-      box-sizing: border-box;
-      background-color: #fff;
-    }
+  body.styled {
+    --anypoiont-dropdown-shaddow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    --anypoiont-autocomplete-dropdown-shaddow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    --primary-color: #00A2DF;
+    --arc-font-body1-font-size: 14px;
+    --arc-font-body1-font-weight: 400;
+    --arc-font-body1-line-height: 20px;
 
-    pre {
-      display: block;
-      word-break: break-all;
-      white-space: pre-wrap;
-    }
+    --arc-font-subhead-font-size: 16px;
+    --arc-font-subhead-font-weight: 400;
+    --arc-font-subhead-line-height: 24px;
 
-    h3 {
-      @apply --paper-font-title;
-    }
-
-    .element {
-      max-width: 1100px;
-    }
-    </style>
-  </custom-style>
+    --arc-font-headline-font-size: 24px;
+    --arc-font-headline-font-weight: 400;
+    --arc-font-headline-letter-spacing: -.012em;
+    --arc-font-headline-line-height: 32px;
+  }
+  </style>
 </head>
 
-<body unresolved="">
-  <dom-bind id="demo">
-    <template>
-      <url-history-model></url-history-model>
-      <section class="vertical-section-container centered card element" role="main">
-        <h3>The url-input-editor</h3>
-        <url-input-editor value="{{url}}" id="editor" readonly="[[readOnly]]" narrow="[[narrow]]"></url-input-editor>
-      </section>
-      <section class="vertical-section-container centered card">
-        <h3>Configuration</h3>
-        <paper-toggle-button checked="{{readOnly}}">Read only</paper-toggle-button>
-        <paper-toggle-button checked="{{narrow}}">Narrow layout</paper-toggle-button>
-      </section>
-      <section class="vertical-section-container centered card">
-        <label>URL value</label>
-        <pre>[[url]]</pre>
-        <label>Query parameters data model</label>
-        <pre id="model"></pre>
-      </section>
-      <section class="vertical-section-container centered card">
-        <h3>Event based control</h3>
-        <p>Fire url-value-changed custom event to set the value</p>
-        <p>
-          <paper-input value="{{eventUrl}}" label="URL to send with the event"></paper-input>
-          <paper-button on-click="_sendEvent">Send event</paper-button>
-        </p>
-      </section>
-      <paper-toast></paper-toast>
-    </template>
-  </dom-bind>
-  <script type="module">
-  (function(scope) {
-    scope.url = location.href + '?token=eyJhbGRiOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIxMTMXNDgzOTM3NzUyNjE2NTgwMDIiLCJzY29wZXMiOlsiYWxsIl0sImlhdCI6MTU0NzYwOTc4OSwiZXhwIjoxNTQ3Njk2MTg5LCJpc3MiOiJ1cm46YXJjLWNUIn0.iLHFXNtfJx-wDDMGFDN6ooM9IZQoD72ZcswbFV0x0Pk';
-    scope._sendEvent = function() {
-      document.body.dispatchEvent(new CustomEvent('url-value-changed', {
-        detail: {
-          value: scope.eventUrl
-        },
-        bubbles: true
-      }));
-    };
-  })(document.getElementById('demo'));
-  document.body.addEventListener('send-request', function() {
-    const toast = document.querySelector('paper-toast');
-    toast.text = 'Request send requested';
-    toast.opened = true;
-  });
-  document.getElementById('editor').addEventListener('query-parameters-changed', (e) => {
-    document.getElementById('model').innerText = JSON.stringify(e.target.queryParameters, null, 2);
-  });
+<body>
+  <div id="demo"></div>
+  <script type="module" src="index.js"></script>
   </script>
-</body></html>
+</body>
+
+</html>

@@ -6,15 +6,7 @@
 
 ## &lt;url-input-editor&gt;
 
-HTTP request URL editor.
-
-```html
-<url-input-editor></url-input-editor>
-```
-
-### API components
-
-This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)
+A HTTP request URL editor for a HTTP request editor.
 
 ## Usage
 
@@ -23,54 +15,56 @@ This components is a part of [API components ecosystem](https://elements.advance
 npm install --save @advanced-rest-client/url-input-editor
 ```
 
-### In an html file
-
-```html
-<html>
-  <head>
-    <script type="module">
-      import '@advanced-rest-client/url-input-editor/url-input-editor.js';
-    </script>
-  </head>
-  <body>
-    <url-input-editor></url-input-editor>
-  </body>
-</html>
-```
-
-### In a Polymer 3 element
+### In a LitElement
 
 ```js
-import {PolymerElement, html} from '@polymer/polymer';
+import { LitElement, html } from 'lit-element';
 import '@advanced-rest-client/url-input-editor/url-input-editor.js';
 
-class SampleElement extends PolymerElement {
-  static get template() {
+class SampleElement extends LitElement {
+  render() {
     return html`
-    <url-input-editor></url-input-editor>
+    <url-input-editor
+      .value="${this.url}"
+      @value-changed="${this._valueChanged}"
+      @url-history-query="${this._queryUrlHistory}"></url-input-editor>
     `;
+  }
+
+  _valueChanged(e) {
+    this.url = e.detail.value;
+  }
+
+  _queryUrlHistory(e) {
+    e.preventDefault();
+    const query = e.detail.q;
+    e.detail.value = Promise.resolve([{
+      url: '... some value'
+    }]);
   }
 }
 customElements.define('sample-element', SampleElement);
 ```
 
-### Installation
+## Development
 
 ```sh
 git clone https://github.com/advanced-rest-client/url-input-editor
-cd api-url-editor
+cd url-input-editor
 npm install
-npm install -g polymer-cli
 ```
 
 ### Running the demo locally
 
 ```sh
-polymer serve --npm
-open http://127.0.0.1:<port>/demo/
+npm start
 ```
 
 ### Running the tests
 ```sh
-polymer test --npm
+npm test
 ```
+
+## API components
+
+This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)
