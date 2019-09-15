@@ -250,3 +250,7 @@
 
 
 
+# [3.0.0](https://github.com/advanced-rest-client/url-input-editor/compare/0.2.6...3.0.0) (2019-09-15)
+
+
+
