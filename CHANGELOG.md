@@ -254,3 +254,12 @@
 
 
 
+## [3.0.1](https://github.com/advanced-rest-client/url-input-editor/compare/0.2.6...3.0.1) (2019-09-17)
+
+
+### Features
+
+* adding `detailsopened` event ([f1305f6](https://github.com/advanced-rest-client/url-input-editor/commit/f1305f6))
+
+
+
