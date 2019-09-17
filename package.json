@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/url-input-editor",
   "description": "An element that is responsible for displaying and manipulating the reuqest URL",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "license": "Apache-2.0",
   "main": "url-input-editor.js",
   "keywords": [

@@ -260,6 +260,11 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
    */
   toggle() {
     this.detailsOpened = !this.detailsOpened;
+    this.dispatchEvent(new CustomEvent('detailsopened', {
+      detail: {
+        value: this.detailsOpened
+      }
+    }));
   }
 
   /**

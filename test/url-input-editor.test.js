@@ -269,6 +269,14 @@ describe('<url-input-editor>', function() {
       const collapse = element.shadowRoot.querySelector('#collapse');
       assert.isFalse(collapse.opened);
     });
+
+    it('dispatches detailsopened event', () => {
+      const spy = sinon.spy();
+      element.addEventListener('detailsopened', spy);
+      element.toggle();
+      assert.isTrue(spy.called, 'event is dispatched');
+      assert.equal(spy.args[0][0].detail.value, true, 'has changed value');
+    });
   });
 
   describe('_dispatchAnalyticsEvent()', () => {
