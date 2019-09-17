@@ -17,6 +17,12 @@ anypoint-autocomplete {
   bottom: 0;
 }
 
+anypoint-item > div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .toggle-button {
   margin-top: 20px;
   transform: rotateZ(0deg);

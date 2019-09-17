@@ -133,7 +133,6 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
         <label slot="label">Request URL</label>
       </anypoint-input>
       <anypoint-autocomplete
-        loader
         openonfocus
         target="mainInput"
         @query="${this._autocompleteQuery}"
