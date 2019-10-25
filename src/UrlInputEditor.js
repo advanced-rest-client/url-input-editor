@@ -332,8 +332,8 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
    */
   _processUrlParams(parser, processFn) {
     const decoded = parser.searchParams.map((item) => {
-      const key = this[processFn](item[0]);
-      const value = this[processFn](item[1]);
+      const key = this[processFn](item[0], true);
+      const value = this[processFn](item[1], true);
       return [key, value];
     });
     parser.searchParams = decoded;
@@ -346,7 +346,7 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
         if (!part) {
           continue;
         }
-        part = this[processFn](part);
+        part = this[processFn](part, false);
         tmp += part;
         if (i + 1 !== len) {
           tmp += '/';
@@ -460,13 +460,22 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
    * </p>
    *
    * @param {String} str A string containing invalid URL characters
+   * @param {Boolean} replacePlus When set it replaces `%20` with `+`.
    * @return {String} a string with all invalid URL characters escaped
    */
-  encodeQueryString(str) {
+  encodeQueryString(str, replacePlus) {
     if (!str) {
       return str;
     }
-    return encodeURIComponent(str).replace(/%20/g, '+');
+    // normalize
+    let result = str.toString().replace(/\r?\n/g, '\r\n');
+    // encode
+    result = encodeURIComponent(result);
+    if (replacePlus) {
+      // replace "%20" with "+" when needed
+      result = result.replace(/%20/g, '+');
+    }
+    return result;
   }
   /**
    * Returns a string where all URL component escape sequences have been
@@ -476,13 +485,18 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
    * into a space. It should therefore only be used for query-string parts.
    *
    * @param {String} str string containing encoded URL component sequences
+   * @param {Boolean} replacePlus When set it replaces `+` with `%20`.
    * @return {String} string with no encoded URL component encoded sequences
    */
-  decodeQueryString(str) {
+  decodeQueryString(str, replacePlus) {
     if (!str) {
       return str;
     }
-    return decodeURIComponent(str.replace(/\+/g, '%20'));
+    let result = str;
+    if (replacePlus) {
+      result = str.replace(/\+/g, '%20');
+    }
+    return decodeURIComponent(result);
   }
   /**
    * A trick to instantly replace main URL input with host field and back

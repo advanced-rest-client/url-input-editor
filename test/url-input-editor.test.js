@@ -390,7 +390,7 @@ describe('<url-input-editor>', function() {
 
   describe('_decodeEncode()', () => {
     let element;
-    const encodedUrl = 'http://192.168.2.252/service/board+1/edit?description=We\'ll+keep+your+' +
+    const encodedUrl = 'http://192.168.2.252/service/board%201/edit?description=We\'ll+keep+your+' +
     'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
     const decodedUrl = 'http://192.168.2.252/service/board 1/edit?description=We\'ll keep your precious' +
       ' pup fed, watered, walked and socialized during their stay.';
@@ -439,7 +439,7 @@ describe('<url-input-editor>', function() {
 
   describe('_processUrlParams() - decoding', () => {
     let element;
-    const encodedUrl = 'http://192.168.2.252/service/board+1/edit?desc+ription=We\'ll+keep+your+' +
+    const encodedUrl = 'http://192.168.2.252/service/board%201/edit?desc+ription=We\'ll+keep+your+' +
     'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
     const fnName = 'decodeQueryString';
     let parser;
@@ -492,7 +492,7 @@ describe('<url-input-editor>', function() {
     it('Decodes path', () => {
       parser = new UrlParser(encodedUrl);
       element._processUrlParams(parser, fnName);
-      assert.equal(parser.path, '/service/board+1/edit');
+      assert.equal(parser.path, '/service/board%201/edit');
     });
 
     it('Ignores path when not set', () => {
@@ -782,17 +782,17 @@ describe('<url-input-editor>', function() {
     });
 
     it('Returns empty string when argument is empty', () => {
-      const result = element.encodeQueryString('');
+      const result = element.encodeQueryString('', true);
       assert.equal(result, '');
     });
 
     it('Returns empty string when argument is empty', () => {
-      const result = element.encodeQueryString('');
+      const result = element.encodeQueryString('', true);
       assert.equal(result, '');
     });
 
     it('URL encodes string', () => {
-      const result = element.encodeQueryString(';This / is? &test:= + $ , #');
+      const result = element.encodeQueryString(';This / is? &test:= + $ , #', true);
       assert.equal(result, '%3BThis+%2F+is%3F+%26test%3A%3D+%2B+%24+%2C+%23');
     });
   });
@@ -804,17 +804,17 @@ describe('<url-input-editor>', function() {
     });
 
     it('Returns empty string when argument is empty', () => {
-      const result = element.decodeQueryString('');
+      const result = element.decodeQueryString('', true);
       assert.equal(result, '');
     });
 
     it('Returns empty string when argument is empty', () => {
-      const result = element.decodeQueryString('');
+      const result = element.decodeQueryString('', true);
       assert.equal(result, '');
     });
 
     it('URL encodes string', () => {
-      const result = element.decodeQueryString('%3BThis+%2F+is%3F+%26test%3A%3D+%2B+%24+%2C+%23');
+      const result = element.decodeQueryString('%3BThis+%2F+is%3F+%26test%3A%3D+%2B+%24+%2C+%23', true);
       assert.equal(result, ';This / is? &test:= + $ , #');
     });
   });
