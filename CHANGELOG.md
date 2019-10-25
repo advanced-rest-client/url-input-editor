@@ -272,3 +272,17 @@
 
 
 
+# [3.1.0](https://github.com/advanced-rest-client/url-input-editor/compare/0.2.6...3.1.0) (2019-10-25)
+
+
+### Bug Fixes
+
+* fixes APIC-269 - invalid spaces encoding in path part ([391df22](https://github.com/advanced-rest-client/url-input-editor/commit/391df22449fa8d28dd3a899a8dd0a3b5fd06ca74))
+
+
+### Features
+
+* adding `detailsopened` event ([f1305f6](https://github.com/advanced-rest-client/url-input-editor/commit/f1305f6d02f894bc50a688629d9e0358ac7cc6cd))
+
+
+
