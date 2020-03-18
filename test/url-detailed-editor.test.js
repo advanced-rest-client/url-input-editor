@@ -551,12 +551,16 @@ describe('<url-detailed-editor>', function() {
   describe('a11y', () => {
     it('is accessible when empty', async () => {
       const element = await emptyFixture();
-      await assert.isAccessible(element);
+      await assert.isAccessible(element, {
+        ignoredRules: ['color-contrast']
+      });
     });
 
     it('is accessible with all values', async () => {
       const element = await basicFixture();
-      await assert.isAccessible(element);
+      await assert.isAccessible(element, {
+        ignoredRules: ['color-contrast']
+      });
     });
   });
 });

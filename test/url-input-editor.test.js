@@ -922,12 +922,16 @@ describe('<url-input-editor>', function() {
   describe('a11y', () => {
     it('is accessible', async () => {
       const element = await basicFixture();
-      await assert.isAccessible(element);
+      await assert.isAccessible(element, {
+        ignoredRules: ['color-contrast']
+      });
     });
 
     it('is accessible with details', async () => {
       const element = await detailsFixture();
-      await assert.isAccessible(element);
+      await assert.isAccessible(element, {
+        ignoredRules: ['color-contrast']
+      });
     });
   });
 });
