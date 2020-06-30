@@ -12,8 +12,8 @@ License for the specific language governing permissions and limitations under
 the License.
 */
 import { LitElement, html } from 'lit-element';
-import { ValidatableMixin } from '@anypoint-web-components/validatable-mixin/validatable-mixin.js';
-import { UrlParser } from '@advanced-rest-client/url-parser/url-parser.js';
+import { ValidatableMixin } from '@anypoint-web-components/validatable-mixin';
+import { UrlParser } from '@advanced-rest-client/url-parser';
 import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
 import '@anypoint-web-components/anypoint-button/anypoint-button.js';
 import '@anypoint-web-components/anypoint-input/anypoint-input.js';
@@ -22,6 +22,66 @@ import '@anypoint-web-components/anypoint-switch/anypoint-switch.js';
 import '@polymer/iron-form/iron-form.js';
 import { close } from '@advanced-rest-client/arc-icons/ArcIcons.js';
 import styles from './DetailedStyles.js';
+
+/* eslint-disable no-plusplus */
+/* eslint-disable no-continue */
+/* eslint-disable prefer-destructuring */
+
+/** @typedef {import('./UrlDetailedEditorElement').QueryParameter} QueryParameter */
+/** @typedef {import('./UrlDetailedEditorElement').ViewModel} ViewModel */
+/** @typedef {import('lit-element').TemplateResult} TemplateResult */
+/** @typedef {import('@polymer/iron-form').IronFormElement} IronFormElement */
+/** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
+
+/**
+ * @param {UrlParser} parser
+ * @return {string}
+ */
+export function getHostValue(parser) {
+  const {protocol} = parser;
+  let {host} = parser;
+  if (host) {
+    if (protocol) {
+      host = `${protocol}//${host}`;
+    }
+  } else if (protocol) {
+      host = `${protocol}//`;
+    }
+  return host;
+}
+
+/**
+ * Finds a search parameter in a parser's model by given name.
+ * @param {Array<string[]>} searchParams Model for search params
+ * @param {string} name Name of the parameter
+ * @return {string[]|undefined} Search parameter model item
+ */
+export function findSearchParam(searchParams, name) {
+  for (let i = searchParams.length - 1; i >= 0; i--) {
+    if (searchParams[i][0] === name) {
+      return searchParams[i];
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Searches for a query parameters model by given name.
+ * @param {QueryParameter[]} model Query parameters model
+ * @param {string} name Name of the parameter
+ * @return {QueryParameter|undefined} Model item.
+ */
+export function findModelParam(model, name) {
+  for (let i = 0, len = model.length; i < len; i++) {
+    const item = model[i];
+    if (!item.enabled || item.name !== name) {
+      continue;
+    }
+    return item;
+  }
+  return undefined;
+}
+
 /**
  * `<url-detailed-editor>` Presents a form element that contains a list of
  * URL parameters.
@@ -44,17 +104,15 @@ import styles from './DetailedStyles.js';
  * `--url-input-editor-add-param-background-color` | Add param button background color | `#2196F3`
  * `--url-input-editor-add-param-color` | Add param button color | `#fff`
  * `--url-input-editor-query-title-color` | Color of the query parameters section title | `#737373`
- *
- * @customElement
- * @memberof UiElements
- * @demo demo/index.html
- * @appliesMixin ValidatableMixin
  */
-export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
+export class UrlDetailedEditorElement extends ValidatableMixin(LitElement) {
   static get styles() {
     return styles;
   }
 
+  /**
+   * @return {TemplateResult}
+   */
   _hostInputTemplate() {
     const { compatibility, outlined, readOnly, model } = this;
     return html`<anypoint-input
@@ -76,6 +134,9 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     </anypoint-input>`;
   }
 
+  /**
+   * @return {TemplateResult}
+   */
   _pathInputTemplate() {
     const { compatibility, outlined, readOnly, model } = this;
     return html`<anypoint-input
@@ -96,6 +157,9 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     </anypoint-input>`;
   }
 
+  /**
+   * @return {TemplateResult}
+   */
   _hashInputTemplate() {
     const { compatibility, outlined, readOnly, model } = this;
     return html`<anypoint-input
@@ -112,6 +176,9 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     </anypoint-input>`;
   }
 
+  /**
+   * @return {TemplateResult}
+   */
   _paramsTemplate() {
     const items = this.queryParameters || [];
     const { compatibility, readOnly, outlined } = this;
@@ -130,6 +197,14 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     </div>`;
   }
 
+  /**
+   * @param {QueryParameter} item
+   * @param {number} index
+   * @param {boolean} compatibility
+   * @param {boolean} outlined
+   * @param {boolean} readOnly
+   * @return {TemplateResult}
+   */
   _paramItemTemplate(item, index, compatibility, outlined, readOnly) {
     return html`<div class="form-row">
       <div class="row-inputs">
@@ -189,6 +264,9 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     </div>`;
   }
 
+  /**
+   * @return {TemplateResult}
+   */
   _formTemplate() {
     return html`
     <iron-form id="form">
@@ -201,6 +279,9 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     </iron-form>`;
   }
 
+  /**
+   * @return {TemplateResult}
+   */
   _actionsTemplate() {
     const { compatibility, readOnly } = this;
     return html`<div class="encode-actions">
@@ -219,6 +300,9 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     </div>`;
   }
 
+  /**
+   * @return {TemplateResult}
+   */
   render() {
     return html`
     ${this._formTemplate()}
@@ -285,12 +369,17 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
 
   constructor() {
     super();
-    this.model = {};
+    this.model = /** @type ViewModel */ ({});
+
+    this.compatibility = false;
+    this.outlined = false;
+    this.readOnly = false;
   }
+
   /**
    * A handler that is called on input
    *
-   * @param {String} value
+   * @param {string} value
    */
   _valueChanged(value) {
     if (this._cancelModelComputation) {
@@ -307,69 +396,54 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     this._computeModel(value, qp);
   }
 
-  _computeModel(value, queryModel) {
+  /**
+   * @param {string} value
+   * @param {QueryParameter[]} [queryModel=[]]
+   */
+  _computeModel(value, queryModel=[]) {
     if (!value) {
-      this.model = {};
-      this.queryParameters = [];
+      this.model = /** @type ViewModel */ ({});
+      this.queryParameters = /** @type QueryParameter[] */ ([]);
       return;
-    }
-    if (!queryModel) {
-      queryModel = [];
     }
     const parser = new UrlParser(value);
     this.__parser = parser;
     const model = {};
-    model.host = this._getHostValue(parser) || '';
+    model.host = getHostValue(parser) || '';
     model.path = parser.path || '';
     model.anchor = parser.anchor || '';
-    this.model = model;
+    this.model = /** @type ViewModel */ (model);
     this._computeSearchParams(parser, queryModel);
   }
 
-  _getHostValue(parser) {
-    const protocol = parser.protocol;
-    let host = parser.host;
-    if (host) {
-      if (protocol) {
-        host = protocol + '//' + host;
-      }
-    } else {
-      if (protocol) {
-        host = protocol + '//';
-      }
-    }
-    return host;
-  }
-
-  _computeSearchParams(parser, queryModel) {
-    if (!queryModel) {
-      queryModel = [];
-    }
+  /**
+   * @param {UrlParser} parser
+   * @param {QueryParameter[]} [queryModel=[]]
+   */
+  _computeSearchParams(parser, queryModel=[]) {
     if (!this.queryParameters) {
-      this.queryParameters = queryModel;
+      this.queryParameters = /** @type QueryParameter[] */ (queryModel);
     }
     const items = this.queryParameters;
     // 1 keep disabled items in the model
     // 2 remove items that are in query model but not in search params
     // 3 update value of model
     // 4 add existing search params to the model
-    const searchParams = parser.searchParams;
+    const { searchParams } = parser;
     for (let i = queryModel.length - 1; i >= 0; i--) {
       if (queryModel[i].enabled === false) {
         continue;
       }
-      const param = this._findSearchParam(searchParams, queryModel[i].name);
+      const param = findSearchParam(searchParams, queryModel[i].name);
       if (!param) {
         items.splice(i, 1);
-      } else {
-        if (queryModel[i].value !== param[1]) {
-          items[i].value = param[1];
-        }
+      } else if (queryModel[i].value !== param[1]) {
+        items[i].value = param[1];
       }
     }
     // Add to `queryModel` params that are in `parser.searchParams`
     searchParams.forEach((pairs) => {
-      const param = this._findModelParam(queryModel, pairs[0]);
+      const param = findModelParam(queryModel, pairs[0]);
       if (!param) {
         items[items.length] = {
           name: pairs[0],
@@ -379,40 +453,13 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
       }
     });
 
-    this.queryParameters = [...items];
+    this.queryParameters = /** @type QueryParameter[] */ ([...items]);
   }
-  /**
-   * Finds a search parameter in a parser's model by given name.
-   * @param {Array} searchParams Model for search params
-   * @param {String} name Name of the parameter
-   * @return {Array<String>} Search parameter model item
-   */
-  _findSearchParam(searchParams, name) {
-    for (let i = searchParams.length - 1; i >= 0; i--) {
-      if (searchParams[i][0] === name) {
-        return searchParams[i];
-      }
-    }
-  }
-  /**
-   * Searches for a query parameters model by given name.
-   * @param {Array<Object>} model Query parameters model
-   * @param {String} name Name of the parameter
-   * @return {Object} Model item.
-   */
-  _findModelParam(model, name) {
-    for (let i = 0, len = model.length; i < len; i++) {
-      const item = model[i];
-      if (!item.enabled || item.name !== name) {
-        continue;
-      }
-      return item;
-    }
-  }
+
   /**
    * Updates the value when model changed.
-   * @param {String} prop Changed property
-   * @param {String} value New value
+   * @param {string} prop Changed property
+   * @param {string} value New value
    */
   _modelChanged(prop, value) {
     if (this.readOnly) {
@@ -439,11 +486,12 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     this.value = this.__parser.value;
     this._cancelModelComputation = false;
   }
+
   /**
    * Updates parser values from change record.
    *
-   * @param {String} prop Changed property
-   * @param {String} value New value
+   * @param {string} prop Changed property
+   * @param {string} value New value
    */
   _updateParserValues(prop, value) {
     switch (prop) {
@@ -456,16 +504,18 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
       case 'anchor':
         this.__parser.anchor = value;
         break;
+      default:
     }
   }
+
   /**
    * Updates `queryParameters` model from change record.
    *
-   * @param {Array<Object>} model Cureent model for the query parameters
+   * @param {QueryParameter[]} model Cureent model for the query parameters
    */
   _updateParserSearch(model) {
     const params = [];
-    model.forEach(function(item) {
+    model.forEach((item) => {
       if (!item.enabled) {
         return;
       }
@@ -474,6 +524,9 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     this.__parser.searchParams = params;
   }
 
+  /**
+   * @param {string} value
+   */
   _updateParserHost(value) {
     const index = value.indexOf('://');
     if (index === -1) {
@@ -495,11 +548,13 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     }
     try {
       const node = row.querySelector('.param-name');
+      // @ts-ignore
       node.focus();
     } catch (e) {
       // ...
     }
   }
+
   /**
    * Adds a new Query Parameter to the list.
    */
@@ -514,9 +569,10 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     };
     const items = this.queryParameters || [];
     items[items.length] = obj;
-    this.queryParameters = [...items];
+    this.queryParameters = /** @type QueryParameter[] */ ([...items]);
     setTimeout(() => this.focusLastName());
   }
+
   // Handler for the remove button click.
   _removeSearchParam(e) {
     const index = Number(e.currentTarget.dataset.index);
@@ -528,10 +584,10 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
 
   /**
    * Validates the element.
-   * @return {Boolean} True if the form is valid.
+   * @return {boolean} True if the form is valid.
    */
   _getValidity() {
-    const form = this.shadowRoot.querySelector('#form')
+    const form = /** @type IronFormElement */ (this.shadowRoot.querySelector('#form'));
     return form.validate();
   }
 
@@ -541,13 +597,16 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     }
 
     let pos = 0;
-    const host = this.shadowRoot.querySelector('#host');
+    const host = /** @type AnypointInput */ (this.shadowRoot.querySelector('#host'));
     const input = host.inputElement;
+    // @ts-ignore
     if (document.selection) {
       input.focus();
+      // @ts-ignore
       const sel = document.selection.createRange();
       sel.moveStart('character', -input.value.length);
       pos = sel.text.length;
+      // @ts-ignore
     } else if (input.selectionStart || input.selectionStart === '0') {
       pos = input.selectionStart;
     }
@@ -556,6 +615,7 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
       this.model.path = '/';
       this.requestUpdate();
       const node = this.shadowRoot.querySelector('#path');
+      // @ts-ignore
       node.focus();
     }
   }
@@ -569,6 +629,7 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     e.stopPropagation();
     this.value = data;
   }
+
   /**
    * Dispatches the `url-encode` event. The editor handles the action.
    */
@@ -576,8 +637,9 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     this.dispatchEvent(new CustomEvent('url-encode', {
       composed: true
     }));
-    setTimeout(() => this.validate());
+    setTimeout(() => this.validate(this.value));
   }
+
   /**
    * Dispatches the `url-decode` event. The editor handles the action.
    */
@@ -585,7 +647,7 @@ export class UrlDetailedEditor extends ValidatableMixin(LitElement) {
     this.dispatchEvent(new CustomEvent('url-decode', {
       composed: true
     }));
-    setTimeout(() => this.validate());
+    setTimeout(() => this.validate(this.value));
   }
 
   _inputHandler(e) {

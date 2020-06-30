@@ -1,6 +1,6 @@
 [![Published on NPM](https://img.shields.io/npm/v/@advanced-rest-client/url-input-editor.svg)](https://www.npmjs.com/package/@advanced-rest-client/url-input-editor)
 
-[![Build Status](https://travis-ci.org/advanced-rest-client/url-input-editor.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/url-input-editor)
+[![Build Status](https://travis-ci.com/advanced-rest-client/url-input-editor.svg)](https://travis-ci.com/advanced-rest-client/url-input-editor)
 
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/advanced-rest-client/url-input-editor)
 
@@ -64,7 +64,3 @@ npm start
 ```sh
 npm test
 ```
-
-## API components
-
-This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)

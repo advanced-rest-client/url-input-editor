@@ -23,6 +23,16 @@ import '@anypoint-web-components/anypoint-autocomplete/anypoint-autocomplete.js'
 import '@polymer/iron-collapse/iron-collapse.js';
 import '../url-detailed-editor.js';
 import styles from './EditorStyles.js';
+import { encodeQueryString, decodeQueryString } from './Utils.js';
+
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-continue */
+/* eslint-disable class-methods-use-this */
+
+/** @typedef {import('@anypoint-web-components/anypoint-autocomplete').AnypointAutocomplete} AnypointAutocomplete */
+/** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
+
 /**
  * The request URL editor
  *
@@ -52,14 +62,8 @@ import styles from './EditorStyles.js';
  * `--url-input-editor` | Mixin applied to the element | `{}`
  *
  * Use paper elements mixin to style this element.
- *
- * @customElement
- * @memberof UiElements
- * @demo demo/index.html
- * @appliesMixin ValidatableMixin
- * @appliesMixin EventsTargetMixin
  */
-export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElement)) {
+export class UrlInputEditorElement extends EventsTargetMixin(ValidatableMixin(LitElement)) {
   static get styles() {
     return styles;
   }
@@ -205,6 +209,11 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
     this._keyDownHandler = this._keyDownHandler.bind(this);
     this.defaultProtocol = 'http';
     this.value = 'http://';
+
+    this.compatibility = false;
+    this.readOnly = false;
+    this.outlined = false;
+    this.narrow = false;
   }
 
   _attachListeners(node) {
@@ -287,6 +296,7 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
     this._decodeEncode('decode');
     this._dispatchAnalyticsEvent('Decode parameters');
   }
+
   /**
    * Dispatches analytics event with "event" type.
    * @param {String} label A label to use with GA event
@@ -306,10 +316,11 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
     this.dispatchEvent(e);
     return e;
   }
+
   /**
    * HTTP encode or decode query parameters depending on [type].
    *
-   * @param {String} type
+   * @param {string} type
    */
   _decodeEncode(type) {
     const url = this.value;
@@ -317,27 +328,32 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
       return;
     }
     const parser = new UrlParser(url);
-    if (type === 'decode') {
-      this._processUrlParams(parser, 'decodeQueryString');
-    } else {
-      this._processUrlParams(parser, 'encodeQueryString');
-    }
+    this._processUrlParams(parser, type);
     this.value = parser.value;
   }
+
+
   /**
    * Processes query parameters and path value by `processFn`.
    * The function has to be available on this instance.
    * @param {UrlParser} parser Instance of UrlParser
-   * @param {String} processFn Function name to call on each parameter
+   * @param {string} processFn Function name to call on each parameter
    */
   _processUrlParams(parser, processFn) {
     const decoded = parser.searchParams.map((item) => {
-      const key = this[processFn](item[0], true);
-      const value = this[processFn](item[1], true);
+      let key;
+      let value;
+      if (processFn === 'encode') {
+        key = encodeQueryString(item[0], true);
+        value = encodeQueryString(item[1], true);
+      } else {
+        key = decodeQueryString(item[0], true);
+        value = decodeQueryString(item[1], true);
+      }
       return [key, value];
     });
     parser.searchParams = decoded;
-    const path = parser.path;
+    const { path } = parser;
     if (path && path.length) {
       const parts = path.split('/');
       let tmp = '/';
@@ -346,7 +362,11 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
         if (!part) {
           continue;
         }
-        part = this[processFn](part, false);
+        if (processFn === 'encode') {
+          part = encodeQueryString(part, false);
+        } else {
+          part = decodeQueryString(part, false);
+        }
         tmp += part;
         if (i + 1 !== len) {
           tmp += '/';
@@ -355,16 +375,17 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
       parser.path = tmp;
     }
   }
+
   /**
    * Handler for autocomplete element query event.
    * Dispatches `url-history-query` to query history model for data.
    * @param {CustomEvent} e
-   * @return {Promise}
+   * @return {Promise<void>}
    */
   async _autocompleteQuery(e) {
     e.preventDefault();
     e.stopPropagation();
-    const autocomplete = e.target;
+    const autocomplete = /** @type AnypointAutocomplete */ (e.target);
     const { value } = e.detail;
     const ev = this._dispatchUrlQuery(value);
     try {
@@ -375,9 +396,10 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
       autocomplete.source = [];
     }
   }
+
   /**
    * Dispatches `url-history-query` custom event.
-   * @param {String} q URL query
+   * @param {string} q URL query
    * @return {CustomEvent}
    */
   _dispatchUrlQuery(q) {
@@ -392,6 +414,7 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
     this.dispatchEvent(e);
     return e;
   }
+
   /**
    * Ensures that protocol is set before user input.
    *
@@ -401,8 +424,9 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
     if (this.value || this.readOnly) {
       return;
     }
-    this.value = this.defaultProtocol + '://';
-    const input = e.target.inputElement;
+    this.value = `${this.defaultProtocol}://`;
+    const aInput = /** @type AnypointInput */ (e.target);
+    const input = aInput.inputElement;
     setTimeout(() => {
       input.setSelectionRange(0, this.value.length);
     });
@@ -417,6 +441,7 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
       this._onEnter();
     }
   }
+
   /**
    * A handler called when the user press "enter" in any of the form fields.
    * This will send a `send` event.
@@ -427,77 +452,9 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
       composed: true
     }));
   }
-  /**
-   * Returns a string where all characters that are not valid for a URL
-   * component have been escaped. The escaping of a character is done by
-   * converting it into its UTF-8 encoding and then encoding each of the
-   * resulting bytes as a %xx hexadecimal escape sequence.
-   * <p>
-   * Note: this method will convert any the space character into its escape
-   * short form, '+' rather than %20. It should therefore only be used for
-   * query-string parts.
-   *
-   * <p>
-   * The following character sets are <em>not</em> escaped by this method:
-   * <ul>
-   * <li>ASCII digits or letters</li>
-   * <li>ASCII punctuation characters:
-   *
-   * <pre>- _ . ! ~ * ' ( )</pre>
-   * </li>
-   * </ul>
-   * </p>
-   *
-   * <p>
-   * Notice that this method <em>does</em> encode the URL component delimiter
-   * characters:<blockquote>
-   *
-   * <pre>
-   * ; / ? : &amp; = + $ , #
-   * </pre>
-   *
-   * </blockquote>
-   * </p>
-   *
-   * @param {String} str A string containing invalid URL characters
-   * @param {Boolean} replacePlus When set it replaces `%20` with `+`.
-   * @return {String} a string with all invalid URL characters escaped
-   */
-  encodeQueryString(str, replacePlus) {
-    if (!str) {
-      return str;
-    }
-    // normalize
-    let result = str.toString().replace(/\r?\n/g, '\r\n');
-    // encode
-    result = encodeURIComponent(result);
-    if (replacePlus) {
-      // replace "%20" with "+" when needed
-      result = result.replace(/%20/g, '+');
-    }
-    return result;
-  }
-  /**
-   * Returns a string where all URL component escape sequences have been
-   * converted back to their original character representations.
-   *
-   * Note: this method will convert the space character escape short form, '+',
-   * into a space. It should therefore only be used for query-string parts.
-   *
-   * @param {String} str string containing encoded URL component sequences
-   * @param {Boolean} replacePlus When set it replaces `+` with `%20`.
-   * @return {String} string with no encoded URL component encoded sequences
-   */
-  decodeQueryString(str, replacePlus) {
-    if (!str) {
-      return str;
-    }
-    let result = str;
-    if (replacePlus) {
-      result = str.replace(/\+/g, '%20');
-    }
-    return decodeURIComponent(result);
-  }
+
+
+
   /**
    * A trick to instantly replace main URL input with host field and back
    * without animation jumping when transitioning.
@@ -505,7 +462,7 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
    * sets minimum height for the element so the host field will be visible
    * instantly in place of dissapearing main URL.
    *
-   * @param {Event} e
+   * @param {CustomEvent} e
    */
   _colapseTransitioning(e) {
     const { value } = e.detail;
@@ -516,9 +473,10 @@ export class UrlInputEditor extends EventsTargetMixin(ValidatableMixin(LitElemen
       collapse.classList.remove('sized');
     }
   }
+
   /**
    * Validates the element.
-   * @return {Boolean}
+   * @return {boolean}
    */
   _getValidity() {
     let element;

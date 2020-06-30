@@ -1,37 +1,54 @@
 import { fixture, assert, html, nextFrame, aTimeout } from '@open-wc/testing';
-import * as sinon from 'sinon/pkg/sinon-esm.js';
+import * as sinon from 'sinon';
 import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions.js';
-import { UrlParser } from '@advanced-rest-client/url-parser/url-parser.js';
+import { UrlParser } from '@advanced-rest-client/url-parser';
 import '../url-detailed-editor.js';
+import { getHostValue, findSearchParam, findModelParam } from '../src/UrlDetailedEditorElement.js';
 
-describe('<url-detailed-editor>', function() {
+/* eslint-disable no-template-curly-in-string */
+
+/** @typedef {import('../index').UrlDetailedEditorElement} UrlDetailedEditorElement */
+/** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
+/** @typedef {import('@anypoint-web-components/anypoint-button').AnypointButton} AnypointButton */
+
+describe('<url-detailed-editor>', () => {
+  /**
+   * @return {Promise<UrlDetailedEditorElement>}
+   */
   async function basicFixture() {
     const value = 'https://arc.com:1234/path/o ther/?a=b&c=d#123';
-    return await fixture(html`<url-detailed-editor
+    return fixture(html`<url-detailed-editor
       .value="${value}"></url-detailed-editor>`);
   }
+  /**
+   * @return {Promise<UrlDetailedEditorElement>}
+   */
   async function emptyFixture() {
-    return await fixture(html`<url-detailed-editor></url-detailed-editor>`);
+    return fixture(html`<url-detailed-editor></url-detailed-editor>`);
   }
-
+  /**
+   * @return {Promise<UrlDetailedEditorElement>}
+   */
   async function readOnlyFixture(value) {
-    return await fixture(html`<url-detailed-editor
+    return fixture(html`<url-detailed-editor
       .value="${value}"
       readonly></url-detailed-editor>`);
   }
-
+  /**
+   * @return {Promise<UrlDetailedEditorElement>}
+   */
   async function valueFixture(value) {
-    return await fixture(html`<url-detailed-editor
+    return fixture(html`<url-detailed-editor
       .value="${value}"></url-detailed-editor>`);
   }
 
   describe('Basics', () => {
-    let element;
+    let element = /** @type UrlDetailedEditorElement */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
 
-    it('Model is computed', function() {
+    it('Model is computed', () => {
       const m = element.model;
       assert.typeOf(m, 'object', 'Model is an object');
       assert.equal(m.host, 'https://arc.com:1234', 'Host is computed');
@@ -40,12 +57,12 @@ describe('<url-detailed-editor>', function() {
       assert.lengthOf(element.queryParameters, 2, 'Search is computed');
     });
 
-    it('__parser is set', function() {
+    it('__parser is set', () => {
       assert.typeOf(element.__parser, 'object');
     });
 
-    it('Notifies change for host', function() {
-      const input = element.shadowRoot.querySelector('#host');
+    it('Notifies change for host', () => {
+      const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('#host'));
       const spy = sinon.spy();
       element.addEventListener('value-changed', spy);
       input.value = 'https://domain.com';
@@ -53,8 +70,8 @@ describe('<url-detailed-editor>', function() {
       assert.equal(spy.args[0][0].detail.value, 'https://domain.com/path/o ther/?a=b&c=d#123');
     });
 
-    it('Notifies change for path', function() {
-      const input = element.shadowRoot.querySelector('#path');
+    it('Notifies change for path', () => {
+      const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('#path'));
       const spy = sinon.spy();
       element.addEventListener('value-changed', spy);
       input.value = '/other-path/';
@@ -62,8 +79,8 @@ describe('<url-detailed-editor>', function() {
       assert.equal(spy.args[0][0].detail.value, 'https://arc.com:1234/other-path/?a=b&c=d#123');
     });
 
-    it('Notifies change for hash', function() {
-      const input = element.shadowRoot.querySelector('#hash');
+    it('Notifies change for hash', () => {
+      const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('#hash'));
       const spy = sinon.spy();
       element.addEventListener('value-changed', spy);
       input.value = 'hash-test';
@@ -71,8 +88,8 @@ describe('<url-detailed-editor>', function() {
       assert.equal(spy.args[0][0].detail.value, 'https://arc.com:1234/path/o ther/?a=b&c=d#hash-test');
     });
 
-    it('Notifies change for search param name', function() {
-      const input = element.shadowRoot.querySelector('.param-name');
+    it('Notifies change for search param name', () => {
+      const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.param-name'));
       const spy = sinon.spy();
       element.addEventListener('value-changed', spy);
       input.value = 'a-changed';
@@ -80,8 +97,8 @@ describe('<url-detailed-editor>', function() {
       assert.equal(spy.args[0][0].detail.value, 'https://arc.com:1234/path/o ther/?a-changed=b&c=d#123');
     });
 
-    it('Notifies change for search param value', function() {
-      const input = element.shadowRoot.querySelector('.param-value');
+    it('Notifies change for search param value', () => {
+      const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.param-value'));
       const spy = sinon.spy();
       element.addEventListener('value-changed', spy);
       input.value = 'a-value';
@@ -89,8 +106,8 @@ describe('<url-detailed-editor>', function() {
       assert.equal(spy.args[0][0].detail.value, 'https://arc.com:1234/path/o ther/?a=a-value&c=d#123');
     });
 
-    it('Notifies change for search param value with variable', function() {
-      const input = element.shadowRoot.querySelector('.param-value');
+    it('Notifies change for search param value with variable', () => {
+      const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.param-value'));
       const spy = sinon.spy();
       element.addEventListener('value-changed', spy);
       input.value = 'a-value${test}';
@@ -98,7 +115,7 @@ describe('<url-detailed-editor>', function() {
       assert.equal(spy.args[0][0].detail.value, 'https://arc.com:1234/path/o ther/?a=a-value${test}&c=d#123');
     });
 
-    it('Notifies change for removing search param', function() {
+    it('Notifies change for removing search param', () => {
       const spy = sinon.spy();
       element.addEventListener('value-changed', spy);
       const button = element.shadowRoot.querySelector('.form-row > anypoint-icon-button');
@@ -107,7 +124,7 @@ describe('<url-detailed-editor>', function() {
       assert.equal(spy.args[0][0].detail.value, 'https://arc.com:1234/path/o ther/?c=d#123');
     });
 
-    it('Changes model when value change', function() {
+    it('Changes model when value change', () => {
       element.value = 'http://arc.com/o%20ther?test=value';
       const m = element.model;
       assert.equal(m.host, 'http://arc.com', 'Host is computed');
@@ -116,26 +133,26 @@ describe('<url-detailed-editor>', function() {
       assert.lengthOf(element.queryParameters, 1, 'Search is computed');
     });
 
-    it('Fires url-encode event', function() {
+    it('Fires url-encode event', () => {
       const spy = sinon.spy();
       element.addEventListener('url-encode', spy);
-      const button = element.shadowRoot.querySelector('#encode');
+      const button = /** @type AnypointButton */ (element.shadowRoot.querySelector('#encode'));
       button.click();
       assert.isTrue(spy.calledOnce);
     });
 
-    it('Fires url-decode event', function() {
+    it('Fires url-decode event', () => {
       const spy = sinon.spy();
       element.addEventListener('url-decode', spy);
-      const button = element.shadowRoot.querySelector('#decode');
+      const button = /** @type AnypointButton */ (element.shadowRoot.querySelector('#decode'));
       button.click();
       assert.isTrue(spy.calledOnce);
     });
   });
 
   describe('_valueChanged()', () => {
-    let element;
-    beforeEach(async function() {
+    let element = /** @type UrlDetailedEditorElement */ (null);
+    beforeEach(async () => {
       element = await basicFixture();
     });
 
@@ -171,48 +188,48 @@ describe('<url-detailed-editor>', function() {
     it('Does nothing when no value and model', () => {
       const spy = sinon.spy(element, '_computeModel');
       element.queryParameters = undefined;
-      element._valueChanged();
+      element._valueChanged('');
       assert.isFalse(spy.called);
     });
 
     it('Does nothing when _cancelModelComputation is set', () => {
       const spy = sinon.spy(element, '_computeModel');
       element._cancelModelComputation = true;
-      element._valueChanged();
+      element._valueChanged('');
       assert.isFalse(spy.called);
     });
   });
 
   describe('_computeModel()', () => {
-    let element;
-    beforeEach(async function() {
+    let element = /** @type UrlDetailedEditorElement */ (null);
+    beforeEach(async () => {
       element = await basicFixture();
     });
 
     it('Sets "model" to empty object when no value', () => {
-      element._computeModel();
+      element._computeModel(undefined, undefined);
       assert.typeOf(element.model, 'object');
       assert.lengthOf(Object.keys(element.model), 0);
     });
 
     it('Sets "queryParameters" to empty array when no value', () => {
-      element._computeModel();
+      element._computeModel(undefined, undefined);
       assert.typeOf(element.queryParameters, 'array');
       assert.lengthOf(element.queryParameters, 0);
     });
 
     it('Creates empty query model when missing', () => {
-      element._computeModel('/test');
+      element._computeModel('/test', undefined);
       // No error
     });
 
     it('Missing path does not causes errors', () => {
-      element._computeModel('test');
+      element._computeModel('test', undefined);
       // No error
     });
 
     it('Sets model property', () => {
-      element._computeModel('http://test.com/path?a=b&c=d#hash');
+      element._computeModel('http://test.com/path?a=b&c=d#hash', undefined);
       assert.typeOf(element.model, 'object');
       assert.equal(element.model.host, 'http://test.com');
       assert.equal(element.model.path, '/path');
@@ -221,41 +238,37 @@ describe('<url-detailed-editor>', function() {
 
     it('Calls _computeSearchParams()', () => {
       const spy = sinon.spy(element, '_computeSearchParams');
-      element._computeModel('http://test.com/path?a=b&c=d#hash');
+      element._computeModel('http://test.com/path?a=b&c=d#hash', undefined);
       assert.isTrue(spy.called);
     });
   });
 
-  describe('_getHostValue()', () => {
-    let element;
+  describe('getHostValue()', () => {
     let parser;
-    beforeEach(async function() {
-      element = await basicFixture();
-    });
 
     it('Build host value', () => {
       parser = new UrlParser('http://test.com/path');
-      const result = element._getHostValue(parser);
+      const result = getHostValue(parser);
       assert.equal(result, 'http://test.com');
     });
 
     it('Returns protocol only', () => {
       parser = new UrlParser('http://');
-      const result = element._getHostValue(parser);
+      const result = getHostValue(parser);
       assert.equal(result, 'http://');
     });
   });
 
   describe('_computeSearchParams()', () => {
-    let element;
+    let element = /** @type UrlDetailedEditorElement */ (null);
     let parser;
-    beforeEach(async function() {
+    beforeEach(async () => {
       element = await emptyFixture();
     });
 
     it('Sets "queryParameters"', () => {
       parser = new UrlParser('/?a=b&c=d');
-      element._computeSearchParams(parser);
+      element._computeSearchParams(parser, undefined);
       assert.typeOf(element.queryParameters, 'array');
       assert.lengthOf(element.queryParameters, 2);
     });
@@ -302,62 +315,55 @@ describe('<url-detailed-editor>', function() {
     });
   });
 
-  describe('_findSearchParam()', () => {
-    let element;
-    beforeEach(async function() {
-      element = await emptyFixture();
-    });
-
+  describe('findSearchParam()', () => {
     it('Finds a param by name', () => {
       const params = [['test', 'v']];
-      const result = element._findSearchParam(params, 'test');
+      const result = findSearchParam(params, 'test');
       assert.typeOf(result, 'array');
     });
 
     it('Returns undefined when no item in the array', () => {
       const params = [['test', 'v']];
-      const result = element._findSearchParam(params, 'other');
+      const result = findSearchParam(params, 'other');
       assert.isUndefined(result);
     });
   });
 
   describe('_findModelParam()', () => {
-    let element;
-    beforeEach(async function() {
-      element = await emptyFixture();
-    });
-
     it('Finds item by name', () => {
       const params = [{
         name: 'test',
-        enabled: true
+        enabled: true,
+        value: '',
       }];
-      const result = element._findModelParam(params, 'test');
+      const result = findModelParam(params, 'test');
       assert.typeOf(result, 'object');
     });
 
     it('Ignores disabled items', () => {
       const params = [{
         name: 'test',
-        enabled: false
+        enabled: false,
+        value: '',
       }];
-      const result = element._findModelParam(params, 'test');
+      const result = findModelParam(params, 'test');
       assert.isUndefined(result);
     });
 
     it('Returns undefined when item not found', () => {
       const params = [{
         name: 'test',
-        enabled: true
+        enabled: true,
+        value: '',
       }];
-      const result = element._findModelParam(params, 'other');
+      const result = findModelParam(params, 'other');
       assert.isUndefined(result);
     });
   });
 
   describe('addSearchParam()', () => {
-    let element;
-    beforeEach(async function() {
+    let element = /** @type UrlDetailedEditorElement */ (null);
+    beforeEach(async () => {
       element = await emptyFixture();
     });
 
@@ -389,15 +395,15 @@ describe('<url-detailed-editor>', function() {
 
     it('focuses on last name filed', async () => {
       element.addSearchParam();
-      await aTimeout();
+      await aTimeout(0);
       const node = element.shadowRoot.querySelector('.param-name');
       assert.equal(element.shadowRoot.activeElement, node);
     });
   });
 
   describe('_hostPaste()', () => {
-    let element;
-    beforeEach(async function() {
+    let element = /** @type UrlDetailedEditorElement */ (null);
+    beforeEach(async () => {
       element = await emptyFixture();
     });
 
@@ -409,6 +415,7 @@ describe('<url-detailed-editor>', function() {
           getData: () => {}
         }
       };
+      // @ts-ignore
       element._hostPaste(e);
       assert.isUndefined(element.value);
     });
@@ -421,6 +428,7 @@ describe('<url-detailed-editor>', function() {
           getData: () => 'http://test.com'
         }
       };
+      // @ts-ignore
       element._hostPaste(e);
       assert.equal(element.value, 'http://test.com');
     });
@@ -434,6 +442,7 @@ describe('<url-detailed-editor>', function() {
         }
       };
       const spy = sinon.spy(e, 'preventDefault');
+      // @ts-ignore
       element._hostPaste(e);
       assert.isTrue(spy.called);
     });
@@ -447,18 +456,20 @@ describe('<url-detailed-editor>', function() {
         }
       };
       const spy = sinon.spy(e, 'stopPropagation');
+      // @ts-ignore
       element._hostPaste(e);
       assert.isTrue(spy.called);
     });
   });
 
   describe('_hostKeyDown()', () => {
-    let element;
-    beforeEach(async function() {
+    let element = /** @type UrlDetailedEditorElement */ (null);
+    beforeEach(async () => {
       element = await emptyFixture();
     });
 
     it('Does nothing if code is not "Slash"', () => {
+      // @ts-ignore
       element._hostKeyDown({
         code: 'Enter'
       });
@@ -466,6 +477,7 @@ describe('<url-detailed-editor>', function() {
     });
 
     it('Does nothing if keyCode is not "191"', () => {
+      // @ts-ignore
       element._hostKeyDown({
         keyCode: 24
       });
@@ -474,6 +486,7 @@ describe('<url-detailed-editor>', function() {
 
     it('Does nothing if keyCode is not "191"', () => {
       element.value = 'http://domain.com/path';
+      // @ts-ignore
       element._hostKeyDown({
         keyCode: 191,
         preventDefault: () => {}
@@ -483,8 +496,8 @@ describe('<url-detailed-editor>', function() {
   });
 
   describe('_getValidity()', () => {
-    let element;
-    beforeEach(async function() {
+    let element = /** @type UrlDetailedEditorElement */ (null);
+    beforeEach(async () => {
       element = await emptyFixture();
       element.value = 'http://domain.com/path';
       await nextFrame();
@@ -498,8 +511,8 @@ describe('<url-detailed-editor>', function() {
 
   describe('read only editor', () => {
     const value = 'https://arc.com:1234/path/o ther/?a=b&c=d#123';
-    let element;
-    beforeEach(async function() {
+    let element = /** @type UrlDetailedEditorElement */ (null);
+    beforeEach(async () => {
       element = await readOnlyFixture(value);
     });
 
@@ -517,8 +530,8 @@ describe('<url-detailed-editor>', function() {
 
   describe('Disabling parameters', () => {
     const value = 'https://arc.com/?a=b&c=d&e=f';
-    let element;
-    beforeEach(async function() {
+    let element = /** @type UrlDetailedEditorElement */ (null);
+    beforeEach(async () => {
       element = await valueFixture(value);
     });
 

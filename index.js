@@ -11,6 +11,5 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-import { UrlInputEditorElement } from './src/UrlInputEditorElement.js';
-
-window.customElements.define('url-input-editor', UrlInputEditorElement);
+export { UrlDetailedEditorElement } from './src/UrlDetailedEditorElement.js';
+export { UrlInputEditorElement } from './src/UrlInputEditorElement.js';

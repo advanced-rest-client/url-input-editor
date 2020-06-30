@@ -1,10 +1,10 @@
 import { html } from 'lit-html';
-import { ArcDemoPage } from '@advanced-rest-client/arc-demo-helper/ArcDemoPage.js';
+import { DemoPage } from '@advanced-rest-client/arc-demo-helper';
 import '@advanced-rest-client/arc-demo-helper/arc-interactive-demo.js';
 import '@advanced-rest-client/arc-models/url-history-model.js';
 import '../url-input-editor.js';
 /* eslint-disable max-len */
-class DemoPage extends ArcDemoPage {
+class ComponentPage extends DemoPage {
   constructor() {
     super();
     this.initObservableProperties([
@@ -15,7 +15,7 @@ class DemoPage extends ArcDemoPage {
     this._componentName = 'url-input-editor';
     this.demoStates = ['Filles', 'Outlined', 'Anypoint'];
 
-    this.value = location.href + '?token=eyJhbGRiOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIxMTMXNDgzOTM3NzUyNjE2NTgwMDIiLCJzY29wZXMiOlsiYWxsIl0sImlhdCI6MTU0NzYwOTc4OSwiZXhwIjoxNTQ3Njk2MTg5LCJpc3MiOiJ1cm46YXJjLWNUIn0.iLHFXNtfJx-wDDMGFDN6ooM9IZQoD72ZcswbFV0x0Pk';
+    this.value = `${window.location.href}?token=eyJhbGRiOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIxMTMXNDgzOTM3NzUyNjE2NTgwMDIiLCJzY29wZXMiOlsiYWxsIl0sImlhdCI6MTU0NzYwOTc4OSwiZXhwIjoxNTQ3Njk2MTg5LCJpc3MiOiJ1cm46YXJjLWNUIn0.iLHFXNtfJx-wDDMGFDN6ooM9IZQoD72ZcswbFV0x0Pk`;
 
     this._demoStateHandler = this._demoStateHandler.bind(this);
     this._toggleMainOption = this._toggleMainOption.bind(this);
@@ -35,6 +35,7 @@ class DemoPage extends ArcDemoPage {
 
   _valueHandler(e) {
     this.value = e.detail.value;
+    console.log(this.value);
   }
 
   async _sendHandler(e) {
@@ -48,10 +49,11 @@ class DemoPage extends ArcDemoPage {
     });
     document.body.dispatchEvent(ev);
     try {
+      // @ts-ignore
       const doc = await ev.detail.result;
       console.log(doc);
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -99,6 +101,5 @@ class DemoPage extends ArcDemoPage {
   }
 }
 
-const instance = new DemoPage();
+const instance = new ComponentPage();
 instance.render();
-window._demo = instance;

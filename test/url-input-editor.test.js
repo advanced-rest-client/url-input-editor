@@ -1,34 +1,47 @@
 import { fixture, assert, html, nextFrame } from '@open-wc/testing';
-import * as sinon from 'sinon/pkg/sinon-esm.js';
+import * as sinon from 'sinon';
 import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions.js';
 import { UrlParser } from '@advanced-rest-client/url-parser/url-parser.js';
 import '../url-input-editor.js';
 
-describe('<url-input-editor>', function() {
+/** @typedef {import('../index').UrlInputEditorElement} UrlInputEditorElement */
+/** @typedef {import('@anypoint-web-components/anypoint-input').AnypointInput} AnypointInput */
+/** @typedef {import('@anypoint-web-components/anypoint-button').AnypointButton} AnypointButton */
+
+describe('<url-input-editor>', () => {
+  /**
+   * @return {Promise<UrlInputEditorElement>}
+   */
   async function basicFixture() {
-    return await fixture(html`<url-input-editor></url-input-editor>`);
+    return fixture(html`<url-input-editor></url-input-editor>`);
   }
-
+  /**
+   * @return {Promise<UrlInputEditorElement>}
+   */
   async function readonlyFixture() {
-    return await fixture(html`<url-input-editor readonly></url-input-editor>`);
+    return fixture(html`<url-input-editor readonly></url-input-editor>`);
   }
-
+  /**
+   * @return {Promise<UrlInputEditorElement>}
+   */
   async function detailsFixture() {
-    return await fixture(html`<url-input-editor detailsopened></url-input-editor>`);
+    return fixture(html`<url-input-editor detailsopened></url-input-editor>`);
   }
-
+  /**
+   * @return {Promise<UrlInputEditorElement>}
+   */
   async function valueFixture(value) {
-    return await fixture(html`<url-input-editor .value="${value}"></url-input-editor>`);
+    return fixture(html`<url-input-editor .value="${value}"></url-input-editor>`);
   }
 
   describe('Basic tests', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
 
     it('Adds protocol on input focus', async () => {
-      const input = element.shadowRoot.querySelector('.main-input');
+      const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.main-input'));
       const compare = 'http://';
       input.focus();
       assert.equal(input.value, compare);
@@ -63,14 +76,14 @@ describe('<url-input-editor>', function() {
     });
 
     it('Opens detailed editor', async () => {
-      const button = element.shadowRoot.querySelector('.toggle-button');
+      const button = /** @type AnypointButton */ (element.shadowRoot.querySelector('.toggle-button'));
       button.click();
       assert.isTrue(element.detailsOpened);
     });
   });
 
   describe('Read only mode', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     beforeEach(async () => {
       element = await readonlyFixture();
     });
@@ -78,7 +91,7 @@ describe('<url-input-editor>', function() {
     it('Ignores input focus', async () => {
       element.value = '';
       await nextFrame();
-      const input = element.shadowRoot.querySelector('.main-input');
+      const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.main-input'));
       const compare = 'http://';
       input.focus();
       assert.notEqual(input.value, compare);
@@ -91,7 +104,7 @@ describe('<url-input-editor>', function() {
       assert.isFalse(spy.called);
     });
 
-    it('Does not encode URL', function() {
+    it('Does not encode URL', () => {
       const url = 'http://192.168.2.252/service/board/1/edit?description=We\'ll keep your precious' +
         ' pup fed, watered, walked and socialized during their stay.';
       element.value = url;
@@ -99,7 +112,7 @@ describe('<url-input-editor>', function() {
       assert.equal(element.value, url);
     });
 
-    it('Does not eecode URL', function() {
+    it('Does not eecode URL', () => {
       const url = 'http://192.168.2.252/service/board/1/edit?description=We%27ll+keep+your+' +
     'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
       element.value = url;
@@ -109,7 +122,7 @@ describe('<url-input-editor>', function() {
   });
 
   describe('Validation', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
@@ -117,19 +130,19 @@ describe('<url-input-editor>', function() {
     it('Empty value does not passes validation', async () => {
       element.value = '';
       await nextFrame();
-      const result = element.validate();
+      const result = element.validate('');
       assert.isFalse(result);
     });
 
     it('Passes validation with value', () => {
       element.value = 'test';
-      const result = element.validate();
+      const result = element.validate('test');
       assert.isTrue(result);
     });
   });
 
   describe('_onValueChanged()', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
@@ -173,6 +186,7 @@ describe('<url-input-editor>', function() {
 
     it('Ignores events dispatched by self', async () => {
       const element = await basicFixture();
+      // @ts-ignore
       element._extValueChangedHandler({
         composedPath: () => [element],
         detail: {
@@ -184,6 +198,7 @@ describe('<url-input-editor>', function() {
 
     it('Ignores events when readonly', async () => {
       const element = await readonlyFixture();
+      // @ts-ignore
       element._extValueChangedHandler({
         composedPath: () => [],
         detail: {
@@ -195,6 +210,7 @@ describe('<url-input-editor>', function() {
 
     it('Sets new value', async () => {
       const element = await basicFixture();
+      // @ts-ignore
       element._extValueChangedHandler({
         composedPath: () => [],
         detail: {
@@ -206,6 +222,7 @@ describe('<url-input-editor>', function() {
 
     it('Re-sets _preventValueChangeEvent flag', async () => {
       const element = await basicFixture();
+      // @ts-ignore
       element._extValueChangedHandler({
         composedPath: () => [],
         detail: {
@@ -218,6 +235,7 @@ describe('<url-input-editor>', function() {
     it('Does nothing when value already set', async () => {
       const element = await basicFixture();
       element.value = newValue;
+      // @ts-ignore
       element._extValueChangedHandler({
         composedPath: () => [],
         detail: {
@@ -231,6 +249,7 @@ describe('<url-input-editor>', function() {
       const element = await basicFixture();
       const spy = sinon.spy();
       element.addEventListener('url-value-changed', spy);
+      // @ts-ignore
       element._extValueChangedHandler({
         composedPath: () => [],
         detail: {
@@ -242,7 +261,7 @@ describe('<url-input-editor>', function() {
   });
 
   describe('toggle()', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
@@ -262,11 +281,13 @@ describe('<url-input-editor>', function() {
       element.toggle();
       await nextFrame();
       const collapse = element.shadowRoot.querySelector('#collapse');
+      // @ts-ignore
       assert.isTrue(collapse.opened);
     });
 
     it('iron-collapse is closed by default', () => {
       const collapse = element.shadowRoot.querySelector('#collapse');
+      // @ts-ignore
       assert.isFalse(collapse.opened);
     });
 
@@ -280,7 +301,7 @@ describe('<url-input-editor>', function() {
   });
 
   describe('_dispatchAnalyticsEvent()', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     const label = 'test-label';
     beforeEach(async () => {
       element = await basicFixture();
@@ -333,7 +354,7 @@ describe('<url-input-editor>', function() {
   });
 
   describe('encodeParameters()', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
@@ -361,7 +382,7 @@ describe('<url-input-editor>', function() {
   });
 
   describe('decodeParameters()', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
@@ -389,7 +410,7 @@ describe('<url-input-editor>', function() {
   });
 
   describe('_decodeEncode()', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     const encodedUrl = 'http://192.168.2.252/service/board%201/edit?description=We\'ll+keep+your+' +
     'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
     const decodedUrl = 'http://192.168.2.252/service/board 1/edit?description=We\'ll keep your precious' +
@@ -405,7 +426,7 @@ describe('<url-input-editor>', function() {
       element._decodeEncode('decode');
       assert.isTrue(spy.called);
       assert.equal(spy.args[0][0].constructor.name, 'UrlParser');
-      assert.equal(spy.args[0][1], 'decodeQueryString');
+      assert.equal(spy.args[0][1], 'decode');
     });
 
     it('Sets decoded value', () => {
@@ -420,7 +441,7 @@ describe('<url-input-editor>', function() {
       element._decodeEncode('encode');
       assert.isTrue(spy.called);
       assert.equal(spy.args[0][0].constructor.name, 'UrlParser');
-      assert.equal(spy.args[0][1], 'encodeQueryString');
+      assert.equal(spy.args[0][1], 'encode');
     });
 
     it('Sets decoded value', () => {
@@ -438,10 +459,10 @@ describe('<url-input-editor>', function() {
   });
 
   describe('_processUrlParams() - decoding', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     const encodedUrl = 'http://192.168.2.252/service/board%201/edit?desc+ription=We\'ll+keep+your+' +
     'precious+pup+fed%2C+watered%2C+walked+and+socialized+during+their+stay.';
-    const fnName = 'decodeQueryString';
+    const fnName = 'decode';
     let parser;
 
     beforeEach(async () => {
@@ -470,10 +491,10 @@ describe('<url-input-editor>', function() {
   });
 
   describe('_processUrlParams() - decoding', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     const encodedUrl = 'http://192.168.2.252/service/board 1/edit?desc ription=We\'ll keep your ' +
     'precious pup fed, watered, walked and socialized during their stay.';
-    const fnName = 'encodeQueryString';
+    const fnName = 'encode';
     let parser;
 
     beforeEach(async () => {
@@ -503,7 +524,7 @@ describe('<url-input-editor>', function() {
   });
 
   describe('_dispatchUrlQuery()', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     const query = 'http://';
 
     beforeEach(async () => {
@@ -546,7 +567,7 @@ describe('<url-input-editor>', function() {
   });
 
   describe('_autocompleteQuery()', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
@@ -559,6 +580,7 @@ describe('<url-input-editor>', function() {
         detail: {}
       };
       const spy = sinon.spy(e, 'preventDefault');
+      // @ts-ignore
       element._autocompleteQuery(e);
       assert.isTrue(spy.called);
     });
@@ -571,6 +593,7 @@ describe('<url-input-editor>', function() {
         detail: {}
       };
       const spy = sinon.spy(e, 'stopPropagation');
+      // @ts-ignore
       element._autocompleteQuery(e);
       assert.isTrue(spy.called);
     });
@@ -586,6 +609,7 @@ describe('<url-input-editor>', function() {
           value: 'test'
         }
       };
+      // @ts-ignore
       element._autocompleteQuery(e);
       assert.isTrue(spy.called);
     });
@@ -594,6 +618,7 @@ describe('<url-input-editor>', function() {
       element.addEventListener('url-history-query', function f(e) {
         element.removeEventListener('url-history-query', f);
         e.preventDefault();
+        // @ts-ignore
         e.detail.result = Promise.resolve([{
           url: 'http://test'
         }]);
@@ -606,6 +631,7 @@ describe('<url-input-editor>', function() {
           value: 'test'
         }
       };
+      // @ts-ignore
       return element._autocompleteQuery(e)
       .then(() => {
         assert.typeOf(e.target.source, 'array');
@@ -618,6 +644,7 @@ describe('<url-input-editor>', function() {
       element.addEventListener('url-history-query', function f(e) {
         element.removeEventListener('url-history-query', f);
         e.preventDefault();
+        // @ts-ignore
         e.detail.result = Promise.reject(new Error('test'));
       });
       const e = {
@@ -628,6 +655,7 @@ describe('<url-input-editor>', function() {
           value: 'test'
         }
       };
+      // @ts-ignore
       return element._autocompleteQuery(e)
       .then(() => {
         assert.typeOf(e.target.source, 'array');
@@ -637,23 +665,25 @@ describe('<url-input-editor>', function() {
   });
 
   describe('_mainFocus()', () => {
-    let element;
-    let input;
+    let element = /** @type UrlInputEditorElement */ (null);
+    let input = /** @type AnypointInput */ (null);
     beforeEach(async () => {
       element = await basicFixture();
-      input = element.shadowRoot.querySelector('.main-input');
+      input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.main-input'));
     });
 
     it('Sets default protocol when no value', () => {
       element.value = '';
+      // @ts-ignore
       element._mainFocus({
         target: input
       });
-      assert.equal(element.value, element.defaultProtocol + '://');
+      assert.equal(element.value, `${element.defaultProtocol}://`);
     });
 
     it('Does nothing when input has value', () => {
       element.value = 'test';
+      // @ts-ignore
       element._mainFocus({
         target: input
       });
@@ -663,6 +693,7 @@ describe('<url-input-editor>', function() {
     it('Does nothing when readonly mode', () => {
       element.readOnly = true;
       element.value = '';
+      // @ts-ignore
       element._mainFocus({
         target: input
       });
@@ -671,7 +702,7 @@ describe('<url-input-editor>', function() {
   });
 
   describe('_keyDownHandler()', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
@@ -682,6 +713,7 @@ describe('<url-input-editor>', function() {
       };
       const spy = sinon.spy();
       element.addEventListener('send-request', spy);
+      // @ts-ignore
       element._keyDownHandler(e);
       assert.isFalse(spy.called);
     });
@@ -692,6 +724,7 @@ describe('<url-input-editor>', function() {
       };
       const spy = sinon.spy();
       element.addEventListener('send-request', spy);
+      // @ts-ignore
       element._keyDownHandler(e);
       assert.isFalse(spy.called);
     });
@@ -702,6 +735,7 @@ describe('<url-input-editor>', function() {
         code: 'Enter'
       };
       const spy = sinon.spy(element, '_onEnter');
+      // @ts-ignore
       element._keyDownHandler(e);
       assert.isTrue(spy.called);
     });
@@ -712,6 +746,7 @@ describe('<url-input-editor>', function() {
         code: 'NumpadEnter'
       };
       const spy = sinon.spy(element, '_onEnter');
+      // @ts-ignore
       element._keyDownHandler(e);
       assert.isTrue(spy.called);
     });
@@ -722,6 +757,7 @@ describe('<url-input-editor>', function() {
         keyCode: 13
       };
       const spy = sinon.spy(element, '_onEnter');
+      // @ts-ignore
       element._keyDownHandler(e);
       assert.isTrue(spy.called);
     });
@@ -732,6 +768,7 @@ describe('<url-input-editor>', function() {
         keyCode: 23
       };
       const spy = sinon.spy(element, '_onEnter');
+      // @ts-ignore
       element._keyDownHandler(e);
       assert.isFalse(spy.called);
     });
@@ -742,13 +779,14 @@ describe('<url-input-editor>', function() {
         code: 'KeyS'
       };
       const spy = sinon.spy(element, '_onEnter');
+      // @ts-ignore
       element._keyDownHandler(e);
       assert.isFalse(spy.called);
     });
   });
 
   describe('_onEnter()', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
@@ -775,58 +813,15 @@ describe('<url-input-editor>', function() {
     });
   });
 
-  describe('encodeQueryString()', () => {
-    let element;
-    beforeEach(async () => {
-      element = await basicFixture();
-    });
-
-    it('Returns empty string when argument is empty', () => {
-      const result = element.encodeQueryString('', true);
-      assert.equal(result, '');
-    });
-
-    it('Returns empty string when argument is empty', () => {
-      const result = element.encodeQueryString('', true);
-      assert.equal(result, '');
-    });
-
-    it('URL encodes string', () => {
-      const result = element.encodeQueryString(';This / is? &test:= + $ , #', true);
-      assert.equal(result, '%3BThis+%2F+is%3F+%26test%3A%3D+%2B+%24+%2C+%23');
-    });
-  });
-
-  describe('decodeQueryString()', () => {
-    let element;
-    beforeEach(async () => {
-      element = await basicFixture();
-    });
-
-    it('Returns empty string when argument is empty', () => {
-      const result = element.decodeQueryString('', true);
-      assert.equal(result, '');
-    });
-
-    it('Returns empty string when argument is empty', () => {
-      const result = element.decodeQueryString('', true);
-      assert.equal(result, '');
-    });
-
-    it('URL encodes string', () => {
-      const result = element.decodeQueryString('%3BThis+%2F+is%3F+%26test%3A%3D+%2B+%24+%2C+%23', true);
-      assert.equal(result, ';This / is? &test:= + $ , #');
-    });
-  });
-
   describe('_colapseTransitioning()', () => {
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
 
     it('Adds class name to collapse when value and opened', () => {
       element.detailsOpened = true;
+      // @ts-ignore
       element._colapseTransitioning({
         detail: {
           value: true
@@ -839,6 +834,7 @@ describe('<url-input-editor>', function() {
     it('Removes class name to collapse when value and not opened', () => {
       const node = element.shadowRoot.querySelector('#collapse');
       node.classList.add('sized');
+      // @ts-ignore
       element._colapseTransitioning({
         detail: {
           value: true
@@ -859,7 +855,7 @@ describe('<url-input-editor>', function() {
 
     it('Calls validate on main input', async () => {
       const element = await basicFixture();
-      const node = element.shadowRoot.querySelector('.main-input');
+      const node = /** @type AnypointInput */ (element.shadowRoot.querySelector('.main-input'));
       const spy = sinon.spy(node, 'validate');
       element._getValidity();
       assert.isTrue(spy.called);
@@ -881,9 +877,9 @@ describe('<url-input-editor>', function() {
     });
   });
 
-  describe('events tests', function() {
+  describe('events tests', () => {
     const value = 'http://ux.mulesoft.com/path?param=value';
-    let element;
+    let element = /** @type UrlInputEditorElement */ (null);
     beforeEach(async () => {
       element = await valueFixture(value);
     });
@@ -891,7 +887,7 @@ describe('<url-input-editor>', function() {
     it('Dispatches "send-request" custom event on main field', () => {
       const spy = sinon.stub();
       element.addEventListener('send-request', spy);
-      const input = element.shadowRoot.querySelector('.main-input');
+      const input = /** @type AnypointInput */ (element.shadowRoot.querySelector('.main-input'));
       MockInteractions.pressEnter(input.inputElement);
       assert.isTrue(spy.calledOnce, 'Fired send-request event');
     });
@@ -901,20 +897,21 @@ describe('<url-input-editor>', function() {
       element.addEventListener('url-value-changed', spy);
       element.detailsOpened = true;
       const details = element.shadowRoot.querySelector('url-detailed-editor');
-      const input = details.shadowRoot.querySelector('#host');
+      const input = /** @type AnypointInput */ (details.shadowRoot.querySelector('#host'));
       input.value = 'https://test-com/';
       assert.isTrue(spy.calledOnce, 'Fired url-value-changed event');
     });
 
-    it('"url-value-changed" contains all properties', function(done) {
+    it('"url-value-changed" contains all properties', (done) => {
       element.addEventListener('url-value-changed', function clb(e) {
         element.removeEventListener('url-value-changed', clb);
+        // @ts-ignore
         assert.equal(e.detail.value, 'https://test-com/path?param=value');
         done();
       });
       element.detailsOpened = true;
       const details = element.shadowRoot.querySelector('url-detailed-editor');
-      const input = details.shadowRoot.querySelector('#host');
+      const input = /** @type AnypointInput */ (details.shadowRoot.querySelector('#host'));
       input.value = 'https://test-com';
     });
   });
