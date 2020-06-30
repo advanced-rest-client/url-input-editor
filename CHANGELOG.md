@@ -409,3 +409,40 @@
  [e2ab68f](https://github.com/advanced-rest-client/url-input-editor/commit/e2ab68ff43059dcae74b59c52dea74e84613b499) by Pawel Psztyc
 
 
+<a name="3.2.0"></a>
+## [3.2.0](https://github.com/advanced-rest-client/url-input-editor/compare/3.1.0...3.2.0) (2020-06-30)
+
+### Build
+
+* bumping version [dfc69f6](https://github.com/advanced-rest-client/url-input-editor/commit/dfc69f64aeac5d9668a0fc15aebba44f9da619e0) by Pawel
+
+
+### Continuous integration
+
+* updating Travis configuration [11e1d60](https://github.com/advanced-rest-client/url-input-editor/commit/11e1d60d7badd5d3328201bf595f04ba5e100361) by Pawel
+
+
+### Update
+
+* [ci skip] automated merge master->stage. syncing main branches [0b2e55f](https://github.com/advanced-rest-client/url-input-editor/commit/0b2e55ff675f60456e7a892242246bc98924f4fa) by Ci agent
+* adding color-contrast a11y rule to the list of ignored rules [8d03e71](https://github.com/advanced-rest-client/url-input-editor/commit/8d03e711c1f2069d21833874e9e82ad9d821b676) by Pawel
+* removing compatibility tests [817d0a6](https://github.com/advanced-rest-client/url-input-editor/commit/817d0a64878434cb8a8aad52f1d13bab1826ad56) by Pawel
+* removing git add from lint-staged config [af0e260](https://github.com/advanced-rest-client/url-input-editor/commit/af0e2609ed28b009b4fe4eb2e2905db68b3d9777) by Pawel
+* upgrading dependencies [cb2cf92](https://github.com/advanced-rest-client/url-input-editor/commit/cb2cf92ba834edace0e22ea3176e6bce40042ab4) by Pawel
+
+
+### Bug Fixes
+
+* fixes #2 - focus related issues [00ed539](https://github.com/advanced-rest-client/url-input-editor/commit/00ed539419080c100bc4984e62ea2be39a1809b1) by Pawel
+
+
+### Refactor
+
+* renaming elements, updating types [a83f45f](https://github.com/advanced-rest-client/url-input-editor/commit/a83f45fcfca0ed82cfd0f89f89b661d668e7a1f9) by Pawel
+
+
+### Testing
+
+* updating SauceLabs configuration [9ee2c5b](https://github.com/advanced-rest-client/url-input-editor/commit/9ee2c5b24049128fec4943c598dd50485d632f93) by Pawel
+
+
