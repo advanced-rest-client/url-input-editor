@@ -17,7 +17,6 @@ import { UrlParser } from '@advanced-rest-client/url-parser';
 import '@anypoint-web-components/anypoint-button/anypoint-icon-button.js';
 import '@anypoint-web-components/anypoint-button/anypoint-button.js';
 import '@anypoint-web-components/anypoint-input/anypoint-input.js';
-import '@anypoint-web-components/anypoint-autocomplete/anypoint-autocomplete.js';
 import '@anypoint-web-components/anypoint-switch/anypoint-switch.js';
 import '@polymer/iron-form/iron-form.js';
 import { close } from '@advanced-rest-client/arc-icons/ArcIcons.js';
