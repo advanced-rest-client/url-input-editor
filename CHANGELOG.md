@@ -446,3 +446,18 @@
 * updating SauceLabs configuration [9ee2c5b](https://github.com/advanced-rest-client/url-input-editor/commit/9ee2c5b24049128fec4943c598dd50485d632f93) by Pawel
 
 
+<a name="3.2.1"></a>
+## [3.2.1](https://github.com/advanced-rest-client/url-input-editor/compare/3.1.1...3.2.1) (2020-07-14)
+
+### Update
+
+* upgrading autocomplete component [f8f26ea](https://github.com/advanced-rest-client/url-input-editor/commit/f8f26ea31a56ce22a7d35868a85b4870ea9e2fda) by Pawel
+* [ci skip] automated merge master->stage. syncing main branches [7322139](https://github.com/advanced-rest-client/url-input-editor/commit/73221399bca49e5da880fce1d274257a7035e92c) by Ci agent
+* [ci skip] automated merge master->stage. syncing main branches [0b2e55f](https://github.com/advanced-rest-client/url-input-editor/commit/0b2e55ff675f60456e7a892242246bc98924f4fa) by Ci agent
+
+
+### Refactor
+
+* renaming elements, updating types [a83f45f](https://github.com/advanced-rest-client/url-input-editor/commit/a83f45fcfca0ed82cfd0f89f89b661d668e7a1f9) by Pawel
+
+
